@@ -35,23 +35,6 @@ functions {
     }
     return p;
   }
-
-  // p1 gamete frequencies from parent 1.
-  // p2 gamete frequencies from parent 2.
-  // K ploidy
-  // khalf K / 2 + 1 so stan does not complain about integer division
-  vector convolve(vector p1, vector p2, int K, int khalf) {
-    vector[K+1] q;
-    for (k in 1:(K+1)) {
-      int iup = min(k - 1, khalf - 1);
-      int ilo = max(0, k - khalf);
-      q[k] = 0.0;
-      for (i in ilo:iup) {
-        q[k] += p1[i + 1] * p2[k - i];
-      }
-    }
-    return q;
-  }
 }
 
 data {
@@ -78,7 +61,7 @@ transformed parameters {
       vector[3] p2;
       vector[5] q;
       p2 = segfreq4(alpha, xi, j - 1);
-      q = convolve(p1, p2, 4, 3);
+      q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
       q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
       glmat[i, j] = p1_gl[i] + p2_gl[j];
       for (ind in 1:N) {

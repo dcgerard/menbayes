@@ -39,14 +39,14 @@ Here, parental genotypes are known.
 x <- c(3L, 21L, 52L, 20L, 4L) ## simulated via null
 g1 <- 2
 g2 <- 2
-mnull <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2)
+mnull <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2) # -9.4
 malt <- -15.34 ## output of marg_alt_g(x = x)
 mnull - malt ## log-BF
 
 x <- c(25L, 24L, 20L, 15L, 16L) ## simulated via alt
 g1 <- 2
 g2 <- 2
-mnull <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2)
+mnull <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2) # -32.8
 malt <- -15.34 ## output of marg_alt_g(x = x)
 mnull - malt ## log-BF
 

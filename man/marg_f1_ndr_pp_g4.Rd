@@ -39,14 +39,14 @@ Marginal likelihood, no double reduction, preferential pairing, genotypes known.
 x <- c(3L, 21L, 52L, 20L, 4L) ## simulated via null
 g1 <- 2
 g2 <- 2
-mnull <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2)
+mnull <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2) # -9.3
 malt <- -15.34 ## output of marg_alt_g(x = x)
 mnull - malt ## log-BF
 
 x <- c(25L, 24L, 20L, 15L, 16L) ## simulated via alt
 g1 <- 2
 g2 <- 2
-mnull <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2)
+mnull <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2) # -40.8
 malt <- -15.34 ## output of marg_alt_g(x = x)
 mnull - malt ## log-BF
 
