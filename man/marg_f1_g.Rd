@@ -27,10 +27,12 @@ Marginal likelihood for F1 populations of any ploidy.
 x <- c(4, 8, 12, 16, 12, 8, 4) ## generated under null
 mnull <- marg_f1_g(x = x)
 malt <- marg_alt_g(x = x)
+mnull - malt
 
 x <- rep(9, 7) ## generated under alt
 mnull <- marg_f1_g(x = x)
 malt <- marg_alt_g(x = x)
+mnull - malt
 
 }
 \author{

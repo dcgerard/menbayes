@@ -1,45 +1,123 @@
-#' Genotype frequencies of gametes when one parent's genotype is known
+#' Tetraploid genotype frequencies of gametes when one parent's genotype is known
 #'
-#' @param a The double reduction rate
-#' @param x The preferential pairing parameter
-#' @param p The
+#' @param alpha The double reduction rate
+#' @param xi The preferential pairing parameter
+#' @param ell The parental genotype
 #'
-#' @return The gamete genotype frequency
+#' @return The gamete genotype frequencies
 #'
-#' @author Mira Thakkar
+#' @author Mira Thakkar and David Gerard
 #'
 #' @examples
-#' a <- 1/6
-#' x <- 1/3
-#' p <- 2
-#' pvec(a = a, x = x, p = p)
+#' alpha <- 1/6
+#' xi <- 1/3
+#' pvec_tet(alpha = alpha, xi = xi, ell = 0)
+#' pvec_tet(alpha = alpha, xi = xi, ell = 1)
+#' pvec_tet(alpha = alpha, xi = xi, ell = 2)
+#' pvec_tet(alpha = alpha, xi = xi, ell = 3)
+#' pvec_tet(alpha = alpha, xi = xi, ell = 4)
 #'
 #' @export
-pvec <- function(a, x, p){
-  if (p > 4 | p < 0 | is.na(p)){
+pvec_tet <- function(alpha, xi, ell) {
+  if (ell > 4 | ell < 0 | is.na(ell)){
     stop("Invalid input")
-  } else if(p == 0){
-    prob_Y0 = 1
-    prob_Y1 = 0
-    prob_Y2 = 0
-  } else if(p == 1){
-    prob_Y0 = 0.5 + (0.25 * a)
-    prob_Y1 = 0.5 - (0.5 * a)
-    prob_Y2 = a / 4.0
-  } else if(p == 2){
-    prob_Y0 = (0.5 * a) + (0.25 * (1 - a) * (1 - x))
-    prob_Y1 = 0.5 * (1 - a) * (1 + x)
-    prob_Y2 = (0.5 * a) + (0.25 * (1 - a) * (1 - x))
-  } else if(p == 3){
-    prob_Y0 = a / 4.0
-    prob_Y1 = 0.5 - (0.5 * a)
-    prob_Y2 = 0.5 + (0.25 * a)
-  } else if(p == 4){
-    prob_Y0 = 0
-    prob_Y1 = 0
-    prob_Y2 = 1
+  } else if(ell == 0){
+    pv <- c(
+      1,
+      0,
+      0
+    )
+  } else if(ell == 1){
+    pv <- c(
+      0.5 + 0.25 * alpha,
+      0.5 - 0.5 * alpha,
+      0.25 * alpha
+    )
+  } else if(ell == 2){
+    pv <- c(
+      0.5 * alpha + 0.25 * (1 - alpha) * (1 - xi),
+      0.5 * (1 - alpha) * (1 + xi),
+      0.5 * alpha + 0.25 * (1 - alpha) * (1 - xi)
+    )
+  } else if(ell == 3){
+    pv <- c(
+      0.25 * alpha,
+      0.5 - 0.5 * alpha,
+      0.5 + 0.25 * alpha
+    )
+  } else if(ell == 4){
+    pv <- c(
+      0,
+      0,
+      1
+    )
   }
-  pv <- c(prob_Y0, prob_Y1, prob_Y2)
+  return(pv)
+}
+
+
+#' Hexaploid genotype frequencies of gametes when one parent's genotype is known
+#'
+#' @inheritParams pvec_tet
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' alpha <- 3/10
+#' xi <- 0.5
+#' pvec_hex(alpha = alpha, xi = xi, ell = 0)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 1)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 2)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 3)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 4)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 5)
+#' pvec_hex(alpha = alpha, xi = xi, ell = 6)
+#'
+#'
+#' @export
+pvec_hex <- function(alpha, xi, ell) {
+  if (ell > 6 | ell < 0 | is.na(ell)){
+    stop("Invalid input")
+  } else if (ell == 0) {
+    pv <- c(1, 0, 0, 0)
+  } else if (ell == 1) {
+    pv <- c(
+      2 * alpha / 3 + (1 - alpha) / 2,
+      alpha / 6 + (1 - alpha) / 2,
+      alpha / 6,
+      0
+    )
+  } else if (ell == 2) {
+    pv <- c(
+      2 * alpha / 5 + (1 - xi) * (1 - alpha) / 4,
+      4 * alpha / 15 + (xi + (1 - xi) / 2) * (1 - alpha),
+      4 * alpha / 15 + (1 - xi) * (1 - alpha) / 4,
+      alpha / 15
+    )
+  } else if (ell == 3) {
+    pv <- c(
+      alpha / 5 + (1 - xi) * (1 - alpha) / 8,
+      3 * alpha / 10 + (xi / 2 + 3 * (1 - xi) / 8) * (1 - alpha),
+      3 * alpha / 10 + (xi / 2 + 3 * (1 - xi) / 8) * (1 - alpha),
+      alpha / 5 + (1 - xi) * (1 - alpha) / 8
+    )
+  } else if (ell == 4) {
+    pv <- c(
+      alpha / 15,
+      4 * alpha / 15 + (1 - xi) * (1 - alpha) / 4,
+      4 * alpha / 15 + (xi + (1 - xi) / 2) * (1 - alpha),
+      2 * alpha / 5 + (1 - xi) * (1 - alpha) / 4
+    )
+  } else if (ell == 5) {
+    pv <- c(
+      0,
+      alpha / 6,
+      alpha / 6 + (1 - alpha) / 2,
+      2 * alpha / 3 + (1 - alpha) / 2
+    )
+  } else if (ell == 6) {
+    pv <- c(0, 0, 0, 1)
+  }
   return(pv)
 }
 
@@ -65,8 +143,8 @@ pvec <- function(a, x, p){
 #' @export
 offspring_gf <- function(alpha, xi, p1, p2){
 
-  pvec1 <- pvec(a = alpha, x = xi, p = p1)
-  pvec2 <- pvec(a = alpha, x = xi, p = p2)
+  pvec1 <- pvec_tet(alpha = alpha, xi = xi, p = p1)
+  pvec2 <- pvec_tet(alpha = alpha, xi = xi, p = p2)
 
   qvec <- stats::convolve(pvec1, rev(pvec2), type = "open")
 
@@ -94,9 +172,7 @@ offspring_gf <- function(alpha, xi, p1, p2){
 #'
 #' @export
 offspring_geno <- function(x, n){
-
   sim_gen <- c(stats::rmultinom(n = 1, size = n, prob = x))
-
   return(sim_gen)
 }
 
