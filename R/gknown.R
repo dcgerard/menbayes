@@ -307,6 +307,9 @@ marg_f1_dr_pp_g4 <- function(x,
 
 #' Chi Square test when genotypes are known
 #'
+#' This chi-squared test is run under the assumption of no double reduction
+#' and no preferential pairing.
+#'
 #' @param y Vector of observed genotype counts
 #' @param l1 Parent 1's genotype
 #' @param l2 Parent 2's genotype
@@ -319,15 +322,15 @@ marg_f1_dr_pp_g4 <- function(x,
 #' y <- c(1, 2, 4, 3, 0)
 #' l1 <- 2
 #' l2 <- 2
-#' chisq_g4(y, l1, l2)
+#' chisq_ndr_npp_g4(y, l1, l2)
 #'
 #' y <- c(10, 25, 10, 0, 0)
 #' l1 <- 1
 #' l2 <- 1
-#' chisq_g4(y, l1, l2)
+#' chisq_ndr_npp_g4(y, l1, l2)
 #'
 #' @export
-chisq_g4 <- function(y, l1, l2){
+chisq_ndr_npp_g4 <- function(y, l1, l2){
   TOL <- sqrt(.Machine$double.eps)
   gf <- menbayes::offspring_gf(alpha = 0, xi = 1/3, p1 = l1, p2 = l2)
   which_zero <- gf < TOL

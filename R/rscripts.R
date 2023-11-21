@@ -58,6 +58,8 @@ pvec_tet <- function(alpha, xi, ell) {
 
 #' Hexaploid genotype frequencies of gametes when one parent's genotype is known
 #'
+#' This is experimental and should not be used right now.
+#'
 #' @inheritParams pvec_tet
 #'
 #' @author David Gerard
@@ -74,7 +76,7 @@ pvec_tet <- function(alpha, xi, ell) {
 #' pvec_hex(alpha = alpha, xi = xi, ell = 6)
 #'
 #'
-#' @export
+#' @noRd
 pvec_hex <- function(alpha, xi, ell) {
   if (ell > 6 | ell < 0 | is.na(ell)){
     stop("Invalid input")
@@ -143,8 +145,8 @@ pvec_hex <- function(alpha, xi, ell) {
 #' @export
 offspring_gf <- function(alpha, xi, p1, p2){
 
-  pvec1 <- pvec_tet(alpha = alpha, xi = xi, p = p1)
-  pvec2 <- pvec_tet(alpha = alpha, xi = xi, p = p2)
+  pvec1 <- pvec_tet(alpha = alpha, xi = xi, ell = p1)
+  pvec2 <- pvec_tet(alpha = alpha, xi = xi, ell = p2)
 
   qvec <- stats::convolve(pvec1, rev(pvec2), type = "open")
 
@@ -169,6 +171,7 @@ offspring_gf <- function(alpha, xi, p1, p2){
 #'
 #' @examples
 #' x <- offspring_gf(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
+#' offspring_geno(x = x, n = 10)
 #'
 #' @export
 offspring_geno <- function(x, n){
