@@ -46,10 +46,12 @@ data {
 }
 
 parameters {
-  real<lower=0,upper=drbound> alpha; // double reduction rate
+  real<lower=0.0,upper=1.0> tau; // probability of quadrivalent pairing
+  real<lower=0.0,upper=drbound> beta; // probability of double reduction given quadrivalent pairing
 }
 
 transformed parameters {
+  real<lower=0.0,upper=drbound> alpha = tau * beta;
   matrix[5, 5] glmat;
   for (i in 1:5) {
     vector[3] p1;
@@ -70,6 +72,7 @@ transformed parameters {
 }
 
 model {
-  target += uniform_lpdf(alpha | 0.0, drbound);
+  target += uniform_lpdf(tau | 0.0, 1);
+  target += uniform_lpdf(beta | 0.0, drbound);
   target += log_sum_exp(glmat);
 }

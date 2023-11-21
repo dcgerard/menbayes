@@ -46,7 +46,12 @@ data {
 }
 
 parameters {
-  real<lower=0,upper=drbound> alpha; // double reduction rate
+  real<lower=0.0,upper=1.0> tau; // probability of quadrivalent pairing
+  real<lower=0.0,upper=drbound> beta; // probability of double reduction given quadrivalent pairing
+}
+
+transformed parameters {
+  real<lower=0.0,upper=drbound> alpha = tau * beta;
 }
 
 model {
@@ -58,7 +63,8 @@ model {
   p2 = segfreq4(alpha, g2);
   q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
   q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
-  target += uniform_lpdf(alpha | 0.0, drbound);
+  target += uniform_lpdf(tau | 0.0, 1);
+  target += uniform_lpdf(beta | 0.0, drbound);
   for (ind in 1:N) {
     target += log_sum_exp(to_vector(gl[ind]) + log(q));
   }

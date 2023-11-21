@@ -47,8 +47,15 @@ data {
 }
 
 parameters {
-  real<lower=0,upper=drbound> alpha; // double reduction rate
-  real<lower=0,upper=1> xi; // preferential pairing rate
+  real<lower=0.0,upper=drbound> beta; // double reduction given quad
+  real<lower=0.0,upper=1.0> tau; // prob quad
+  real<lower=0.0,upper=1.0> gamma; // prob AA_aa
+}
+
+transformed parameters {
+  real<lower=0.0,upper=drbound> alpha = beta * tau; // double reduction rate
+  real<lower=0.0,upper=1.0> eta = (1.0 - beta) * tau / ((1.0 - beta) * tau + (1.0 - tau)); // prob quad given no dr
+  real<lower=0.0,upper=1.0> xi = eta / 3.0 + (1.0 - eta) * gamma; // preferential pairing rate
 }
 
 model {
@@ -60,8 +67,9 @@ model {
   p2 = segfreq4(alpha, xi, g2);
   q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
   q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
-  target += uniform_lpdf(alpha | 0.0, drbound);
-  target += beta_lpdf(xi | 1.0, 2.0);
+  target += uniform_lpdf(beta | 0.0, drbound);
+  target += uniform_lpdf(tau | 0.0, 1.0);
+  target += beta_lpdf(gamma | 1.0, 2.0);
   for (ind in 1:N) {
     target += log_sum_exp(to_vector(gl[ind]) + log(q));
   }
