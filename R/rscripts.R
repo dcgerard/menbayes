@@ -1,4 +1,6 @@
-#' Tetraploid genotype frequencies of gametes when one parent's genotype is known
+#' Tetraploid gamete frequencies of gametes when one parent's genotype is known
+#'
+#' This is under the two parameter model.
 #'
 #' @param alpha The double reduction rate
 #' @param xi The preferential pairing parameter
@@ -11,14 +13,14 @@
 #' @examples
 #' alpha <- 1/6
 #' xi <- 1/3
-#' pvec_tet(alpha = alpha, xi = xi, ell = 0)
-#' pvec_tet(alpha = alpha, xi = xi, ell = 1)
-#' pvec_tet(alpha = alpha, xi = xi, ell = 2)
-#' pvec_tet(alpha = alpha, xi = xi, ell = 3)
-#' pvec_tet(alpha = alpha, xi = xi, ell = 4)
+#' pvec_tet_2(alpha = alpha, xi = xi, ell = 0)
+#' pvec_tet_2(alpha = alpha, xi = xi, ell = 1)
+#' pvec_tet_2(alpha = alpha, xi = xi, ell = 2)
+#' pvec_tet_2(alpha = alpha, xi = xi, ell = 3)
+#' pvec_tet_2(alpha = alpha, xi = xi, ell = 4)
 #'
 #' @export
-pvec_tet <- function(alpha, xi, ell) {
+pvec_tet_2 <- function(alpha, xi, ell) {
   if (ell > 4 | ell < 0 | is.na(ell)){
     stop("Invalid input")
   } else if(ell == 0){
@@ -55,79 +57,33 @@ pvec_tet <- function(alpha, xi, ell) {
   return(pv)
 }
 
-
-#' Hexaploid genotype frequencies of gametes when one parent's genotype is known
+#' Tetraploid gamete frequencies of gametes when one parent's genotype is known
 #'
-#' This is experimental and should not be used right now.
+#' This is under the three parameter model.
 #'
-#' @inheritParams pvec_tet
+#' @param tau Probability of quadrivalent formation
+#' @param beta Probability of double reduction given quadrivalent formation
+#' @param gamma Probability of AA/aa pairing given bivalent formation
+#' @param ell The parent genotype
+#'
+#' @return The gamete genotype frequencies
 #'
 #' @author David Gerard
 #'
 #' @examples
-#' alpha <- 3/10
-#' xi <- 0.5
-#' pvec_hex(alpha = alpha, xi = xi, ell = 0)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 1)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 2)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 3)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 4)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 5)
-#' pvec_hex(alpha = alpha, xi = xi, ell = 6)
+#' pvec_tet_3(tau = 0.5, beta = 0.1, gamma = 0.5, ell = 2)
 #'
-#'
-#' @noRd
-pvec_hex <- function(alpha, xi, ell) {
-  if (ell > 6 | ell < 0 | is.na(ell)){
-    stop("Invalid input")
-  } else if (ell == 0) {
-    pv <- c(1, 0, 0, 0)
-  } else if (ell == 1) {
-    pv <- c(
-      2 * alpha / 3 + (1 - alpha) / 2,
-      alpha / 6 + (1 - alpha) / 2,
-      alpha / 6,
-      0
-    )
-  } else if (ell == 2) {
-    pv <- c(
-      2 * alpha / 5 + (1 - xi) * (1 - alpha) / 4,
-      4 * alpha / 15 + (xi + (1 - xi) / 2) * (1 - alpha),
-      4 * alpha / 15 + (1 - xi) * (1 - alpha) / 4,
-      alpha / 15
-    )
-  } else if (ell == 3) {
-    pv <- c(
-      alpha / 5 + (1 - xi) * (1 - alpha) / 8,
-      3 * alpha / 10 + (xi / 2 + 3 * (1 - xi) / 8) * (1 - alpha),
-      3 * alpha / 10 + (xi / 2 + 3 * (1 - xi) / 8) * (1 - alpha),
-      alpha / 5 + (1 - xi) * (1 - alpha) / 8
-    )
-  } else if (ell == 4) {
-    pv <- c(
-      alpha / 15,
-      4 * alpha / 15 + (1 - xi) * (1 - alpha) / 4,
-      4 * alpha / 15 + (xi + (1 - xi) / 2) * (1 - alpha),
-      2 * alpha / 5 + (1 - xi) * (1 - alpha) / 4
-    )
-  } else if (ell == 5) {
-    pv <- c(
-      0,
-      alpha / 6,
-      alpha / 6 + (1 - alpha) / 2,
-      2 * alpha / 3 + (1 - alpha) / 2
-    )
-  } else if (ell == 6) {
-    pv <- c(0, 0, 0, 1)
-  }
-  return(pv)
+#' @export
+pvec_tet_3 <- function(tau, beta, gamma, ell) {
+  parvec <- three_to_two(tau = tau, beta = beta, gamma = gamma)
+  gf <- pvec_tet_2(alpha = parvec[["alpha"]], xi = parvec[["xi"]], ell = ell)
+  return(gf)
 }
 
-#' Function that takes as input the double reduction rate, the preferential
-#' pairing rate, and parent genotypes to return zygote genotype frequencies.
+
+#' Calculates zygote frequencies under the two-parameter model.
 #'
-#' @param alpha The double reduction rate
-#' @param xi The preferential pairing parameter
+#' @inheritParams pvec_tet_2
 #' @param p1 The first parent's genotype
 #' @param p2 The second parent's genotype
 #'
@@ -140,13 +96,13 @@ pvec_hex <- function(alpha, xi, ell) {
 #' xi <- 1/3
 #' p1 <- 2
 #' p2 <- 3
-#' offspring_gf(alpha = alpha, xi = xi, p1 = p1, p2 = p2)
+#' offspring_gf_2(alpha = alpha, xi = xi, p1 = p1, p2 = p2)
 #'
 #' @export
-offspring_gf <- function(alpha, xi, p1, p2){
+offspring_gf_2 <- function(alpha, xi, p1, p2){
 
-  pvec1 <- pvec_tet(alpha = alpha, xi = xi, ell = p1)
-  pvec2 <- pvec_tet(alpha = alpha, xi = xi, ell = p2)
+  pvec1 <- pvec_tet_2(alpha = alpha, xi = xi, ell = p1)
+  pvec2 <- pvec_tet_2(alpha = alpha, xi = xi, ell = p2)
 
   qvec <- stats::convolve(pvec1, rev(pvec2), type = "open")
 
@@ -158,8 +114,54 @@ offspring_gf <- function(alpha, xi, p1, p2){
   return(qvec)
 }
 
+#' Calculates zygote frequencies under the two-parameter model.
+#'
+#' @inheritParams pvec_tet_3
+#' @inheritParams offspring_gf_2
+#'
+#' @return Zygote genotype frequencies
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' offspring_gf_3(tau = 1/2, beta = 1/6, gamma = 1/3, p1 = 1, p2 = 2)
+#'
+#' @export
+offspring_gf_3 <- function(tau, beta, gamma, p1, p2) {
+  parvec <- three_to_two(tau = tau, beta = beta, gamma = gamma)
+  gf <- offspring_gf_2(
+    alpha = parvec[["alpha"]],
+    xi = parvec[["xi"]],
+    p1 = p1,
+    p2 = p2)
+  return(gf)
+}
 
-#' A function called offspring_geno() Which takes as input the offspring
+#' Convert from three parameters to two parameters
+#'
+#' @inheritParams pvec_tet_3
+#'
+#' @return A vector of length two. The first is the double reduction rate
+#'    (\code{alpha}), and the second is the preferential pairing parameter
+#'    (\code{xi}).
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' three_to_two(tau = 0.1, beta = 1/6, gamma = 1/4)
+#'
+#' @export
+three_to_two <- function(tau, beta, gamma) {
+  alpha <- tau * beta
+  eta <- (1 - beta) * tau / ((1 - beta) * tau + (1 - tau))
+  xi <- eta / 3 + (1 - eta) * gamma
+  return(c(alpha = alpha, xi = xi))
+}
+
+
+#' Simulates genotypes given genotype frequencies.
+#'
+#' Takes as input the offspring
 #' genotype frequencies and a sample size and returns simulated genotypes.
 #'
 #' @param x Vector of offspring genotype frequencies
@@ -170,7 +172,7 @@ offspring_gf <- function(alpha, xi, p1, p2){
 #' @author Mira Thakkar
 #'
 #' @examples
-#' x <- offspring_gf(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
+#' x <- offspring_gf_2(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
 #' offspring_geno(x = x, n = 10)
 #'
 #' @export
@@ -194,7 +196,9 @@ gcount_to_gvec <- function(gcount) {
   unlist(mapply(FUN = rep, x = seq_along(gcount) - 1, each = gcount))
 }
 
-#' Function which takes as input (i) the parent genotypes,
+#' Generate genotype likelihoods from offspring genotypes.
+#'
+#' Takes as input (i) the parent genotypes,
 #' (ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
 #' depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.
 #'

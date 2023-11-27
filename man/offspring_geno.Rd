@@ -2,8 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{offspring_geno}
 \alias{offspring_geno}
-\title{A function called offspring_geno() Which takes as input the offspring
-genotype frequencies and a sample size and returns simulated genotypes.}
+\title{Simulates genotypes given genotype frequencies.}
 \usage{
 offspring_geno(x, n)
 }
@@ -16,11 +15,11 @@ offspring_geno(x, n)
 Simulated genotypes
 }
 \description{
-A function called offspring_geno() Which takes as input the offspring
+Takes as input the offspring
 genotype frequencies and a sample size and returns simulated genotypes.
 }
 \examples{
-x <- offspring_gf(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
+x <- offspring_gf_2(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
 offspring_geno(x = x, n = 10)
 
 }

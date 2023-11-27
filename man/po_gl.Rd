@@ -2,9 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{po_gl}
 \alias{po_gl}
-\title{Function which takes as input (i) the parent genotypes,
-(ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
-depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.}
+\title{Generate genotype likelihoods from offspring genotypes.}
 \usage{
 po_gl(
   genovec,
@@ -38,7 +36,7 @@ po_gl(
 Genotype likelihoods
 }
 \description{
-Function which takes as input (i) the parent genotypes,
+Takes as input (i) the parent genotypes,
 (ii) the offspring genotype freq, (iii) sequencing error rate, (iv) read
 depth, (v) bias, (vi) overdispersion and returns genotype likelihoods.
 }
