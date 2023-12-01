@@ -99,7 +99,7 @@ marg_f1_ndr_npp_g4 <- function(x,
                                g1,
                                g2,
                                lg = TRUE) {
-  gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = g1, p2 = g2)
+  gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
   return(stats::dmultinom(x = x, prob = gf, log = lg))
 }
 
@@ -332,7 +332,7 @@ marg_f1_dr_pp_g4 <- function(x,
 #' @export
 chisq_ndr_npp_g4 <- function(y, l1, l2){
   TOL <- sqrt(.Machine$double.eps)
-  gf <- menbayes::offspring_gf_2(alpha = 0, xi = 1/3, p1 = l1, p2 = l2)
+  gf <- menbayes::offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = l1, p2 = l2)
   which_zero <- gf < TOL
   gf[which_zero] <- 0
 

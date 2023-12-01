@@ -2,16 +2,18 @@
 % Please edit documentation in R/rscripts.R
 \name{offspring_gf_3}
 \alias{offspring_gf_3}
-\title{Calculates zygote frequencies under the two-parameter model.}
+\title{Calculates zygote frequencies under the three-parameter model.}
 \usage{
-offspring_gf_3(tau, beta, gamma, p1, p2)
+offspring_gf_3(tau, beta, gamma1, gamma2 = gamma1, p1, p2)
 }
 \arguments{
 \item{tau}{Probability of quadrivalent formation}
 
 \item{beta}{Probability of double reduction given quadrivalent formation}
 
-\item{gamma}{Probability of AA/aa pairing given bivalent formation}
+\item{gamma1}{Probability of AA_aa pairing in parent 1}
+
+\item{gamma2}{Probability of AA_aa pairing in parent 2}
 
 \item{p1}{The first parent's genotype}
 
@@ -21,10 +23,16 @@ offspring_gf_3(tau, beta, gamma, p1, p2)
 Zygote genotype frequencies
 }
 \description{
-Calculates zygote frequencies under the two-parameter model.
+Calculates zygote frequencies under the three-parameter model.
 }
 \examples{
-offspring_gf_3(tau = 1/2, beta = 1/6, gamma = 1/3, p1 = 1, p2 = 2)
+offspring_gf_3(
+  tau = 1/2,
+  beta = 1/6,
+  gamma1 = 1/3,
+  gamma2 = 1/3,
+  p1 = 1,
+  p2 = 2)
 
 }
 \author{

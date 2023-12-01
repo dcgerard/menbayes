@@ -19,7 +19,7 @@ Takes as input the offspring
 genotype frequencies and a sample size and returns simulated genotypes.
 }
 \examples{
-x <- offspring_gf_2(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
+x <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
 offspring_geno(x = x, n = 10)
 
 }

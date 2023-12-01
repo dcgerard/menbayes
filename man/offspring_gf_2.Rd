@@ -4,12 +4,14 @@
 \alias{offspring_gf_2}
 \title{Calculates zygote frequencies under the two-parameter model.}
 \usage{
-offspring_gf_2(alpha, xi, p1, p2)
+offspring_gf_2(alpha, xi1, xi2 = xi1, p1, p2)
 }
 \arguments{
 \item{alpha}{The double reduction rate}
 
-\item{xi}{The preferential pairing parameter}
+\item{xi1}{The preferential pairing parameter of the first parent.}
+
+\item{xi2}{The preferential pairing parameter of the second parent.}
 
 \item{p1}{The first parent's genotype}
 
@@ -23,10 +25,11 @@ Calculates zygote frequencies under the two-parameter model.
 }
 \examples{
 alpha <- 1/6
-xi <- 1/3
+xi1 <- 1/3
+xi2 <- 1/3
 p1 <- 2
 p2 <- 3
-offspring_gf_2(alpha = alpha, xi = xi, p1 = p1, p2 = p2)
+offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = p1, p2 = p2)
 
 }
 \author{

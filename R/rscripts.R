@@ -83,7 +83,9 @@ pvec_tet_3 <- function(tau, beta, gamma, ell) {
 
 #' Calculates zygote frequencies under the two-parameter model.
 #'
-#' @inheritParams pvec_tet_2
+#' @param alpha The double reduction rate
+#' @param xi1 The preferential pairing parameter of the first parent.
+#' @param xi2 The preferential pairing parameter of the second parent.
 #' @param p1 The first parent's genotype
 #' @param p2 The second parent's genotype
 #'
@@ -93,16 +95,17 @@ pvec_tet_3 <- function(tau, beta, gamma, ell) {
 #'
 #' @examples
 #' alpha <- 1/6
-#' xi <- 1/3
+#' xi1 <- 1/3
+#' xi2 <- 1/3
 #' p1 <- 2
 #' p2 <- 3
-#' offspring_gf_2(alpha = alpha, xi = xi, p1 = p1, p2 = p2)
+#' offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = p1, p2 = p2)
 #'
 #' @export
-offspring_gf_2 <- function(alpha, xi, p1, p2){
+offspring_gf_2 <- function(alpha, xi1, xi2 = xi1, p1, p2){
 
-  pvec1 <- pvec_tet_2(alpha = alpha, xi = xi, ell = p1)
-  pvec2 <- pvec_tet_2(alpha = alpha, xi = xi, ell = p2)
+  pvec1 <- pvec_tet_2(alpha = alpha, xi = xi1, ell = p1)
+  pvec2 <- pvec_tet_2(alpha = alpha, xi = xi2, ell = p2)
 
   qvec <- stats::convolve(pvec1, rev(pvec2), type = "open")
 
@@ -114,24 +117,35 @@ offspring_gf_2 <- function(alpha, xi, p1, p2){
   return(qvec)
 }
 
-#' Calculates zygote frequencies under the two-parameter model.
+#' Calculates zygote frequencies under the three-parameter model.
 #'
 #' @inheritParams pvec_tet_3
 #' @inheritParams offspring_gf_2
+#' @param gamma1 Probability of AA_aa pairing in parent 1
+#' @param gamma2 Probability of AA_aa pairing in parent 2
 #'
 #' @return Zygote genotype frequencies
 #'
 #' @author David Gerard
 #'
 #' @examples
-#' offspring_gf_3(tau = 1/2, beta = 1/6, gamma = 1/3, p1 = 1, p2 = 2)
+#' offspring_gf_3(
+#'   tau = 1/2,
+#'   beta = 1/6,
+#'   gamma1 = 1/3,
+#'   gamma2 = 1/3,
+#'   p1 = 1,
+#'   p2 = 2)
 #'
 #' @export
-offspring_gf_3 <- function(tau, beta, gamma, p1, p2) {
-  parvec <- three_to_two(tau = tau, beta = beta, gamma = gamma)
+offspring_gf_3 <- function(tau, beta, gamma1, gamma2 = gamma1, p1, p2) {
+  parvec1 <- three_to_two(tau = tau, beta = beta, gamma = gamma1)
+  parvec2 <- three_to_two(tau = tau, beta = beta, gamma = gamma2)
+  stopifnot(parvec1[["alpha"]] == parvec2[["alpha"]])
   gf <- offspring_gf_2(
-    alpha = parvec[["alpha"]],
-    xi = parvec[["xi"]],
+    alpha = parvec1[["alpha"]],
+    xi1 = parvec1[["xi"]],
+    xi2 = parvec2[["xi"]],
     p1 = p1,
     p2 = p2)
   return(gf)
@@ -172,7 +186,7 @@ three_to_two <- function(tau, beta, gamma) {
 #' @author Mira Thakkar
 #'
 #' @examples
-#' x <- offspring_gf_2(alpha = 1/6, xi = 1/3, p1 = 2, p2 = 3)
+#' x <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
 #' offspring_geno(x = x, n = 10)
 #'
 #' @export

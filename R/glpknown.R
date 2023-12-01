@@ -10,7 +10,7 @@
 #' @examples
 #' ## null sims
 #' set.seed(1)
-#' gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = 2, p2 = 2)
+#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 2)
 #' gcount <- offspring_geno(x = gf, n = 20)
 #' gvec <- gcount_to_gvec(gcount)
 #' fout <- po_gl(genovec = gvec, p1_geno = 2, p2_geno = 2, ploidy = 4)
@@ -35,7 +35,7 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
                                       p1,
                                       p2,
                                       lg = TRUE) {
-  gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = p1, p2 = p2)
+  gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = p1, p2 = p2)
   lgf <- log(gf)
   mx <- sum(apply(X = t(gl) + lgf, MARGIN = 2, FUN = updog::log_sum_exp))
   if(!lg) {
@@ -51,7 +51,7 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
 #' @examples
 #' ## null sims
 #' set.seed(1)
-#' gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = 2, p2 = 2)
+#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 2)
 #' gcount <- offspring_geno(x = gf, n = 20)
 #' gvec <- gcount_to_gvec(gcount)
 #' fout <- po_gl(genovec = gvec, p1_geno = 2, p2_geno = 2, ploidy = 4)
@@ -121,7 +121,7 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
 #' @examples
 #' ## null sims
 #' set.seed(1)
-#' gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = 2, p2 = 2)
+#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 2)
 #' gcount <- offspring_geno(x = gf, n = 20)
 #' gvec <- gcount_to_gvec(gcount)
 #' fout <- po_gl(genovec = gvec, p1_geno = 2, p2_geno = 2, ploidy = 4)
@@ -200,7 +200,7 @@ marg_f1_ndr_pp_glpknown4 <- function(gl,
 #' @examples
 #' ## null sims
 #' set.seed(1)
-#' gf <- offspring_gf_2(alpha = 0, xi = 1/3, p1 = 2, p2 = 2)
+#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 2)
 #' gcount <- offspring_geno(x = gf, n = 20)
 #' gvec <- gcount_to_gvec(gcount)
 #' fout <- po_gl(genovec = gvec, p1_geno = 2, p2_geno = 2, ploidy = 4)
