@@ -44,7 +44,8 @@ data {
 }
 
 parameters {
-  real<lower=0.0,upper=1.0> gamma; // preferential pairing rate
+  real<lower=0.0,upper=1.0> gamma1; // preferential pairing rate
+  real<lower=0.0,upper=1.0> gamma2; // preferential pairing rate
 }
 
 model {
@@ -52,10 +53,11 @@ model {
   vector[3] p2;
   vector[5] q;
   vector[5] u = [0.2, 0.2, 0.2, 0.2, 0.2]';
-  p1 = segfreq4(gamma, g1);
-  p2 = segfreq4(gamma, g2);
+  p1 = segfreq4(gamma1, g1);
+  p2 = segfreq4(gamma2, g2);
   q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
   q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
-  target += beta_lpdf(gamma | 1.0, 2.0);
+  target += beta_lpdf(gamma1 | 5.0 / 9.0, 10.0 / 9.0);
+  target += beta_lpdf(gamma2 | 5.0 / 9.0, 10.0 / 9.0);
   target += multinomial_lpmf(x | q);
 }

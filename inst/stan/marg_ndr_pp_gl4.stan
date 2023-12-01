@@ -45,19 +45,20 @@ data {
 }
 
 parameters {
-  real<lower=0.0,upper=1.0> gamma; // preferential pairing rate
+  real<lower=0.0,upper=1.0> gamma1; // preferential pairing rate
+  real<lower=0.0,upper=1.0> gamma2; // preferential pairing rate
 }
 
 transformed parameters {
   matrix[5, 5] glmat;
   for (i in 1:5) {
     vector[3] p1;
-    p1 = segfreq4(gamma, i - 1);
+    p1 = segfreq4(gamma1, i - 1);
     for (j in 1:5) {
       vector[5] u = [0.2, 0.2, 0.2, 0.2, 0.2]';
       vector[3] p2;
       vector[5] q;
-      p2 = segfreq4(gamma, j - 1);
+      p2 = segfreq4(gamma2, j - 1);
       q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
       q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
       glmat[i, j] = p1_gl[i] + p2_gl[j];
@@ -69,6 +70,7 @@ transformed parameters {
 }
 
 model {
-  target += beta_lpdf(gamma | 1.0, 2.0);
+  target += beta_lpdf(gamma1 | 5.0 / 9.0, 10.0 / 9.0);
+  target += beta_lpdf(gamma2 | 5.0 / 9.0, 10.0 / 9.0);
   target += log_sum_exp(glmat);
 }
