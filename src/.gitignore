@@ -5,3 +5,4 @@
 RcppExports.cpp
 Makevars
 Makevars.win
+*.dll

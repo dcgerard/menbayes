@@ -178,7 +178,7 @@ three_to_two <- function(tau, beta, gamma) {
 #' Takes as input the offspring
 #' genotype frequencies and a sample size and returns simulated genotypes.
 #'
-#' @param x Vector of offspring genotype frequencies
+#' @param gf Vector of offspring genotype frequencies
 #' @param n Sample size
 #'
 #' @return Simulated genotypes
@@ -186,12 +186,12 @@ three_to_two <- function(tau, beta, gamma) {
 #' @author Mira Thakkar
 #'
 #' @examples
-#' x <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
-#' offspring_geno(x = x, n = 10)
+#' gf <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
+#' offspring_geno(gf = gf, n = 10)
 #'
 #' @export
-offspring_geno <- function(x, n){
-  sim_gen <- c(stats::rmultinom(n = 1, size = n, prob = x))
+offspring_geno <- function(gf, n){
+  sim_gen <- c(stats::rmultinom(n = 1, size = n, prob = gf))
   return(sim_gen)
 }
 

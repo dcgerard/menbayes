@@ -4,10 +4,10 @@
 \alias{offspring_geno}
 \title{Simulates genotypes given genotype frequencies.}
 \usage{
-offspring_geno(x, n)
+offspring_geno(gf, n)
 }
 \arguments{
-\item{x}{Vector of offspring genotype frequencies}
+\item{gf}{Vector of offspring genotype frequencies}
 
 \item{n}{Sample size}
 }
@@ -19,8 +19,8 @@ Takes as input the offspring
 genotype frequencies and a sample size and returns simulated genotypes.
 }
 \examples{
-x <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
-offspring_geno(x = x, n = 10)
+gf <- offspring_gf_2(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, p1 = 2, p2 = 3)
+offspring_geno(gf = gf, n = 10)
 
 }
 \author{
