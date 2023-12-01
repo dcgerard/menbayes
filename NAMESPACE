@@ -2,7 +2,9 @@
 
 export(chisq_gl4)
 export(chisq_ndr_npp_g4)
+export(find_df)
 export(gcount_to_gvec)
+export(like_gknown)
 export(marg_alt_g)
 export(marg_alt_gl)
 export(marg_f1_dr_npp_g4)
