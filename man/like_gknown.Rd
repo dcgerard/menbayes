@@ -10,6 +10,8 @@ like_gknown(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE)
 \item{x}{A vector of length 5. \code{x[i]} is the count of individuals with
 genotype \code{i-1}.}
 
+\item{tau}{The probability of quadrivalent formation.}
+
 \item{beta}{The probability of double reduction given quadrivalent formation.}
 
 \item{gamma1}{The probability of AA_aa pairing for parent 1.}
@@ -21,8 +23,6 @@ genotype \code{i-1}.}
 \item{g2}{Parent 2's genotype.}
 
 \item{log_p}{A logical. Should we return the log likelihood or not?}
-
-\item{alpha}{The probability of quadrivalent formation.}
 }
 \value{
 The (log) likelihood.

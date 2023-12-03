@@ -6,7 +6,7 @@
 #'
 #' @param x A vector of length 5. \code{x[i]} is the count of individuals with
 #'     genotype \code{i-1}.
-#' @param alpha The probability of quadrivalent formation.
+#' @param tau The probability of quadrivalent formation.
 #' @param beta The probability of double reduction given quadrivalent formation.
 #' @param gamma1 The probability of AA_aa pairing for parent 1.
 #' @param gamma2 The probability of AA_aa pairing for parent 2.
@@ -220,6 +220,7 @@ find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
 #' @param g1 parent 1 genotype
 #' @param g2 parent 2 genotype.
 #' @param drbound The maximum double reduction rate
+#' @param type How should we initialize? "random" or "half"?
 #'
 #' @return A list of length 3. The first element is the initial values,
 #'     the second is the lower bound of parameters, the third element
@@ -228,26 +229,33 @@ find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
 #' @author David Gerard
 #'
 #' @noRd
-lrt_init <- function(g1, g2, drbound = 1/6) {
+lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
   fudge <- 10^-6
+  type <- match.arg(type)
+  if (type == "random") {
+    mult <- stats::runif(4)
+  } else if (type == "half") {
+    mult <- c(0.5, 0.5, 1/3, 1/3)
+  }
+
   if (g1 != 2 && g2 != 2) {
     out <- list(
-      par = c(alpha = drbound / 2),
+      par = c(alpha = drbound * mult[[1]]),
       lower = fudge,
       upper = drbound)
   } else if (g1 == 2 & g2 != 2) {
     out <- list(
-      par = c(tau = 1/2, beta = drbound / 2, gamma1 = 1/3),
+      par = c(tau = mult[[1]], beta = drbound * mult[[2]], gamma1 = mult[[3]]),
       lower = rep(fudge, length.out = 3),
       upper = c(1 - fudge, drbound, 1 - fudge))
   } else if (g1 != 2 & g2 == 2) {
     out <- list(
-      par = c(tau = 1/2, beta = drbound / 2, gamma2 = 1/3),
+      par = c(tau = mult[[1]], beta = drbound * mult[[2]], gamma2 = mult[[3]]),
       lower = rep(fudge, length.out = 3),
       upper = c(1 - fudge, drbound, 1 - fudge))
   } else {
     out <- list(
-      par = c(tau = 1/2, beta = drbound / 2, gamma1 = 1/3, gamma2 = 1/3),
+      par = c(tau = mult[[1]], beta = drbound * mult[[2]], gamma1 = mult[[3]], gamma2 = mult[[4]]),
       lower = rep(fudge, length.out = 4),
       upper = c(1 - fudge, drbound, 1 - fudge, 1 - fudge))
   }
@@ -260,7 +268,6 @@ lrt_init <- function(g1, g2, drbound = 1/6) {
 #' All genotypes are known.
 #'
 #' @section Impossible genotypes:
-#'
 #' Some offspring genotype combinations are impossible given the parental
 #' gentoypes. If these impossible genotypes combinations show up, we return a
 #' p-value of 0, a log-likelihood ratio statistic of Infinity, and missing
@@ -276,6 +283,7 @@ lrt_init <- function(g1, g2, drbound = 1/6) {
 #'
 #' @inheritParams like_gknown
 #' @param drbound the upper bound on the double reduction rate.
+#' @param ntry The number of times to run the gradient ascent.
 #'
 #' @author David Gerard
 #'
@@ -352,7 +360,9 @@ lrt_init <- function(g1, g2, drbound = 1/6) {
 #' gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = 4, p2 = 4)
 #' x <- offspring_geno(gf = gf, n = n)
 #' lrt_dr_pp_g4(x = x, g1 = 4, g2 = 4)
-lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6) {
+#'
+#' @export
+lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 
   ## Deal with impossible values ----
   if (g1 == 0 && g2 == 0) {
@@ -410,19 +420,24 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6) {
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
 
   ## Find MLE under null
-  params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound)
-  oout <- stats::optim(
-    par = params$par,
-    fn = obj_dr_pp,
-    method = "L-BFGS-B",
-    lower = params$lower,
-    upper = params$upper,
-    control = list(fnscale = -1),
-    x = x,
-    g1 = g1,
-    g2 = g2)
+  l0 <- -Inf
+  for (i in seq_len(ntry)) {
+    params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound, type = "random")
+    oout <- stats::optim(
+      par = params$par,
+      fn = obj_dr_pp,
+      method = "L-BFGS-B",
+      lower = params$lower,
+      upper = params$upper,
+      control = list(fnscale = -1),
+      x = x,
+      g1 = g1,
+      g2 = g2)
 
-  l0 <- oout$value
+    if (oout$value > l0) {
+      l0 <- oout$value
+    }
+  }
 
   ## Get df and calculate p-value
   if (g1 != 2 & g2 != 2) {

@@ -17,9 +17,17 @@
 #' genovec <- gcount_to_gvec(gcount = x)
 #' uout <- po_gl(genovec = genovec, p1_geno = p1, p2_geno = p2, ploidy = 4)
 #' gl <- uout$genologlike
-#' like_glpknown(gl = gl, tau = 1/2, beta = 1/12, gamma1 = 1/3, gamma2 = 1/3, g1 = p1, g2 = p2, log_p = TRUE)
+#' like_glpknown(
+#'   gl = gl,
+#'   tau = 1/2,
+#'   beta = 1/12,
+#'   gamma1 = 1/3,
+#'   gamma2 = 1/3,
+#'   g1 = p1,
+#'   g2 = p2,
+#'   log_p = TRUE)
 #'
-#'
+#' @export
 like_glpknown <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
   stopifnot(ncol(gl) == 5)
   stopifnot(tau >= 0, tau <= 1,

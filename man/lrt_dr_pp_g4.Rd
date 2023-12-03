@@ -4,7 +4,7 @@
 \alias{lrt_dr_pp_g4}
 \title{LRT when both double reduction and preferential pairing are not known.}
 \usage{
-lrt_dr_pp_g4(x, g1, g2, drbound = 1/6)
+lrt_dr_pp_g4(x, g1, g2, drbound = 1/6, ntry = 5)
 }
 \arguments{
 \item{x}{A vector of length 5. \code{x[i]} is the count of individuals with
@@ -15,12 +15,13 @@ genotype \code{i-1}.}
 \item{g2}{Parent 2's genotype.}
 
 \item{drbound}{the upper bound on the double reduction rate.}
+
+\item{ntry}{The number of times to run the gradient ascent.}
 }
 \description{
 All genotypes are known.
 }
 \section{Impossible genotypes}{
-
 
 Some offspring genotype combinations are impossible given the parental
 gentoypes. If these impossible genotypes combinations show up, we return a
@@ -108,6 +109,7 @@ lrt_dr_pp_g4(x = x, g1 = 3, g2 = 4)
 gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = 4, p2 = 4)
 x <- offspring_geno(gf = gf, n = n)
 lrt_dr_pp_g4(x = x, g1 = 4, g2 = 4)
+
 }
 \author{
 David Gerard

@@ -11,6 +11,8 @@ like_glpknown(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE)
 \item{gl}{The matrix of genotype likelihoods of the offspring. Rows index
 The individuals, columns index the genotypes.}
 
+\item{tau}{The probability of quadrivalent formation.}
+
 \item{beta}{The probability of double reduction given quadrivalent formation.}
 
 \item{gamma1}{The probability of AA_aa pairing for parent 1.}
@@ -35,8 +37,15 @@ x <- offspring_geno(gf = gf, n = 10)
 genovec <- gcount_to_gvec(gcount = x)
 uout <- po_gl(genovec = genovec, p1_geno = p1, p2_geno = p2, ploidy = 4)
 gl <- uout$genologlike
-like_glpknown(gl = gl, tau = 1/2, beta = 1/12, gamma1 = 1/3, gamma2 = 1/3, g1 = p1, g2 = p2, log_p = TRUE)
-
+like_glpknown(
+  gl = gl,
+  tau = 1/2,
+  beta = 1/12,
+  gamma1 = 1/3,
+  gamma2 = 1/3,
+  g1 = p1,
+  g2 = p2,
+  log_p = TRUE)
 
 }
 \author{
