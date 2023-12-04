@@ -275,7 +275,7 @@ obj_dr_pp <- function(par, x, g1, g2) {
 #' @author David Gerard
 #'
 #' @noRd
-find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
+find_df_null <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
   ## tried susko boundary technique to improve power. Might come back later.
   # TOL <- 1e-3 ## should be larger than fudge in lrt_init
   # lxi <- (1/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
@@ -289,6 +289,19 @@ find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
   }
 
   return(c(df = df))
+}
+
+#'
+#'
+#' @noRd
+find_df_alt <- function(g1, g2) {
+  if (g1 %in% c(1, 2, 3) && g2 %in% c(0, 4) ||
+      g1 %in% c(0, 4) && g2 %in% c(1, 2, 3)) {
+    df <- 2
+  } else {
+    df <- 4
+  }
+  return(df)
 }
 
 #' Initial parameter values
@@ -437,7 +450,7 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
       xi1 = NA_real_,
       xi2 = NA_real_)
     return(ret)
-  } else if (g1 == 0 && g2 == 4 | g1 == 4 && g2 == 0) {
+  } else if (g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0) {
     ret <- list(
       statistic = ifelse(all(x[c(1, 2, 4, 5)] == 0), Inf, 0),
       p_value = ifelse(all(x[c(1, 2, 4, 5)] == 0), 1, 0),
@@ -455,7 +468,7 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
       xi1 = NA_real_,
       xi2 = NA_real_)
     return(ret)
-  } else if (g1 %in% c(1, 2, 3) && g2 == 0 | g1 == 0 && g2 %in% c(1, 2, 3)) {
+  } else if (g1 %in% c(1, 2, 3) && g2 == 0 || g1 == 0 && g2 %in% c(1, 2, 3)) {
     if (!all(x[4:5] == 0)) {
       ret <- list(
         statistic = Inf,
@@ -466,7 +479,7 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
         xi2 = NA_real_)
       return(ret)
     }
-  } else if (g1 %in% c(1, 2, 3) && g2 == 4 | g1 == 4 && g2 %in% c(1, 2, 3)) {
+  } else if (g1 %in% c(1, 2, 3) && g2 == 4 || g1 == 4 && g2 %in% c(1, 2, 3)) {
     if (!all(x[1:2] == 0)) {
       ret <- list(
         statistic = Inf,
@@ -535,8 +548,9 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  df_null <- find_df(alpha = alpha, xi1 = xi1, xi2 = xi2, g1 = g1, g2 = g2, drbound = drbound)
-  df <- 4 - df_null
+  df_null <- find_df_null(alpha = alpha, xi1 = xi1, xi2 = xi2, g1 = g1, g2 = g2, drbound = drbound)
+  df_alt <- find_df_alt(g1 = g1, g2 = g2)
+  df <- df_alt - df_null
 
   llr <- -2 * (l0 - l1)
 
