@@ -178,38 +178,16 @@ obj_dr_pp <- function(par, x, g1, g2) {
 #'
 #' @noRd
 find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
-  TOL <- sqrt(.Machine$double.eps)
-
-  lxi <- (1/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
-  uxi <- 1 - (2/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
+  ## tried susko boundary technique to improve power. Might come back later.
+  # TOL <- 1e-3 ## should be larger than fudge in lrt_init
+  # lxi <- (1/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
+  # uxi <- 1 - (2/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
 
   ## consider alpha on boundary
-  if (alpha >= drbound - TOL) {
-    return(c(df = 0))
-  } else if (alpha > TOL) {
-    df <- 1
-  } else {
+  if (g1 %in% c(0, 4) && g2 %in% c(0, 4)) {
     df <- 0
-  }
-
-  ## Consider xi1 on boundary
-  if (g1 == 2) {
-    df <- df + 1
-    if (abs(xi1 - lxi) <= TOL) {
-      df <- df - 1
-    } else if (abs(uxi - xi1) <= TOL) {
-      df <- df - 1
-    }
-  }
-
-  ## Consider xi2 on boundary
-  if (g2 == 2) {
-    df <- df + 1
-    if (abs(xi2 - lxi) <= TOL) {
-      df <- df - 1
-    } else if (abs(uxi - xi2) <= TOL) {
-      df <- df - 1
-    }
+  } else {
+    df <- 1
   }
 
   return(c(df = df))
@@ -230,7 +208,7 @@ find_df <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
 #'
 #' @noRd
 lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
-  fudge <- 10^-6
+  fudge <- 10^-5
   type <- match.arg(type)
   if (type == "random") {
     mult <- stats::runif(4)
@@ -288,6 +266,7 @@ lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
 #' @author David Gerard
 #'
 #' @examples
+#' set.seed(1000)
 #' alpha <- 1/12
 #' xi1 <- 1/3
 #' xi2 <- 1/3

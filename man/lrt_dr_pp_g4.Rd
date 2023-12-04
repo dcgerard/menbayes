@@ -37,6 +37,7 @@ values for all other return items. The impossible genotypes are:
 }
 
 \examples{
+set.seed(1000)
 alpha <- 1/12
 xi1 <- 1/3
 xi2 <- 1/3
