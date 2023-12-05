@@ -513,7 +513,7 @@ chisq_ndr_npp_g4 <- function(x, g1, g2){
   if (sum(x[which_zero]) > 0.5) { ## if any incompatibility, p-value is 0
     ret <- list(statistic = Inf,
                 p_value = 0,
-                df = length(y) - 1)
+                df = NA_real_)
     return(ret)
   } else {
     x <- x[!which_zero]
