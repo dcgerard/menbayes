@@ -4,14 +4,14 @@
 \alias{chisq_ndr_npp_g4}
 \title{Chi Square test when genotypes are known}
 \usage{
-chisq_ndr_npp_g4(y, l1, l2)
+chisq_ndr_npp_g4(x, g1, g2)
 }
 \arguments{
-\item{y}{Vector of observed genotype counts}
+\item{x}{Vector of observed genotype counts}
 
-\item{l1}{Parent 1's genotype}
+\item{g1}{Parent 1's genotype}
 
-\item{l2}{Parent 2's genotype}
+\item{g2}{Parent 2's genotype}
 }
 \value{
 The Chi Square statistic and p-value
@@ -21,15 +21,15 @@ This chi-squared test is run under the assumption of no double reduction
 and no preferential pairing.
 }
 \examples{
-y <- c(1, 2, 4, 3, 0)
-l1 <- 2
-l2 <- 2
-chisq_ndr_npp_g4(y, l1, l2)
+x <- c(1, 2, 4, 3, 0)
+g1 <- 2
+g2 <- 2
+chisq_ndr_npp_g4(x, g1, g2)
 
-y <- c(10, 25, 10, 0, 0)
-l1 <- 1
-l2 <- 1
-chisq_ndr_npp_g4(y, l1, l2)
+x <- c(10, 25, 10, 0, 0)
+g1 <- 1
+g2 <- 1
+chisq_ndr_npp_g4(x, g1, g2)
 
 }
 \author{

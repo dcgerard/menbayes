@@ -2,6 +2,50 @@
 ## Methods when genotypes are known
 ###################
 
+#' Bayesian test for segregation distortion in tetraploids when genotypes are known.
+#'
+#' @inheritParams lrt_men_g4
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' set.seed(100)
+#' gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
+#' x <- offspring_geno(gf = gf, n = 100)
+#' bayes_men_g4(x = x, g1 = 2, g2 = 2)
+#'
+#' @export
+bayes_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
+  ## check input
+  stopifnot(length(x) == 5,
+            x >= 0,
+            g1 >= 0,
+            g1 <= 4,
+            g2 >= 0,
+            g2 <= 4,
+            drbound >= 0,
+            drbound <= 1,
+            is.logical(pp),
+            is.logical(dr),
+            length(g1) == 1,
+            length(g2) == 1,
+            length(drbound) == 1,
+            length(pp) == 1,
+            length(dr) == 1)
+
+  ## log marginal likelihood under alternative
+  ma <- marg_alt_g(x = x)
+
+  ## log marginal likelihood under null
+  if (pp && dr) {
+    stout <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2, output = "all")
+    m0 <- stout[[1]]
+    alpha <- mean(as.data.frame(stout[[2]])$alpha)
+    xi1 <- mean(as.data.frame(stout[[2]])$xi1)
+  }
+
+}
+
 #' Stan version of marg_alt_g(). Not to be used.
 #'
 #' @noRd
@@ -310,43 +354,43 @@ marg_f1_dr_pp_g4 <- function(x,
 #' This chi-squared test is run under the assumption of no double reduction
 #' and no preferential pairing.
 #'
-#' @param y Vector of observed genotype counts
-#' @param l1 Parent 1's genotype
-#' @param l2 Parent 2's genotype
+#' @param x Vector of observed genotype counts
+#' @param g1 Parent 1's genotype
+#' @param g2 Parent 2's genotype
 #'
 #' @return The Chi Square statistic and p-value
 #'
 #' @author Mira Thakkar and David Gerard
 #'
 #' @examples
-#' y <- c(1, 2, 4, 3, 0)
-#' l1 <- 2
-#' l2 <- 2
-#' chisq_ndr_npp_g4(y, l1, l2)
+#' x <- c(1, 2, 4, 3, 0)
+#' g1 <- 2
+#' g2 <- 2
+#' chisq_ndr_npp_g4(x, g1, g2)
 #'
-#' y <- c(10, 25, 10, 0, 0)
-#' l1 <- 1
-#' l2 <- 1
-#' chisq_ndr_npp_g4(y, l1, l2)
+#' x <- c(10, 25, 10, 0, 0)
+#' g1 <- 1
+#' g2 <- 1
+#' chisq_ndr_npp_g4(x, g1, g2)
 #'
 #' @export
-chisq_ndr_npp_g4 <- function(y, l1, l2){
+chisq_ndr_npp_g4 <- function(x, g1, g2){
   TOL <- sqrt(.Machine$double.eps)
-  gf <- menbayes::offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = l1, p2 = l2)
+  gf <- menbayes::offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
   which_zero <- gf < TOL
   gf[which_zero] <- 0
 
-  if (sum(y[which_zero]) > 0.5) { ## if any incompatibility, p-value is 0
+  if (sum(x[which_zero]) > 0.5) { ## if any incompatibility, p-value is 0
     ret <- list(statistic = Inf,
                 p_value = 0,
                 df = length(y) - 1)
     return(ret)
   } else {
-    y <- y[!which_zero]
+    x <- x[!which_zero]
     gf <- gf[!which_zero]
   }
 
-  chout <- stats::chisq.test(x = y, p = gf)
+  chout <- stats::chisq.test(x = x, p = gf)
   ret <- list(statistic = chout$statistic[[1]],
               p_value = chout$p.value[[1]],
               df = chout$parameter[[1]])
