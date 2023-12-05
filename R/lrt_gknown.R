@@ -19,8 +19,8 @@
 #'   \item{\code{g1 = 0 && g2 = 0}}{Only offspring genotypes of 0 are possible.}
 #'   \item{\code{g1 = 4 && g2 = 4}}{Only offspring genotypes of 4 are possible.}
 #'   \item{\code{g1 = 0 && g2 = 4 || g1 == 4 && g2 == 0}}{Only offspring genotypes of 2 are possible.}
-#'   \item{\code{g1 = 0 && g2 %in% c(1, 2, 3) || g1 = %in% c(1, 2, 3) && g2 == 0}}{Only offspring genotypes of 0, 1, and 2 are possible.}
-#'   \item{\code{g1 = 4 && g2 %in% c(1, 2, 3) || g1 = %in% c(1, 2, 3) && g2 == 4}}{Only offspring genotypes of 2, 3, and 4 are possible.}
+#'   \item{\code{g1 = 0 && g2 \%in\% c(1, 2, 3) || g1 = \%in\% c(1, 2, 3) && g2 == 0}}{Only offspring genotypes of 0, 1, and 2 are possible.}
+#'   \item{\code{g1 = 4 && g2 \%in\% c(1, 2, 3) || g1 = \%in\% c(1, 2, 3) && g2 == 4}}{Only offspring genotypes of 2, 3, and 4 are possible.}
 #' }
 #'
 #' @section Unidentified parameters:
@@ -56,7 +56,7 @@
 #' set.seed(100)
 #' gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
 #' x <- offspring_geno(gf = gf, n = 100)
-#' lrt_men_g4(x = x, g1 = g1, g2 = g2)
+#' lrt_men_g4(x = x, g1 = 2, g2 = 2)
 #'
 #' @export
 lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
