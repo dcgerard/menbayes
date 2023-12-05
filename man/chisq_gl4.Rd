@@ -4,7 +4,7 @@
 \alias{chisq_gl4}
 \title{Chi-Sq for GL}
 \usage{
-chisq_gl4(gl, l1, l2)
+chisq_gl4(gl, g1, g2)
 }
 \arguments{
 \item{gl}{A matrix of offspring genotype log-likelihoods. The rows index the
@@ -12,9 +12,9 @@ individuals and the columns index the possible genotypes. So
 \code{gl[i, k]} is the offspring genotype log-likelihood for individual i and
 genotype k-1.}
 
-\item{l1}{The first parent's genotype}
+\item{g1}{The first parent's genotype}
 
-\item{l2}{The second parent's genotype.}
+\item{g2}{The second parent's genotype.}
 }
 \description{
 Calculates the MLE genotype and runs a chi-squared test assuming

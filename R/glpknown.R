@@ -270,18 +270,18 @@ marg_f1_dr_pp_glpknown4 <- function(gl,
 #' no double reduction and no preferential pairing.
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
-#' @param l1 The first parent's genotype
-#' @param l2 The second parent's genotype.
+#' @param g1 The first parent's genotype
+#' @param g2 The second parent's genotype.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
 #' @export
-chisq_gl4 <- function(gl, l1, l2){
+chisq_gl4 <- function(gl, g1, g2){
   ploidy <- 4
   col_max <- apply(gl, 1, which.max) - 1
   col_max <- factor(col_max, levels = 0:ploidy)
-  y <- c(table(col_max))
-  output <- chisq_ndr_npp_g4(y = y, l1 = l1, l2 = l2)
+  x <- c(table(col_max))
+  output <- chisq_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
 
   return(output)
 }

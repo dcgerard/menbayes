@@ -77,6 +77,18 @@ lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
             length(pp) == 1,
             length(dr) == 1)
 
+  ## Check if data are possible under null
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr)) {
+    ret <- list(
+      statistic = Inf,
+      p_value = 0,
+      df = NA_real_,
+      alpha = NA_real_,
+      xi1 = NA_real_,
+      xi2 = NA_real_)
+    return(ret)
+  }
+
   if (pp && dr) {
     ret <- lrt_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound)
   } else if (pp && !dr) {
@@ -162,6 +174,19 @@ like_gknown <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
 #' @noRd
 lrt_ndr_npp_g4 <- function(x, g1, g2) {
 
+  ## check impossible genotype ----
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = FALSE)) {
+    ret <- list(
+      statistic = Inf,
+      p_value = 0,
+      df = NA_real_,
+      alpha = NA_real_,
+      xi1 = NA_real_,
+      xi2 = NA_real_)
+    return(ret)
+  }
+
+  ## Run test
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
   l0 <- like_gknown(
     x = x,
@@ -440,56 +465,16 @@ lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
 #' @noRd
 lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 
-  ## Deal with impossible values ----
-  if (g1 == 0 && g2 == 0) {
+  ## Deal with impossible values under null ----
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = TRUE)) {
     ret <- list(
-      statistic = ifelse(all(x[2:5] == 0), Inf, 0),
-      p_value = ifelse(all(x[2:5] == 0), 1, 0),
+      statistic = Inf,
+      p_value = 0,
       df = NA_real_,
       alpha = NA_real_,
       xi1 = NA_real_,
       xi2 = NA_real_)
     return(ret)
-  } else if (g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0) {
-    ret <- list(
-      statistic = ifelse(all(x[c(1, 2, 4, 5)] == 0), Inf, 0),
-      p_value = ifelse(all(x[c(1, 2, 4, 5)] == 0), 1, 0),
-      df = NA_real_,
-      alpha = NA_real_,
-      xi1 = NA_real_,
-      xi2 = NA_real_)
-    return(ret)
-  } else if (g1 == 4 && g2 == 4) {
-    ret <- list(
-      statistic = ifelse(all(x[1:4] == 0), Inf, 0),
-      p_value = ifelse(all(x[1:4] == 0), 1, 0),
-      df = NA_real_,
-      alpha = NA_real_,
-      xi1 = NA_real_,
-      xi2 = NA_real_)
-    return(ret)
-  } else if (g1 %in% c(1, 2, 3) && g2 == 0 || g1 == 0 && g2 %in% c(1, 2, 3)) {
-    if (!all(x[4:5] == 0)) {
-      ret <- list(
-        statistic = Inf,
-        p_value = 0,
-        df = NA_real_,
-        alpha = NA_real_,
-        xi1 = NA_real_,
-        xi2 = NA_real_)
-      return(ret)
-    }
-  } else if (g1 %in% c(1, 2, 3) && g2 == 4 || g1 == 4 && g2 %in% c(1, 2, 3)) {
-    if (!all(x[1:2] == 0)) {
-      ret <- list(
-        statistic = Inf,
-        p_value = 0,
-        df = NA_real_,
-        alpha = NA_real_,
-        xi1 = NA_real_,
-        xi2 = NA_real_)
-      return(ret)
-    }
   }
 
   ## max likelihood under alt
@@ -671,34 +656,15 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
     return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2))
   }
 
-  ## look at impossible genotypes
-  early_ret <- FALSE
-  if ((g1 == 2 && g2 == 0) || (g1 == 0 && g2 == 2)) {
-    if (!all(x[4:5] == 0)) {
-      early_ret <- TRUE
-    }
-  } else if ((g1 == 2 && g2 == 1) || (g1 == 1 && g2 == 2)) {
-    if (x[[5]] != 0) {
-      early_ret <- TRUE
-    }
-  } else if ((g1 == 2 && g2 == 3) || (g1 == 3 && g2 == 2)) {
-    if (x[[1]] != 0) {
-      early_ret <- TRUE
-    }
-  } else if ((g1 == 2 && g2 == 4) || (g1 == 4 && g2 == 2)) {
-    if (!all(x[1:2] == 0)) {
-      early_ret <- TRUE
-    }
-  }
-
-  if (early_ret) {
+  ## look at impossible genotypes under null ----
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = FALSE)) {
     ret <- list(
-        statistic = Inf,
-        p_value = 0,
-        df = NA_real_,
-        alpha = NA_real_,
-        xi1 = NA_real_,
-        xi2 = NA_real_)
+      statistic = Inf,
+      p_value = 0,
+      df = NA_real_,
+      alpha = NA_real_,
+      xi1 = NA_real_,
+      xi2 = NA_real_)
     return(ret)
   }
 
@@ -806,29 +772,16 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
     return(lrt_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound))
   }
 
-  ## Deal with impossible genotypes
-  if (g1 == 0 || g2 == 0) {
-    if (!all(x[4:5] == 0)) {
-      ret <- list(
-        statistic = Inf,
-        p_value = 0,
-        df = NA_real_,
-        alpha = NA_real_,
-        xi1 = NA_real_,
-        xi2 = NA_real_)
-      return(ret)
-    }
-  } else if (g1 == 4 || g2 == 4) {
-    if (!all(x[1:2] == 0)) {
-      ret <- list(
-        statistic = Inf,
-        p_value = 0,
-        df = NA_real_,
-        alpha = NA_real_,
-        xi1 = NA_real_,
-        xi2 = NA_real_)
-      return(ret)
-    }
+  ## Deal with impossible genotypes under null
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = TRUE)) {
+    ret <- list(
+      statistic = Inf,
+      p_value = 0,
+      df = NA_real_,
+      alpha = NA_real_,
+      xi1 = NA_real_,
+      xi2 = NA_real_)
+    return(ret)
   }
 
   ## max likelihood under alt

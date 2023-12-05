@@ -4,7 +4,7 @@
 \alias{bayes_men_g4}
 \title{Bayesian test for segregation distortion in tetraploids when genotypes are known.}
 \usage{
-bayes_men_g4(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE)
+bayes_men_g4(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE, ...)
 }
 \arguments{
 \item{x}{A vector of genotype counts. \code{x[i]} is the number of
@@ -23,15 +23,52 @@ segregation model of meiosis.}
 
 \item{dr}{A logical. Should we account for double reduction
 (\code{TRUE}) or not (\code{FALSE})?}
+
+\item{...}{Additional arguments to pass to Stan.}
+}
+\value{
+A list with the following elements
+\describe{
+\item{\code{lbf}}{The log Bayes Factor.}
+\item{\code{m0}}{Marginal likelihood under null.}
+\item{\code{ma}}{Marginal likelihood under alternative.}
+\item{\code{alpha}}{The posterior mean double reduction rate.}
+\item{\code{xi1}}{The posterior mean preferential pairing parameter of parent 1.}
+\item{\code{xi2}}{The posterior mean preferential pairing parameter of parent 2.}
+}
 }
 \description{
 Bayesian test for segregation distortion in tetraploids when genotypes are known.
 }
+\section{Impossible genotypes}{
+
+Some offspring genotype combinations are impossible given the parental
+gentoypes. If these impossible genotypes combinations show up, we return a
+log-BF of \code{-Inf} and missing values for all other return items.
+The impossible genotypes are (when double reduction is allowed):
+\describe{
+\item{\code{g1 == 0 && g2 == 0}}{Only offspring genotypes of 0 are possible.}
+\item{\code{g1 == 4 && g2 == 4}}{Only offspring genotypes of 4 are possible.}
+\item{\code{g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0}}{Only offspring genotypes of 2 are possible.}
+\item{\code{g1 == 0 && g2 \%in\% c(1, 2, 3) || g1 \%in\% c(1, 2, 3) && g2 == 0}}{Only offspring genotypes of 0, 1, and 2 are possible.}
+\item{\code{g1 == 4 && g2 \%in\% c(1, 2, 3) || g1 \%in\% c(1, 2, 3) && g2 == 4}}{Only offspring genotypes of 2, 3, and 4 are possible.}
+}
+When double reduction is 0, the list of impossible genotypes is more
+complicated.
+}
+
+\section{Unidentified parameters}{
+
+When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
+and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
+meaningless. Do NOT interpret them. The log-BF is fine, though.
+}
+
 \examples{
-set.seed(100)
+set.seed(1)
 gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
-x <- offspring_geno(gf = gf, n = 100)
-bayes_men_g4(x = x, g1 = 2, g2 = 2)
+x <- offspring_geno(gf = gf, n = 20)
+bayes_men_g4(x = x, g1 = 2, g2 = 2, chains = 1, iter = 1000)
 
 }
 \author{
