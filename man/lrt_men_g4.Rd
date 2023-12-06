@@ -65,9 +65,9 @@ meaningless. Do NOT interpret them. The p-value is fine, though.
 
 \examples{
 set.seed(100)
-gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
+gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 1, p2 = 0)
 x <- offspring_geno(gf = gf, n = 100)
-lrt_men_g4(x = x, g1 = 2, g2 = 2)
+lrt_men_g4(x = x, g1 = 1, g2 = 0)
 
 }
 \author{

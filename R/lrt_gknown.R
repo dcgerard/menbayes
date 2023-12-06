@@ -54,9 +54,9 @@
 #'
 #' @examples
 #' set.seed(100)
-#' gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
+#' gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 1, p2 = 0)
 #' x <- offspring_geno(gf = gf, n = 100)
-#' lrt_men_g4(x = x, g1 = 2, g2 = 2)
+#' lrt_men_g4(x = x, g1 = 1, g2 = 0)
 #'
 #' @export
 lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
@@ -100,6 +100,49 @@ lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
   }
 
   return(ret)
+}
+
+#' Returns number of theoretical zeros, to adjust df in lrt when genotypes are known
+#'
+#' @inheritParams is_impossible
+#'
+#' @noRd
+nzeros <- function(g1, g2, dr = TRUE) {
+  if (g1 == 0 && g2 == 0) {
+    return(4)
+  } else if (g1 == 4 & g2 == 4) {
+    return(4)
+  } else if (g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0) {
+    return(4)
+  } else if (dr) {
+    if (g1 == 0 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 0) {
+      return(2)
+    } else if (g1 == 4 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 4) {
+      return(2)
+    }
+  } else if (!dr) {
+    if (g1 == 0 && g2 == 1 || g1 == 1 && g2 == 0) {
+      return(3)
+    } else if (g1 == 0 && g2 == 2 || g1 == 2 && g2 == 0 || g1 == 1 && g2 == 1) {
+      return(2)
+    } else if (g1 == 0 && g2 == 3 || g1 == 3 && g2 == 0) {
+      return(3)
+    } else if (g1 == 1 && g2 == 4 || g1 == 4 && g2 == 1) {
+      return(3)
+    } else if (g1 == 2 && g2 == 4 || g1 == 4 && g2 == 2 || g1 == 3 && g2 == 3) {
+      return(2)
+    } else if (g1 == 3 && g2 == 4 || g1 == 4 && g2 == 3) {
+      return(3)
+    } else if (g1 == 1 && g2 == 2 || g1 == 2 && g2 == 1) {
+      return(1)
+    } else if (g1 == 1 && g2 == 3 || g1 == 3 && g2 == 1) {
+      return(2)
+    } else if (g1 == 2 && g2 == 3 || g1 == 3 && g2 == 2) {
+      return(1)
+    }
+  }
+
+  return(0)
 }
 
 #' Likelihood under three parameter model when genotypes are known
@@ -199,7 +242,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2) {
     log_p = TRUE)
 
   llr <- -2 * (l0 - l1)
-  df <- 4
+  df <- 4 - nzeros(g1 = g1, g2 = g2, dr = FALSE) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
   ret <- list(
@@ -274,59 +317,6 @@ obj_dr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   }
   return(obj)
-}
-
-#' Calculate degrees of freedom of test
-#'
-#' @param alpha estimated double reduction rate
-#' @param xi1 estimated preferential pairing parameter of parent 1
-#' @param xi2 estimated preferential pairing parameter of parent 2
-#' @param g1 genotype of parent 1.
-#' @param g2 genotype of parent 2
-#' @param drbound the maximum possible value of alpha
-#'
-#' @examples
-#' find_df(alpha = 1/6, xi1 = 1/3, xi2 = 1/3, g1 = 2, g2 = 2)
-#' find_df(alpha = 1/12, xi1 = 5/33, xi2 = 23/33, g1 = 2, g2 = 2)
-#' find_df(alpha = 1/12, xi1 = 5/33, xi2 = 1/3, g1 = 2, g2 = 2)
-#' find_df(alpha = 1/12, xi1 = 1/3, xi2 = 1/3, g1 = 2, g2 = 2)
-#' find_df(alpha = 0, xi1 = 1/3, xi2 = 1/3, g1 = 2, g2 = 2)
-#' find_df(alpha = 0, xi1 = 1/3, xi2 = 1/3, g1 = 2, g2 = 1)
-#' find_df(alpha = 1/12, xi1 = 1/3, xi2 = 1/3, g1 = 2, g2 = 1)
-#' find_df(alpha = 1/12, xi1 = 1/3, xi2 = 1/3, g1 = 1, g2 = 1)
-#' find_df(alpha = 0, xi1 = 1/3, xi2 = 1/3, g1 = 1, g2 = 1)
-#'
-#'
-#' @author David Gerard
-#'
-#' @noRd
-find_df_null <- function(alpha, xi1, xi2, g1, g2, drbound = 1/6) {
-  ## tried susko boundary technique to improve power. Might come back later.
-  # TOL <- 1e-3 ## should be larger than fudge in lrt_init
-  # lxi <- (1/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
-  # uxi <- 1 - (2/3) * (alpha / (1 - alpha)) * ((1 - drbound) / drbound)
-
-  ## consider alpha on boundary
-  if (g1 %in% c(0, 4) && g2 %in% c(0, 4)) {
-    df <- 0
-  } else {
-    df <- 1
-  }
-
-  return(c(df = df))
-}
-
-#'
-#'
-#' @noRd
-find_df_alt <- function(g1, g2) {
-  if (g1 %in% c(1, 2, 3) && g2 %in% c(0, 4) ||
-      g1 %in% c(0, 4) && g2 %in% c(1, 2, 3)) {
-    df <- 2
-  } else {
-    df <- 4
-  }
-  return(df)
 }
 
 #' Initial parameter values
@@ -533,9 +523,7 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  df_null <- find_df_null(alpha = alpha, xi1 = xi1, xi2 = xi2, g1 = g1, g2 = g2, drbound = drbound)
-  df_alt <- find_df_alt(g1 = g1, g2 = g2)
-  df <- df_alt - df_null
+  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = TRUE) ## 4 under alt, min 1 under null, remove zeros (at most 2)
 
   llr <- -2 * (l0 - l1)
 
@@ -716,7 +704,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
   }
   l0 <- oout$value
 
-  df <- 3
+  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = FALSE) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
 
   llr <- -2 * (l0 - l1)
 
@@ -804,7 +792,7 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
                        log_p = TRUE)
   l0 <- oout$value
   alpha <- oout$par[[1]]
-  df <- 3
+  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = TRUE) ## 4 under alt, 3 under null, remove zero categories (at most 2).
   llr <- -2 * (l0 - l1)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
