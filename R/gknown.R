@@ -136,7 +136,7 @@ bayes_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE, ...) {
 
   ## log marginal likelihood under null
   if (pp && dr) {
-    stout <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2, output = "all", ...)
+    stout <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, output = "all", ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
     xi1 <- mean(as.data.frame(stout[[2]])$xi1)
@@ -148,7 +148,7 @@ bayes_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE, ...) {
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
     xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
   } else if (!pp && dr) {
-    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, output = "all", ...)
+    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, output = "all", ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
     xi1 <- 1/3
@@ -305,6 +305,7 @@ marg_f1_ndr_npp_g4 <- function(x,
 marg_f1_dr_npp_g4 <- function(x,
                               g1,
                               g2,
+                              drbound = 1/6,
                               mixprop = 0.001,
                               lg = TRUE,
                               output = c("marg", "all"),
@@ -313,7 +314,6 @@ marg_f1_dr_npp_g4 <- function(x,
             length(g1) == 1,
             length(g2) == 1)
   stopifnot(g1 >= 0, g1 <= 4, g2 >= 0, g2 <= 4)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(x = x,
                    drbound = drbound,
                    g1 = g1,
@@ -441,6 +441,7 @@ marg_f1_ndr_pp_g4 <- function(x,
 marg_f1_dr_pp_g4 <- function(x,
                              g1,
                              g2,
+                             drbound = 1/6,
                              mixprop = 0.001,
                              lg = TRUE,
                              output = c("marg", "all"),
@@ -449,7 +450,6 @@ marg_f1_dr_pp_g4 <- function(x,
             length(g1) == 1,
             length(g2) == 1)
   stopifnot(g1 >= 0, g1 <= 4, g2 >= 0, g2 <= 4)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(x = x,
                    drbound = drbound,
                    g1 = g1,
