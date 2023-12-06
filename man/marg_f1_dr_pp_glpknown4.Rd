@@ -8,6 +8,7 @@ marg_f1_dr_pp_glpknown4(
   gl,
   p1,
   p2,
+  drbound = 1/6,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),
@@ -23,6 +24,8 @@ genotype k-1.}
 \item{p1}{Genotype of parent 1.}
 
 \item{p2}{Genotype of parent 2.}
+
+\item{drbound}{The maximum rate of double reduction.}
 
 \item{mixprop}{The mixing proportion with the uniform for mixing purposes.}
 

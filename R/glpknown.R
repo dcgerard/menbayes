@@ -75,6 +75,7 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
 marg_f1_dr_npp_glpknown4 <- function(gl,
                                      p1,
                                      p2,
+                                     drbound = 1/6,
                                      mixprop = 0.001,
                                      lg = TRUE,
                                      output = c("marg", "all"),
@@ -82,7 +83,6 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
   stopifnot(ncol(gl) == 5,
             length(p1) == 1,
             length(p2) == 1)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(gl = gl,
                    N = nrow(gl),
                    drbound = drbound,
@@ -195,6 +195,7 @@ marg_f1_ndr_pp_glpknown4 <- function(gl,
 #' @param output Should we return just the marginal likelihood (\code{"marg"})
 #'     or both the marginal likelihood and all of the output of Stan
 #'     (\code{"all"})?
+#' @param drbound The maximum rate of double reduction.
 #' @param ... Additional parameters sent to \code{\link[rstan]{sampling}()}.
 #'
 #' @examples
@@ -224,6 +225,7 @@ marg_f1_ndr_pp_glpknown4 <- function(gl,
 marg_f1_dr_pp_glpknown4 <- function(gl,
                                     p1,
                                     p2,
+                                    drbound = 1/6,
                                     mixprop = 0.001,
                                     lg = TRUE,
                                     output = c("marg", "all"),
@@ -231,7 +233,6 @@ marg_f1_dr_pp_glpknown4 <- function(gl,
   stopifnot(ncol(gl) == 5,
             length(p1) == 1,
             length(p2) == 1)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(gl = gl,
                    N = nrow(gl),
                    drbound = drbound,

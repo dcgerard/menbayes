@@ -141,6 +141,7 @@ marg_f1_ndr_npp_gl4 <- function(gl,
 marg_f1_dr_npp_gl4 <- function(gl,
                                p1_gl = rep(log(0.2), 5),
                                p2_gl = rep(log(0.2), 5),
+                               drbound = 1/6,
                                mixprop = 0.001,
                                lg = TRUE,
                                output = c("marg", "all"),
@@ -152,7 +153,6 @@ marg_f1_dr_npp_gl4 <- function(gl,
   stopifnot(mixprop > 0, mixprop <= 1)
   p1_gl <- p1_gl - updog::log_sum_exp(p1_gl)
   p2_gl <- p2_gl - updog::log_sum_exp(p2_gl)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(gl = gl,
                    N = nrow(gl),
                    drbound = drbound,
@@ -274,6 +274,7 @@ marg_f1_ndr_pp_gl4 <- function(gl,
 #'     genotype k-1.
 #' @param p1_gl The vector of genotype likelihoods of parent 1.
 #' @param p2_gl The vector of genotype likelihoods of parent 2.
+#' @param drbound The maximum rate of double reduction.
 #' @param mixprop The mixing proportion with the uniform for mixing purposes.
 #' @param lg A logical. Should we log the marginal likelihood (\code{TRUE})
 #'     or not (\code{FALSE})?
@@ -321,6 +322,7 @@ marg_f1_ndr_pp_gl4 <- function(gl,
 marg_f1_dr_pp_gl4 <- function(gl,
                               p1_gl = rep(log(0.2), 5),
                               p2_gl = rep(log(0.2), 5),
+                              drbound = 1/6,
                               mixprop = 0.001,
                               lg = TRUE,
                               output = c("marg", "all"),
@@ -332,7 +334,6 @@ marg_f1_dr_pp_gl4 <- function(gl,
   stopifnot(mixprop > 0, mixprop <= 1)
   p1_gl <- p1_gl - updog::log_sum_exp(p1_gl)
   p2_gl <- p2_gl - updog::log_sum_exp(p2_gl)
-  drbound <- hwep::drbounds(ploidy = 4)
   stan_dat <- list(gl = gl,
                    N = nrow(gl),
                    drbound = drbound,

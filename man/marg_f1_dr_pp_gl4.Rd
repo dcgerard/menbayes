@@ -8,6 +8,7 @@ marg_f1_dr_pp_gl4(
   gl,
   p1_gl = rep(log(0.2), 5),
   p2_gl = rep(log(0.2), 5),
+  drbound = 1/6,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),
@@ -23,6 +24,8 @@ genotype k-1.}
 \item{p1_gl}{The vector of genotype likelihoods of parent 1.}
 
 \item{p2_gl}{The vector of genotype likelihoods of parent 2.}
+
+\item{drbound}{The maximum rate of double reduction.}
 
 \item{mixprop}{The mixing proportion with the uniform for mixing purposes.}
 
