@@ -108,7 +108,7 @@ bayes_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE, ...) {
             g1 <= 4,
             g2 >= 0,
             g2 <= 4,
-            drbound > 10^-6,
+            drbound > 1e-6,
             drbound <= 1,
             is.logical(pp),
             is.logical(dr),
