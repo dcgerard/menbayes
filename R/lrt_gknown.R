@@ -366,6 +366,45 @@ lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
   return(out)
 }
 
+#' Check if estimates are on the boundary
+#'
+#' @param g1 parent 1's genotype
+#' @param g2 parent 2's genotype
+#' @param alpha estimated double reduction rate
+#' @param xi1 estimated preferential pairing parameter of parent 1
+#' @param xi2 estimated preferential pairing parameter of parent 2
+#' @param drbound bound on double reduction rate
+#'
+#' @return TRUE if on boundary, FALSE otherwise
+#'
+#' @author David Gerard
+#'
+#' @noRd
+onbound <- function(g1, g2, alpha, xi1, xi2, drbound) {
+  if (drbound > 1/4) {
+    stop("drbound > 1/4 not supported")
+  }
+
+  ob <- 0
+  TOL <- 1e-3
+  if (g1 != 2 && g2 != 2) {
+    if (alpha < TOL || alpha > drbound - TOL) {
+      ob <- 1
+    }
+  } else if (g1 == 2 && g2 %in% c(0, 4)) {
+    p1 <- 0.5 * (1 + xi1) * (1 - alpha)
+    if (p1 < 0.5 + TOL || p1 > 1 - TOL) {
+      ob <- 1
+    }
+  } else if (g1 %in% c(0, 4) && g2 == 2) {
+    p1 <- 0.5 * (1 + xi2) * (1 - alpha)
+    if (p1 < 0.5 + TOL || p1 > 1 - TOL) {
+      ob <- 1
+    }
+  }
+  return(ob)
+}
+
 
 #' LRT when both double reduction and preferential pairing are not known.
 #'
@@ -523,7 +562,20 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = TRUE) ## 4 under alt, min 1 under null, remove zeros (at most 2)
+  ## df is 4 under alt, min 1 under null, remove zeros (at most 2), add one if parameter is estimated on boundary
+  ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
+  nz <- sum(x < 0.5)
+  df <- max(4 - 1 - nz + ob, 0)
+  if (df == 0) {
+    ret <- list(
+      statistic = llr,
+      p_value = 1,
+      df = 0,
+      alpha = alpha,
+      xi1 = xi1,
+      xi2 = xi2)
+    return(ret)
+  }
 
   llr <- -2 * (l0 - l1)
 
