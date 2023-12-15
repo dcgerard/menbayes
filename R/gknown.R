@@ -79,6 +79,14 @@ is_impossible <- function(x, g1, g2, dr = TRUE) {
 #' meaningless. Do NOT interpret them. The log-BF is fine, though.
 #'
 #' @inheritParams lrt_men_g4
+#' @param shape1 The shape 1 parameter for the beta prior over the
+#'     preferential pairing parameter.
+#' @param shape2 The shape 2 parameter for the beta prior over the
+#'     preferential pairing parameter.
+#' @param ts1 The shape 1 parameter for the beta prior over the
+#'     rate of quadrivalent formation.
+#' @param ts2 The shape 2 parameter for the beta prior over the
+#'     rate of quadrivalent formation.
 #' @param ... Additional arguments to pass to Stan.
 #'
 #' @return A list with the following elements
@@ -107,6 +115,8 @@ bayes_men_g4 <- function(
     drbound = 1/6,
     shape1 = 5/9,
     shape2 = 10/9,
+    ts1 = 1,
+    ts2 = 1,
     pp = TRUE,
     dr = TRUE,
     ...) {
@@ -145,7 +155,7 @@ bayes_men_g4 <- function(
 
   ## log marginal likelihood under null
   if (pp && dr) {
-    stout <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, shape1 = shape1, shape2 = shape2, output = "all", ...)
+    stout <- marg_f1_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, shape1 = shape1, shape2 = shape2, ts1 = ts1, ts2 = ts2, output = "all", ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
     xi1 <- mean(as.data.frame(stout[[2]])$xi1)
@@ -157,7 +167,7 @@ bayes_men_g4 <- function(
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
     xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
   } else if (!pp && dr) {
-    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, output = "all", ...)
+    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, ts1 = ts1, ts2 = ts2, output = "all", ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
     xi1 <- 1/3
@@ -315,6 +325,8 @@ marg_f1_dr_npp_g4 <- function(x,
                               g1,
                               g2,
                               drbound = 1/6,
+                              ts1 = 1,
+                              ts2 = 1,
                               mixprop = 0.001,
                               lg = TRUE,
                               output = c("marg", "all"),
@@ -327,7 +339,9 @@ marg_f1_dr_npp_g4 <- function(x,
                    drbound = drbound,
                    g1 = g1,
                    g2 = g2,
-                   mixprop = mixprop)
+                   mixprop = mixprop,
+                   ts1 = ts1,
+                   ts2 = ts2)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_npp_g4,
                               data = stan_dat,
                               verbose = FALSE,
@@ -457,6 +471,8 @@ marg_f1_dr_pp_g4 <- function(x,
                              drbound = 1/6,
                              shape1 = 5/9,
                              shape2 = 10/9,
+                             ts1 = 1,
+                             ts2 = 1,
                              mixprop = 0.001,
                              lg = TRUE,
                              output = c("marg", "all"),
@@ -471,7 +487,9 @@ marg_f1_dr_pp_g4 <- function(x,
                    g2 = g2,
                    mixprop = mixprop,
                    shape1 = shape1,
-                   shape2 = shape2)
+                   shape2 = shape2,
+                   ts1 = ts1,
+                   ts2 = ts2)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_pp_g4,
                               data = stan_dat,
                               verbose = FALSE,

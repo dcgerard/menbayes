@@ -9,6 +9,8 @@ marg_f1_dr_npp_glpknown4(
   p1,
   p2,
   drbound = 1/6,
+  ts1 = 1,
+  ts2 = 1,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),

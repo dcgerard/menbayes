@@ -11,6 +11,8 @@ marg_f1_dr_pp_glpknown4(
   drbound = 1/6,
   shape1 = 5/9,
   shape2 = 10/9,
+  ts1 = 1,
+  ts2 = 1,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),

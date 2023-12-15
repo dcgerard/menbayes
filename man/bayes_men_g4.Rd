@@ -11,6 +11,8 @@ bayes_men_g4(
   drbound = 1/6,
   shape1 = 5/9,
   shape2 = 10/9,
+  ts1 = 1,
+  ts2 = 1,
   pp = TRUE,
   dr = TRUE,
   ...
@@ -27,6 +29,18 @@ offspring with genotype \code{i-1}.}
 \item{drbound}{The maximum rate of double reduction. A default of 1/6
 is provided, which is the rate under the complete equational
 segregation model of meiosis.}
+
+\item{shape1}{The shape 1 parameter for the beta prior over the
+preferential pairing parameter.}
+
+\item{shape2}{The shape 2 parameter for the beta prior over the
+preferential pairing parameter.}
+
+\item{ts1}{The shape 1 parameter for the beta prior over the
+rate of quadrivalent formation.}
+
+\item{ts2}{The shape 2 parameter for the beta prior over the
+rate of quadrivalent formation.}
 
 \item{pp}{A logical. Should we account for preferential pairing
 (\code{TRUE}) or not (\code{FALSE})?}
@@ -76,7 +90,7 @@ meaningless. Do NOT interpret them. The log-BF is fine, though.
 
 \examples{
 set.seed(1)
-gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.2, xi2 = 0.6, p1 = 2, p2 = 2)
+gf <- offspring_gf_2(alpha = 1/12, xi1 = 0.1, xi2 = 0.5, p1 = 2, p2 = 2)
 x <- offspring_geno(gf = gf, n = 20)
 bayes_men_g4(x = x, g1 = 2, g2 = 2, chains = 1, iter = 1000)
 

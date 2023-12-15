@@ -43,6 +43,8 @@ data {
   matrix[N, 5] gl; // genotype log-likelihoods for offspring
   real<lower=0.0,upper=1.0> drbound; // upper bound of double reduction rate
   real<lower=0.0,upper=1.0> mixprop; // mixing component with uniform
+  real<lower=0.0> ts1; // shape 1 of beta for tau
+  real<lower=0.0> ts2; // shape 2 of beta for tau
 }
 
 parameters {
@@ -72,7 +74,7 @@ transformed parameters {
 }
 
 model {
-  target += uniform_lpdf(tau | 0.0, 1);
+  target += beta_lpdf(tau | ts1, ts2);
   target += uniform_lpdf(beta | 0.0, drbound);
   target += log_sum_exp(glmat);
 }
