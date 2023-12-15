@@ -8,6 +8,8 @@ marg_f1_ndr_pp_glpknown4(
   gl,
   p1,
   p2,
+  shape1 = 5/9,
+  shape2 = 10/9,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),

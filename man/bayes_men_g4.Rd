@@ -4,7 +4,17 @@
 \alias{bayes_men_g4}
 \title{Bayesian test for segregation distortion in tetraploids when genotypes are known.}
 \usage{
-bayes_men_g4(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE, ...)
+bayes_men_g4(
+  x,
+  g1,
+  g2,
+  drbound = 1/6,
+  shape1 = 5/9,
+  shape2 = 10/9,
+  pp = TRUE,
+  dr = TRUE,
+  ...
+)
 }
 \arguments{
 \item{x}{A vector of genotype counts. \code{x[i]} is the number of

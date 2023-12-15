@@ -564,8 +564,11 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
   }
   ## df is 4 under alt, min 1 under null, remove zeros (at most 2), add one if parameter is estimated on boundary
   ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
-  nz <- sum(x < 0.5)
+  nz <- nzeros(g1 = g1, g2 = g2, dr = TRUE)
   df <- max(4 - 1 - nz + ob, 0)
+
+  llr <- -2 * (l0 - l1)
+
   if (df == 0) {
     ret <- list(
       statistic = llr,
@@ -576,8 +579,6 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
       xi2 = xi2)
     return(ret)
   }
-
-  llr <- -2 * (l0 - l1)
 
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 

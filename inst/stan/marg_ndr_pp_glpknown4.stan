@@ -42,6 +42,8 @@ data {
   int<lower=0,upper=4> g1; // first parent genotype
   int<lower=0,upper=4> g2; // second parent genotype
   real<lower=0.0,upper=1.0> mixprop; // mixing component with uniform
+  real<lower=0.0> shape1; // shape 1 of beta
+  real<lower=0.0> shape2; // shape 2 of beta
 }
 
 parameters {
@@ -58,8 +60,8 @@ model {
   p2 = segfreq4(gamma2, g2);
   q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
   q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
-  target += beta_lpdf(gamma1 | 5.0 / 9.0, 10.0 / 9.0);
-  target += beta_lpdf(gamma2 | 5.0 / 9.0, 10.0 / 9.0);
+  target += beta_lpdf(gamma1 | shape1, shape2);
+  target += beta_lpdf(gamma2 | shape1, shape2);
   for (ind in 1:N) {
     target += log_sum_exp(to_vector(gl[ind]) + log(q));
   }

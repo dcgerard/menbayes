@@ -42,6 +42,8 @@ data {
   vector[5] p2_gl; // genotype log-likelihoods for parent 2
   matrix[N, 5] gl; // genotype log-likelihoods for offspring
   real<lower=0.0,upper=1.0> mixprop; // mixing component with uniform
+  real<lower=0.0> shape1; // shape 1 of beta
+  real<lower=0.0> shape2; // shape 2 of beta
 }
 
 parameters {
@@ -70,7 +72,7 @@ transformed parameters {
 }
 
 model {
-  target += beta_lpdf(gamma1 | 5.0 / 9.0, 10.0 / 9.0);
-  target += beta_lpdf(gamma2 | 5.0 / 9.0, 10.0 / 9.0);
+  target += beta_lpdf(gamma1 | shape1, shape2);
+  target += beta_lpdf(gamma2 | shape1, shape2);
   target += log_sum_exp(glmat);
 }

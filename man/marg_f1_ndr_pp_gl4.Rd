@@ -8,6 +8,8 @@ marg_f1_ndr_pp_gl4(
   gl,
   p1_gl = rep(log(0.2), 5),
   p2_gl = rep(log(0.2), 5),
+  shape1 = 5/9,
+  shape2 = 10/9,
   mixprop = 0.001,
   lg = TRUE,
   output = c("marg", "all"),
