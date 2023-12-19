@@ -2,60 +2,6 @@
 ## Methods when genotypes are known
 ###################
 
-#' Checks to see if x is impossible given parental gentoypes
-#'
-#' @param x The offspring genotype counts
-#' @param g1 Parent 1's genotype
-#' @param g2 Parent 2's genotype
-#' @param df Is double reduction possible?
-#'
-#' @return TRUE if impossible, FALSE if possible
-#'
-#' @author David Gerard
-#'
-#' @examples
-#' is_impossible(x = c(1, 2, 3, 0, 0), g1 = 0, g2 = 3, dr = TRUE)
-#'
-#'
-#' @noRd
-is_impossible <- function(x, g1, g2, dr = TRUE) {
-  if (g1 == 0 && g2 == 0) {
-    return(!all(x[2:5] == 0))
-  } else if (g1 == 4 & g2 == 4) {
-    return(!all(x[1:4] == 0))
-  } else if (g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0) {
-    return(!all(x[c(1, 2, 4, 5)] == 0))
-  } else if (dr) {
-    if (g1 == 0 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 0) {
-      return(!all(x[4:5] == 0))
-    } else if (g1 == 4 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 4) {
-      return(!all(x[1:2] == 0))
-    }
-  } else if (!dr) {
-    if (g1 == 0 && g2 == 1 || g1 == 1 && g2 == 0) {
-      return(!all(x[3:5] == 0))
-    } else if (g1 == 0 && g2 == 2 || g1 == 2 && g2 == 0 || g1 == 1 && g2 == 1) {
-      return(!all(x[4:5] == 0))
-    } else if (g1 == 0 && g2 == 3 || g1 == 3 && g2 == 0) {
-      return(!all(x[c(1, 4, 5)] == 0))
-    } else if (g1 == 1 && g2 == 4 || g1 == 4 && g2 == 1) {
-      return(!all(x[c(1, 2, 5)] == 0))
-    } else if (g1 == 2 && g2 == 4 || g1 == 4 && g2 == 2 || g1 == 3 && g2 == 3) {
-      return(!all(x[1:2] == 0))
-    } else if (g1 == 3 && g2 == 4 || g1 == 4 && g2 == 3) {
-      return(!all(x[1:3] == 0))
-    } else if (g1 == 1 && g2 == 2 || g1 == 2 && g2 == 1) {
-      return(!all(x[5] == 0))
-    } else if (g1 == 1 && g2 == 3 || g1 == 3 && g2 == 1) {
-      return(!all(x[c(1, 5)] == 0))
-    } else if (g1 == 2 && g2 == 3 || g1 == 3 && g2 == 2) {
-      return(!all(x[1] == 0))
-    }
-  }
-
-  return(FALSE)
-}
-
 #' Bayesian test for segregation distortion in tetraploids when genotypes are known.
 #'
 #' @section Impossible genotypes:
@@ -195,6 +141,60 @@ bayes_men_g4 <- function(
   )
 
   return(ret)
+}
+
+#' Checks to see if x is impossible given parental gentoypes
+#'
+#' @param x The offspring genotype counts
+#' @param g1 Parent 1's genotype
+#' @param g2 Parent 2's genotype
+#' @param df Is double reduction possible?
+#'
+#' @return TRUE if impossible, FALSE if possible
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' is_impossible(x = c(1, 2, 3, 0, 0), g1 = 0, g2 = 3, dr = TRUE)
+#'
+#'
+#' @noRd
+is_impossible <- function(x, g1, g2, dr = TRUE) {
+  if (g1 == 0 && g2 == 0) {
+    return(!all(x[2:5] == 0))
+  } else if (g1 == 4 & g2 == 4) {
+    return(!all(x[1:4] == 0))
+  } else if (g1 == 0 && g2 == 4 || g1 == 4 && g2 == 0) {
+    return(!all(x[c(1, 2, 4, 5)] == 0))
+  } else if (dr) {
+    if (g1 == 0 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 0) {
+      return(!all(x[4:5] == 0))
+    } else if (g1 == 4 && g2 %in% c(1, 2, 3) || g1 %in% c(1, 2, 3) && g2 == 4) {
+      return(!all(x[1:2] == 0))
+    }
+  } else if (!dr) {
+    if (g1 == 0 && g2 == 1 || g1 == 1 && g2 == 0) {
+      return(!all(x[3:5] == 0))
+    } else if (g1 == 0 && g2 == 2 || g1 == 2 && g2 == 0 || g1 == 1 && g2 == 1) {
+      return(!all(x[4:5] == 0))
+    } else if (g1 == 0 && g2 == 3 || g1 == 3 && g2 == 0) {
+      return(!all(x[c(1, 4, 5)] == 0))
+    } else if (g1 == 1 && g2 == 4 || g1 == 4 && g2 == 1) {
+      return(!all(x[c(1, 2, 5)] == 0))
+    } else if (g1 == 2 && g2 == 4 || g1 == 4 && g2 == 2 || g1 == 3 && g2 == 3) {
+      return(!all(x[1:2] == 0))
+    } else if (g1 == 3 && g2 == 4 || g1 == 4 && g2 == 3) {
+      return(!all(x[1:3] == 0))
+    } else if (g1 == 1 && g2 == 2 || g1 == 2 && g2 == 1) {
+      return(!all(x[5] == 0))
+    } else if (g1 == 1 && g2 == 3 || g1 == 3 && g2 == 1) {
+      return(!all(x[c(1, 5)] == 0))
+    } else if (g1 == 2 && g2 == 3 || g1 == 3 && g2 == 2) {
+      return(!all(x[1] == 0))
+    }
+  }
+
+  return(FALSE)
 }
 
 #' Stan version of marg_alt_g(). Not to be used.
@@ -512,53 +512,4 @@ marg_f1_dr_pp_g4 <- function(x,
   } else {
     return(all)
   }
-}
-
-#' Chi Square test when genotypes are known
-#'
-#' This chi-squared test is run under the assumption of no double reduction
-#' and no preferential pairing.
-#'
-#' @param x Vector of observed genotype counts
-#' @param g1 Parent 1's genotype
-#' @param g2 Parent 2's genotype
-#'
-#' @return The Chi Square statistic and p-value
-#'
-#' @author Mira Thakkar and David Gerard
-#'
-#' @examples
-#' x <- c(1, 2, 4, 3, 0)
-#' g1 <- 2
-#' g2 <- 2
-#' chisq_ndr_npp_g4(x, g1, g2)
-#'
-#' x <- c(10, 25, 10, 0, 0)
-#' g1 <- 1
-#' g2 <- 1
-#' chisq_ndr_npp_g4(x, g1, g2)
-#'
-#' @export
-chisq_ndr_npp_g4 <- function(x, g1, g2){
-  TOL <- sqrt(.Machine$double.eps)
-  gf <- menbayes::offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
-  which_zero <- gf < TOL
-  gf[which_zero] <- 0
-
-  if (sum(x[which_zero]) > 0.5) { ## if any incompatibility, p-value is 0
-    ret <- list(statistic = Inf,
-                p_value = 0,
-                df = NA_real_)
-    return(ret)
-  } else {
-    x <- x[!which_zero]
-    gf <- gf[!which_zero]
-  }
-
-  chout <- stats::chisq.test(x = x, p = gf)
-  ret <- list(statistic = chout$statistic[[1]],
-              p_value = chout$p.value[[1]],
-              df = chout$parameter[[1]])
-  return(ret)
-
 }

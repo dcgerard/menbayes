@@ -16,7 +16,7 @@
 #' gl <- hwep::simgl(nvec = x, rdepth = 100, od = 0, bias = 1, seq = 0)
 #' marg_alt_gl(gl = gl, chains = 1)
 #'
-#' @export
+#' @noRd
 marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
   ploidy <- ncol(gl) - 1
   nind <- nrow(gl)
@@ -71,7 +71,7 @@ marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
 #' malt <- -46.82 ## result of running marg_alt_gl(gl)
 #' mnull - malt ## log-BF
 #'
-#' @export
+#' @noRd
 marg_f1_ndr_npp_gl4 <- function(gl,
                                 p1_gl = rep(log(0.2), 5),
                                 p2_gl = rep(log(0.2), 5),
@@ -137,7 +137,7 @@ marg_f1_ndr_npp_gl4 <- function(gl,
 #' mnull - malt ## log-BF
 #' }
 #'
-#' @export
+#' @noRd
 marg_f1_dr_npp_gl4 <- function(gl,
                                p1_gl = rep(log(0.2), 5),
                                p2_gl = rep(log(0.2), 5),
@@ -226,7 +226,7 @@ marg_f1_dr_npp_gl4 <- function(gl,
 #' mnull - malt ## log-BF
 #' }
 #'
-#' @export
+#' @noRd
 marg_f1_ndr_pp_gl4 <- function(gl,
                                p1_gl = rep(log(0.2), 5),
                                p2_gl = rep(log(0.2), 5),
@@ -326,7 +326,7 @@ marg_f1_ndr_pp_gl4 <- function(gl,
 #' mnull - malt ## log-BF
 #' }
 #'
-#' @export
+#' @noRd
 marg_f1_dr_pp_gl4 <- function(gl,
                               p1_gl = rep(log(0.2), 5),
                               p2_gl = rep(log(0.2), 5),

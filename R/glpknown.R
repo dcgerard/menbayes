@@ -3,6 +3,194 @@
 ## only have genotype likelihoods
 ###############
 
+#' Bayesian test for segregation distortion in tetraploids using genotype likelihoods
+#'
+#' @section Unidentified parameters:
+#' When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
+#' and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
+#' meaningless. Do NOT interpret them. The log-BF is fine, though.
+#'
+#' @inheritParams bayes_men_g4
+#' @param gl The genotype log-likelihoods. The rows index the individuals
+#'    and the columns index the genotypes.
+#' @param g1 Either parent 1's genotype, or parent 1's genotype log-likelihoods.
+#' @param g2 Either parent 2's genotype, or parent 2's genotype log-likelihoods.
+#'
+#' @examples
+#' \dontrun{
+#' ## null sims
+#' set.seed(1)
+#' g1 <- 1
+#' g2 <- 2
+#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2)
+#' bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
+#'
+#' ## genotypes of parents not known
+#' g1_gl <- log(c(0.2, 0.5, 0.2, 0.09, 0.01))
+#' g2_gl <- log(c(0.09, 0.2, 0.4, 0.3, 0.01))
+#' bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+#'
+#' ## alt sims
+#' gl <- hwep::simgl(nvec = rep(5, 5), rdepth = 10)
+#' bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
+#'
+#' bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+#' }
+#'
+#' @author David Gerard
+#'
+#' @export
+bayes_men_gl4 <- function(
+    gl,
+    g1,
+    g2,
+    drbound = 1/6,
+    shape1 = 5/9,
+    shape2 = 10/9,
+    ts1 = 1,
+    ts2 = 1,
+    pp = TRUE,
+    dr = TRUE,
+    ...) {
+  ## check input ----
+  stopifnot(ncol(gl) == 5,
+            drbound > 1e-6,
+            drbound <= 1,
+            is.logical(pp),
+            is.logical(dr),
+            length(drbound) == 1,
+            length(pp) == 1,
+            length(dr) == 1)
+  if (length(g1) == 1 && length(g2) == 1) {
+    pknown <- TRUE
+    g1 <- round(g1)
+    g2 <- round(g2)
+    stopifnot(g1 >= 0, g1 <= 4, g2 >= 0, g2 <= 4)
+  } else if (length(g1) == 5 && length(g2) == 5) {
+    pknown <- FALSE
+    ## normalize to sum to 1
+    g1 <- g1 - log_sum_exp(g1)
+    g2 <- g2 - log_sum_exp(g2)
+  } else {
+    stop("g1 and g2 should either both be length 1 (known genotypes)\nor both be length 5 (genotype log-likelihoods).")
+  }
+
+  ## log marginal likelihood under alternative ----
+  ma <- marg_alt_gl(gl = gl, ...)
+
+  ## log marginal likelihood under null ----
+  if (pp && dr && pknown) {
+    stout <- marg_f1_dr_pp_glpknown4(
+      gl = gl,
+      p1 = g1,
+      p2 = g2,
+      drbound = drbound,
+      shape1 = shape1,
+      shape2 = shape2,
+      ts1 = ts1,
+      ts2 = ts2,
+      lg = TRUE,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- mean(as.data.frame(stout[[2]])$alpha)
+    xi1 <- mean(as.data.frame(stout[[2]])$xi1)
+    xi2 <- mean(as.data.frame(stout[[2]])$xi2)
+  } else if (pp && !dr && pknown) {
+    stout <- marg_f1_ndr_pp_glpknown4(
+      gl = gl,
+      p1 = g1,
+      p2 = g2,
+      shape1 = shape1,
+      shape2 = shape2,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- 0
+    xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
+    xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
+  } else if (!pp && dr && pknown) {
+    stout <- marg_f1_dr_npp_glpknown4(
+      gl = gl,
+      p1 = g1,
+      p2 = g2,
+      drbound = drbound,
+      ts1 = ts1,
+      ts2 = ts2,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- mean(as.data.frame(stout[[2]])$alpha)
+    xi1 <- 1/3
+    xi2 <- 1/3
+  } else if (!pp && !dr && pknown) {
+    m0 <- marg_f1_ndr_npp_glpknown4(gl = gl, p1 = g1, p2 = g2)
+    alpha <- 0
+    xi1 <- 1/3
+    xi2 <- 1/3
+  } else if (pp && dr && !pknown) {
+    stout <- marg_f1_dr_pp_gl4(
+      gl = gl,
+      p1_gl = g1,
+      p2_gl = g2,
+      drbound = drbound,
+      shape1 = shape1,
+      shape2 = shape2,
+      ts1 = ts1,
+      ts2 = ts2,
+      lg = TRUE,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- mean(as.data.frame(stout[[2]])$alpha)
+    xi1 <- mean(as.data.frame(stout[[2]])$xi1)
+    xi2 <- mean(as.data.frame(stout[[2]])$xi2)
+  } else if (pp && !dr && !pknown) {
+    stout <- marg_f1_ndr_pp_gl4(
+      gl = gl,
+      p1_gl = g1,
+      p2_gl = g2,
+      shape1 = shape1,
+      shape2 = shape2,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- 0
+    xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
+    xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
+  } else if (!pp && dr && !pknown) {
+    stout <- marg_f1_dr_npp_gl4(
+      gl = gl,
+      p1_gl = g1,
+      p2_gl = g2,
+      drbound = drbound,
+      ts1 = ts1,
+      ts2 = ts2,
+      output = "all",
+      ...)
+    m0 <- stout[[1]]
+    alpha <- mean(as.data.frame(stout[[2]])$alpha)
+    xi1 <- 1/3
+    xi2 <- 1/3
+  } else if (!pp && !dr && !pknown) {
+    m0 <- marg_f1_ndr_npp_gl4(gl = gl, p1_gl = g1, p2_gl = g2)
+    alpha <- 0
+    xi1 <- 1/3
+    xi2 <- 1/3
+  }
+
+  ret <- list(
+    lbf = m0 - ma,
+    m0 = m0,
+    ma = ma,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2
+  )
+
+  return(ret)
+}
+
 #' Marginal likelihood, no double reduction, no preferential pairing, parent genotypes known, offspring genotypes unknown
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
@@ -30,7 +218,7 @@
 #'
 #' @author Mira Thakkar and David Gerard
 #'
-#' @export
+#' @noRd
 marg_f1_ndr_npp_glpknown4 <- function(gl,
                                       p1,
                                       p2,
@@ -71,7 +259,7 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
 #'
 #' @author Mira Thakkar and David Gerard
 #'
-#' @export
+#' @noRd
 marg_f1_dr_npp_glpknown4 <- function(gl,
                                      p1,
                                      p2,
@@ -145,7 +333,7 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
 #'
 #' @author Mira Thakkar and David Gerard
 #'
-#' @export
+#' @noRd
 marg_f1_ndr_pp_glpknown4 <- function(gl,
                                      p1,
                                      p2,
@@ -229,7 +417,7 @@ marg_f1_ndr_pp_glpknown4 <- function(gl,
 #'
 #' @author Mira Thakkar and David Gerard
 #'
-#' @export
+#' @noRd
 marg_f1_dr_pp_glpknown4 <- function(gl,
                                     p1,
                                     p2,
@@ -279,26 +467,3 @@ marg_f1_dr_pp_glpknown4 <- function(gl,
   }
 }
 
-
-## Chi-Sq for GL
-#' Chi-Sq for GL
-#'
-#' Calculates the MLE genotype and runs a chi-squared test assuming
-#' no double reduction and no preferential pairing.
-#'
-#' @inheritParams marg_f1_dr_pp_glpknown4
-#' @param g1 The first parent's genotype
-#' @param g2 The second parent's genotype.
-#'
-#' @author Mira Thakkar and David Gerard
-#'
-#' @export
-chisq_gl4 <- function(gl, g1, g2){
-  ploidy <- 4
-  col_max <- apply(gl, 1, which.max) - 1
-  col_max <- factor(col_max, levels = 0:ploidy)
-  x <- c(table(col_max))
-  output <- chisq_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
-
-  return(output)
-}

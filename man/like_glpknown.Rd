@@ -30,21 +30,24 @@ Likelihood under three parameter model when using offspring genotypes
 likelihoods but parent genotypes are known.
 }
 \examples{
-p1 <- 1
-p2 <- 0
-gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = p1, p2 = p2)
-x <- offspring_geno(gf = gf, n = 10)
-genovec <- gcount_to_gvec(gcount = x)
-uout <- po_gl(genovec = genovec, p1_geno = p1, p2_geno = p2, ploidy = 4)
-gl <- uout$genologlike
+g1 <- 1
+g2 <- 0
+gl <- simf1gl(
+  n = 25,
+  g1 = g1,
+  g2 = g2,
+  rd = 10,
+  alpha = 0,
+  xi1 = 1/3,
+  xi2 = 1/3)
 like_glpknown(
   gl = gl,
   tau = 1/2,
   beta = 1/12,
   gamma1 = 1/3,
   gamma2 = 1/3,
-  g1 = p1,
-  g2 = p2,
+  g1 = g1,
+  g2 = g2,
   log_p = TRUE)
 
 }

@@ -254,3 +254,29 @@ po_gl <- function(genovec, p1_geno, p2_geno, ploidy, seq = 0.01, rd = 10, bias =
 
   return(fout)
 }
+
+#' Simulate genotype likelihoods of F1 individuals.
+#'
+#' @param n Sample size.
+#' @param g1 The first parent's genotype.
+#' @param g2 The second parent's genotype.
+#' @param rd The read depth.
+#' @param alpha The double reduction rate.
+#' @param xi1 The first parent's preferential pairing parameter.
+#' @param xi2 The second parent's preferential pairing paramter.
+#'
+#' @return The matrix of offspring genotype log-likelihoods.
+#'
+#' @examples
+#' simf1gl(n = 10, g1 = 1, g2 = 2)
+#'
+#' @author David Gerard
+#'
+#' @export
+simf1gl <- function(n, g1, g2, rd = 10, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
+  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
+  gcount <- offspring_geno(gf = gf, n = n)
+  gvec <- gcount_to_gvec(gcount = gcount)
+  fout <- po_gl(genovec = gvec, p1_geno = g1, p2_geno = g2, ploidy = 4, rd = rd)
+  return(fout$genologlike)
+}

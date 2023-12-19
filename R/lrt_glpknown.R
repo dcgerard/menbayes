@@ -1,5 +1,77 @@
 ## Offspring genotype likelihoods, parent genotypes
 
+#' Likelihood ratio test using genotype likelihoods.
+#'
+#' @param gl The genotype log-likelihoods. The rows index the individuals
+#'    and the columns index the genotypes.
+#' @param g1 Either parent 1's genotype, or parent 1's genotype log-likelihoods.
+#' @param g2 Either parent 2's genotype, or parent 2's genotype log-likelihoods.
+#' @param drbound The upper bound on the double reduction rate.
+#' @param pp Is (partial) preferential pairing possible (\code{TRUE}) or
+#'    not (\code{FALSE})?
+#' @param dr Is double reduction possible (\code{TRUE}) or
+#'    not (\code{FALSE})?
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' ## null sim
+#' set.seed(10)
+#' g1 <- 2
+#' g2 <- 2
+#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/4)
+#' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
+#'
+#' ## Alt sim
+#' gl <- hwep::simgl(nvec = rep(5, 5))
+#' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
+#'
+#'
+#' @export
+lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
+  stopifnot(ncol(gl) == 5,
+            length(drbound) == 1,
+            drbound <= 1,
+            drbound > 1e-6,
+            length(pp) == 1,
+            is.logical(pp),
+            length(dr) == 1,
+            is.logical(dr))
+  if (length(g1) == 1 && length(g2) == 1) {
+    pknown <- TRUE
+    g1 <- round(g1)
+    g2 <- round(g2)
+    stopifnot(g1 >= 0, g1 <= 4, g2 >= 0, g2 <= 4)
+  } else if (length(g1) == 5 && length(g2) == 5) {
+    pknown <- FALSE
+    ## normalize to sum to 1
+    g1 <- g1 - log_sum_exp(g1)
+    g2 <- g2 - log_sum_exp(g2)
+  } else {
+    stop("g1 and g2 should either both be length 1 (known genotypes)\nor both be length 5 (genotype log-likelihoods).")
+  }
+
+  if (pp && dr && pknown) {
+    ret <- lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
+  } else if (pp && !dr && pknown) {
+
+  } else if (!pp && dr && pknown) {
+
+  } else if (!pp && !dr && pknown) {
+    ret <- lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2)
+  } else if (pp && dr && !pknown) {
+
+  } else if (pp && !dr && !pknown) {
+
+  } else if (!pp && dr && !pknown) {
+
+  } else if (!pp && !dr && !pknown) {
+
+  }
+
+  return(ret)
+}
+
 #' Likelihood under three parameter model when using offspring genotypes
 #' likelihoods but parent genotypes are known.
 #'
@@ -10,21 +82,24 @@
 #' @author David Gerard
 #'
 #' @examples
-#' p1 <- 1
-#' p2 <- 0
-#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = p1, p2 = p2)
-#' x <- offspring_geno(gf = gf, n = 10)
-#' genovec <- gcount_to_gvec(gcount = x)
-#' uout <- po_gl(genovec = genovec, p1_geno = p1, p2_geno = p2, ploidy = 4)
-#' gl <- uout$genologlike
+#' g1 <- 1
+#' g2 <- 0
+#' gl <- simf1gl(
+#'   n = 25,
+#'   g1 = g1,
+#'   g2 = g2,
+#'   rd = 10,
+#'   alpha = 0,
+#'   xi1 = 1/3,
+#'   xi2 = 1/3)
 #' like_glpknown(
 #'   gl = gl,
 #'   tau = 1/2,
 #'   beta = 1/12,
 #'   gamma1 = 1/3,
 #'   gamma2 = 1/3,
-#'   g1 = p1,
-#'   g2 = p2,
+#'   g1 = g1,
+#'   g2 = g2,
 #'   log_p = TRUE)
 #'
 #' @export
@@ -62,6 +137,8 @@ like_glpknown <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
 #' }
 #'
 #' @author David Gerard
+#'
+#' @noRd
 lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
   ## MLE under alternative
   log_qhat1 <- c(em_li(B = gl))
@@ -76,10 +153,68 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
   df <- 4
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
-  return(list(llr = llr, p_value = p_value, df = df))
+  return(list(statistic = llr, p_value = p_value, df = df))
 }
 
 ## LRT when dr and pp are estimated --------------------------------------
+
+#' Objective for lrt_dr_pp_glpknown4
+#'
+#' @param par either just alpha (when no parent genotype is 2)
+#'   or (tau, beta, gamma1) or (tau, beta, gamma2) or
+#'   (tau, beta, gamma1, gamma2).
+#' @param x offspring genotype counts
+#' @param g1 first parent genotype
+#' @param g2 second parent genotype
+#'
+#' @return log likelihood
+#'
+#' @author David Gerard
+#' @noRd
+obj_dr_pp_gl <- function(par, gl, g1, g2) {
+  if (g1 != 2 && g2 != 2) {
+    stopifnot(length(par) == 1)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = 1,
+      beta = par[[1]],
+      gamma1 = 1/3,
+      gamma2 = 1/3,
+      g1 = g1,
+      g2 = g2)
+  } else if (g1 == 2 && g2 != 2){
+    stopifnot(length(par) == 3)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = par[[1]],
+      beta = par[[2]],
+      gamma1 = par[[3]],
+      gamma2 = 1/3,
+      g1 = g1,
+      g2 = g2)
+  } else if (g1 != 2 && g2 == 2){
+    stopifnot(length(par) == 3)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = par[[1]],
+      beta = par[[2]],
+      gamma1 = 1/3,
+      gamma2 = par[[3]],
+      g1 = g1,
+      g2 = g2)
+  } else {
+    stopifnot(length(par) == 4)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = par[[1]],
+      beta = par[[2]],
+      gamma1 = par[[3]],
+      gamma2 = par[[4]],
+      g1 = g1,
+      g2 = g2)
+  }
+  return(obj)
+}
 
 #' LRT when both double reduction and preferential pairing are not known.
 #'
@@ -87,8 +222,108 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
 #'
 #' @inheritParams like_glpknown
 #' @param drbound Maximum value of double reduction.
+#' @param ntry The number of times to run the gradient ascent.
 #'
 #' @author David Gerard
-lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6) {
+#'
+#' @examples
+#' ## null sim
+#' set.seed(10)
+#' g1 <- 2
+#' g2 <- 2
+#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/4)
+#' lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
+#'
+#' ## Alt sim
+#' gl <- hwep::simgl(nvec = rep(5, 5))
+#' lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
+#'
+#' @noRd
+lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
+  ## MLE under alternative
+  log_qhat1 <- c(em_li(B = gl))
+  l1 <- llike_li(B = gl, lpivec = log_qhat1)
 
+  ## MLE under Null
+  l0 <- -Inf
+  bout <- NULL
+  for (i in seq_len(ntry)) {
+    params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound, type = "random")
+    oout <- stats::optim(
+      par = params$par,
+      fn = obj_dr_pp_gl,
+      method = "L-BFGS-B",
+      lower = params$lower,
+      upper = params$upper,
+      control = list(fnscale = -1),
+      gl = gl,
+      g1 = g1,
+      g2 = g2)
+
+    if (oout$value > l0) {
+      l0 <- oout$value
+      bout <- oout
+    }
+  }
+
+  ## Get df and calculate p-value
+  if (g1 != 2 & g2 != 2) {
+    alpha <- bout$par[[1]]
+    xi1 <- NA_real_
+    xi2 <- NA_real_
+  } else if (g1 == 2 & g2 != 2) {
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma1 <- bout$par[[3]]
+    two <- three_to_two(tau = tau, beta = beta, gamma = gamma1)
+    alpha <- two[[1]]
+    xi1 <- two[[2]]
+    xi2 <- NA_real_
+  } else if (g1 != 2 & g2 == 2) {
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma2 <- bout$par[[3]]
+    two <- three_to_two(tau = tau, beta = beta, gamma = gamma2)
+    alpha <- two[[1]]
+    xi1 <- NA_real_
+    xi2 <- two[[2]]
+  } else if (g1 == 2 & g2 == 2) {
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma1 <- bout$par[[3]]
+    gamma2 <- bout$par[[4]]
+    two <- three_to_two(tau = tau, beta = beta, gamma = gamma1)
+    alpha <- two[[1]]
+    xi1 <- two[[2]]
+    two <- three_to_two(tau = tau, beta = beta, gamma = gamma2)
+    stopifnot(alpha == two[[1]])
+    xi2 <- two[[2]]
+  }
+  ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
+  df <- max(4 - 1 + ob, 0)
+
+  llr <- -2 * (l0 - l1)
+
+  if (df == 0) {
+    ret <- list(
+      statistic = llr,
+      p_value = 1,
+      df = 0,
+      alpha = alpha,
+      xi1 = xi1,
+      xi2 = xi2)
+    return(ret)
+  }
+
+  p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
+
+  ret <-  list(
+    statistic = llr,
+    p_value = p_value,
+    df = df,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2)
+
+  return(ret)
 }

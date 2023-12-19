@@ -2,7 +2,6 @@
 ## Likelihood methods when genotypes are known
 #####################
 
-
 #' Likelihood ratio test for segregation distortion with known genotypes
 #'
 #' This will run a likelihood test using the genotypes of an F1 population
@@ -511,6 +510,7 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 
   ## Find MLE under null
   l0 <- -Inf
+  bout <- NULL
   for (i in seq_len(ntry)) {
     params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound, type = "random")
     oout <- stats::optim(
@@ -526,35 +526,36 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 
     if (oout$value > l0) {
       l0 <- oout$value
+      bout <- oout
     }
   }
 
   ## Get df and calculate p-value
   if (g1 != 2 & g2 != 2) {
-    alpha <- oout$par[[1]]
+    alpha <- bout$par[[1]]
     xi1 <- NA_real_
     xi2 <- NA_real_
   } else if (g1 == 2 & g2 != 2) {
-    tau <- oout$par[[1]]
-    beta <- oout$par[[2]]
-    gamma1 <- oout$par[[3]]
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma1 <- bout$par[[3]]
     two <- three_to_two(tau = tau, beta = beta, gamma = gamma1)
     alpha <- two[[1]]
     xi1 <- two[[2]]
     xi2 <- NA_real_
   } else if (g1 != 2 & g2 == 2) {
-    tau <- oout$par[[1]]
-    beta <- oout$par[[2]]
-    gamma2 <- oout$par[[3]]
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma2 <- bout$par[[3]]
     two <- three_to_two(tau = tau, beta = beta, gamma = gamma2)
     alpha <- two[[1]]
     xi1 <- NA_real_
     xi2 <- two[[2]]
   } else if (g1 == 2 & g2 == 2) {
-    tau <- oout$par[[1]]
-    beta <- oout$par[[2]]
-    gamma1 <- oout$par[[3]]
-    gamma2 <- oout$par[[4]]
+    tau <- bout$par[[1]]
+    beta <- bout$par[[2]]
+    gamma1 <- bout$par[[3]]
+    gamma2 <- bout$par[[4]]
     two <- three_to_two(tau = tau, beta = beta, gamma = gamma1)
     alpha <- two[[1]]
     xi1 <- two[[2]]
