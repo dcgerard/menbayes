@@ -27,10 +27,10 @@ Likelihood ratio test using genotype likelihoods.
 }
 \examples{
 ## null sim
-set.seed(10)
+set.seed(1)
 g1 <- 2
 g2 <- 2
-gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/4)
+gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
 lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 
 ## Alt sim

@@ -333,7 +333,7 @@ obj_dr_pp <- function(par, x, g1, g2) {
 #'
 #' @noRd
 lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
-  fudge <- 10^-5
+  fudge <- 1e-7
   type <- match.arg(type)
   if (type == "random") {
     mult <- stats::runif(4)
@@ -693,7 +693,7 @@ obj_ndr_pp <- function(par, x, g1, g2) {
 #'
 #' @noRd
 lrt_ndr_pp_g4 <- function(x, g1, g2) {
-  fudge <- 1e-5
+  fudge <- 1e-7
   if (g1 != 2 && g2 != 2) {
     return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2))
   }
@@ -830,7 +830,7 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
 
   ## max likelihood under null
-  fudge <- 1e-5
+  fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
                        fn = like_gknown,
                        method = "L-BFGS-B",

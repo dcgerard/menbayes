@@ -16,10 +16,10 @@
 #'
 #' @examples
 #' ## null sim
-#' set.seed(10)
+#' set.seed(1)
 #' g1 <- 2
 #' g2 <- 2
-#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/4)
+#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
 #' ## Alt sim
@@ -54,9 +54,9 @@ lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
   if (pp && dr && pknown) {
     ret <- lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
   } else if (pp && !dr && pknown) {
-
+    ret <- lrt_ndr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
   } else if (!pp && dr && pknown) {
-
+    ret <- lrt_dr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
   } else if (!pp && !dr && pknown) {
     ret <- lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2)
   } else if (pp && dr && !pknown) {
@@ -322,6 +322,188 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     p_value = p_value,
     df = df,
     alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2)
+
+  return(ret)
+}
+
+
+## No pp ----------------------------------------------------------------------
+
+#' Likelihood ratio test, gl for offspring, known for parents, dr, no pp.
+#'
+#' @inheritParams lrt_dr_pp_glpknown4
+#'
+#' @author David Gerard
+#'
+#' @noRd
+lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
+
+  ## Same scenario when no 2
+  if (g1 != 2  && g2 != 2) {
+    return(lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound, ntry = ntry))
+  }
+
+  ## MLE under alternative
+  log_qhat1 <- c(em_li(B = gl))
+  l1 <- llike_li(B = gl, lpivec = log_qhat1)
+
+  ## MLE under null
+  fudge <- 1e-7
+  oout <- stats::optim(par = drbound / 2,
+                       fn = like_glpknown,
+                       method = "L-BFGS-B",
+                       lower = fudge,
+                       upper = drbound,
+                       control = list(fnscale = -1),
+                       gl = gl,
+                       tau = 1,
+                       gamma1 = 1/3,
+                       gamma2 = 1/3,
+                       g1 = g1,
+                       g2 = g2,
+                       log_p = TRUE)
+  l0 <- oout$value
+  alpha <- oout$par[[1]]
+  df <- 3
+  llr <- -2 * (l0 - l1)
+  p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
+
+  ret <- list(
+    statistic = llr,
+    p_value = p_value,
+    df = df,
+    alpha = alpha,
+    xi1 = 1/3,
+    xi2 = 1/3)
+
+  return(ret)
+}
+
+## pp, no dr ----------------------------------------------------------------
+
+#' Objective for lrt_ndr_pp_glpknown4
+#'
+#' @inheritParams obj_dr_pp_gl
+#' @param par if g1 != 2 or g2 != 2, then should be xi1 (or xi2). If
+#'     both g1 == 2 and g2 == 2, then first element is xi1 and second
+#'     element is xi2.
+#'
+#' @author David Gerard
+#'
+#' @noRd
+obj_ndr_pp_gl <- function(par, gl, g1, g2) {
+  if (g1 != 2 && g2 != 2) {
+    stop("obj_ndr_pp_gl: have to have g1 == 2 or g2 == 2")
+  } else if (g1 == 2 && g2 != 2) {
+    stopifnot(length(par) == 1)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = 0,
+      beta = 0,
+      gamma1 = par[[1]],
+      gamma2 = 1/3,
+      g1 = g1,
+      g2 = g2,
+      log_p = TRUE)
+  } else if (g1 != 2 && g2 == 2) {
+    stopifnot(length(par) == 1)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = 0,
+      beta = 0,
+      gamma1 = 1/3,
+      gamma2 = par[[1]],
+      g1 = g1,
+      g2 = g2,
+      log_p = TRUE)
+  } else if (g1 == 2 && g2 == 2) {
+    stopifnot(length(par) == 2)
+    obj <- like_glpknown(
+      gl = gl,
+      tau = 0,
+      beta = 0,
+      gamma1 = par[[1]],
+      gamma2 = par[[2]],
+      g1 = g1,
+      g2 = g2,
+      log_p = TRUE)
+  }
+  return(obj)
+}
+
+#' LRT when there is pp, but no dr
+#'
+#' @inheritParams lrt_dr_pp_glpknown4
+#'
+#' @author David Gerard
+#'
+#' @noRd
+lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
+  fudge <- 1e-7
+  if (g1 != 2 && g2 != 2) {
+    return(lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2))
+  }
+
+  ## MLE under alternative
+  log_qhat1 <- c(em_li(B = gl))
+  l1 <- llike_li(B = gl, lpivec = log_qhat1)
+
+  ## max likelihood under null
+  if (g1 == 2 && g2 != 2) {
+    oout <- stats::optim(
+      par = 1/3,
+      fn = obj_ndr_pp_gl,
+      lower = fudge,
+      upper = 1 - fudge,
+      method = "L-BFGS-B",
+      control = list(fnscale = -1),
+      gl = gl,
+      g1 = g1,
+      g2 = g2)
+    xi1 <- oout$par[[1]]
+    xi2 <- NA_real_
+  } else if (g1 != 2 && g2 == 2) {
+    oout <- stats::optim(
+      par = 1/3,
+      fn = obj_ndr_pp_gl,
+      lower = fudge,
+      upper = 1 - fudge,
+      method = "L-BFGS-B",
+      control = list(fnscale = -1),
+      gl = gl,
+      g1 = g1,
+      g2 = g2)
+    xi1 <- NA_real_
+    xi2 <- oout$par[[1]]
+  } else if (g1 == 2 && g2 == 2) {
+    oout <- stats::optim(
+      par = c(1/3, 1/3),
+      fn = obj_ndr_pp_gl,
+      lower = c(fudge, fudge),
+      upper = c(1 - fudge, 1 - fudge),
+      method = "L-BFGS-B",
+      control = list(fnscale = -1),
+      gl = gl,
+      g1 = g1,
+      g2 = g2)
+    xi1 <- oout$par[[1]]
+    xi2 <- oout$par[[2]]
+  }
+  l0 <- oout$value
+
+  df <- 3
+
+  llr <- -2 * (l0 - l1)
+
+  p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
+
+  ret <-  list(
+    statistic = llr,
+    p_value = p_value,
+    df = df,
+    alpha = 0,
     xi1 = xi1,
     xi2 = xi2)
 
