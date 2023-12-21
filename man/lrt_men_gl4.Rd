@@ -4,7 +4,7 @@
 \alias{lrt_men_gl4}
 \title{Likelihood ratio test using genotype likelihoods.}
 \usage{
-lrt_men_gl4(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE)
+lrt_men_gl4(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr = TRUE)
 }
 \arguments{
 \item{gl}{The genotype log-likelihoods. The rows index the individuals
@@ -32,6 +32,8 @@ g1 <- 2
 g2 <- 2
 gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
 lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
+
+lrt_men_gl4(gl = gl)
 
 ## Alt sim
 gl <- hwep::simgl(nvec = rep(5, 5))

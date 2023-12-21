@@ -22,13 +22,15 @@
 #' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
+#' lrt_men_gl4(gl = gl)
+#'
 #' ## Alt sim
 #' gl <- hwep::simgl(nvec = rep(5, 5))
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
 #'
 #' @export
-lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
+lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr = TRUE) {
   stopifnot(ncol(gl) == 5,
             length(drbound) == 1,
             drbound <= 1,
@@ -37,6 +39,28 @@ lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
             is.logical(pp),
             length(dr) == 1,
             is.logical(dr))
+
+  ## if parent geno is NULL, then use unknown genotypes method
+  if (is.null(g1) && is.null(g2)) {
+    g1 <- rep(-log(5), 5)
+    g2 <- rep(-log(5), 5)
+  } else if (is.null(g1) && !is.null(g2)) {
+    g1 <- rep(-log(5), 5)
+    if (length(g2) == 1) {
+      g2temp <- rep(-Inf, 5)
+      g2temp[[g2 + 1]] <- 0
+      g2 <- g2temp
+    }
+  } else if (!is.null(g1) && is.null(g2)) {
+    g2 <- rep(-log(5), 5)
+    if (length(g1) == 1) {
+      g1temp <- rep(-Inf, 5)
+      g1temp[[g1 + 1]] <- 0
+      g1 <- g1temp
+    }
+  }
+
+  ## Check parent genotypes
   if (length(g1) == 1 && length(g2) == 1) {
     pknown <- TRUE
     g1 <- round(g1)
@@ -51,6 +75,7 @@ lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
     stop("g1 and g2 should either both be length 1 (known genotypes)\nor both be length 5 (genotype log-likelihoods).")
   }
 
+  ## run test
   if (pp && dr && pknown) {
     ret <- lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
   } else if (pp && !dr && pknown) {
@@ -59,14 +84,14 @@ lrt_men_gl4 <- function(gl, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
     ret <- lrt_dr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
   } else if (!pp && !dr && pknown) {
     ret <- lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2)
-  } else if (pp && dr && !pknown) {
-
-  } else if (pp && !dr && !pknown) {
-
-  } else if (!pp && dr && !pknown) {
-
-  } else if (!pp && !dr && !pknown) {
-
+  } else {
+    ret <- lrt_gl4(
+      gl = gl,
+      p1_gl = g1,
+      p2_gl = g2,
+      drbound = drbound,
+      dr = dr,
+      pp = pp)
   }
 
   return(ret)
