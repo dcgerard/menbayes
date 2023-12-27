@@ -51,16 +51,25 @@ bayes_men_gl4 <- function(
     ts2 = 1,
     pp = TRUE,
     dr = TRUE,
+    xi = 1/3,
+    alpha = 0,
     ...) {
   ## check input ----
-  stopifnot(ncol(gl) == 5,
-            drbound > 1e-6,
-            drbound <= 1,
-            is.logical(pp),
-            is.logical(dr),
-            length(drbound) == 1,
-            length(pp) == 1,
-            length(dr) == 1)
+  stopifnot(
+    ncol(gl) == 5,
+    drbound > 1e-6,
+    drbound <= 1,
+    is.logical(pp),
+    is.logical(dr),
+    length(drbound) == 1,
+    length(pp) == 1,
+    length(dr) == 1,
+    alpha >= 0,
+    alpha <= 1,
+    xi >= 0,
+    xi <= 1,
+    length(alpha) == 1,
+    length(xi) == 1)
   if (length(g1) == 1 && length(g2) == 1) {
     pknown <- TRUE
     g1 <- round(g1)
@@ -118,6 +127,7 @@ bayes_men_gl4 <- function(
       ts1 = ts1,
       ts2 = ts2,
       output = "all",
+      xi = xi,
       ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
@@ -167,6 +177,7 @@ bayes_men_gl4 <- function(
       ts1 = ts1,
       ts2 = ts2,
       output = "all",
+      xi = xi,
       ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
@@ -235,6 +246,8 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
 #' Marginal likelihood, double reduction, no preferential pairing, parent genotypes known, offspring genotypes unknown
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
+#' @param xi The known rate of preferential pairing. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @examples
 #' ## null sims
@@ -264,6 +277,7 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
                                      p1,
                                      p2,
                                      drbound = 1/6,
+                                     xi = 1/3,
                                      ts1 = 1,
                                      ts2 = 1,
                                      mixprop = 0.001,
@@ -280,7 +294,8 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
                    g2 = p2,
                    mixprop = mixprop,
                    ts1 = ts1,
-                   ts2 = ts2)
+                   ts2 = ts2,
+                   xi = xi)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_npp_glpknown4,
                               data = stan_dat,
                               verbose = FALSE,

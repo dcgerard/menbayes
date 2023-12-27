@@ -102,6 +102,8 @@ marg_f1_ndr_npp_gl4 <- function(gl,
 #' Marginal likelihood, double reduction, no preferential pairing, genotype likelihoods.
 #'
 #' @inheritParams marg_f1_dr_pp_gl4
+#' @param xi The known rate of preferential pairing. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -142,6 +144,7 @@ marg_f1_dr_npp_gl4 <- function(gl,
                                p1_gl = rep(log(0.2), 5),
                                p2_gl = rep(log(0.2), 5),
                                drbound = 1/6,
+                               xi = 1/3,
                                ts1 = 1,
                                ts2 = 1,
                                mixprop = 0.001,
@@ -162,7 +165,8 @@ marg_f1_dr_npp_gl4 <- function(gl,
                    p2_gl = p2_gl,
                    mixprop = mixprop,
                    ts1 = ts1,
-                   ts2 = ts2)
+                   ts2 = ts2,
+                   xi = xi)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_npp_gl4,
                               data = stan_dat,
                               verbose = FALSE,

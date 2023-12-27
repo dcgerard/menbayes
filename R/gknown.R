@@ -33,6 +33,10 @@
 #'     rate of quadrivalent formation.
 #' @param ts2 The shape 2 parameter for the beta prior over the
 #'     rate of quadrivalent formation.
+#' @param xi If \code{pp = FALSE}, then \code{xi} is the known rate of
+#'     preferential pairing (assumed fixed).
+#' @param alpha If \code{dr = FALSE}, then \code{alpha} is the known rate of
+#'     double reduction (assumed fixed).
 #' @param ... Additional arguments to pass to Stan.
 #'
 #' @return A list with the following elements
@@ -65,23 +69,32 @@ bayes_men_g4 <- function(
     ts2 = 1,
     pp = TRUE,
     dr = TRUE,
+    xi = 1/3,
+    alpha = 0,
     ...) {
   ## check input
-  stopifnot(length(x) == 5,
-            x >= 0,
-            g1 >= 0,
-            g1 <= 4,
-            g2 >= 0,
-            g2 <= 4,
-            drbound > 1e-6,
-            drbound <= 1,
-            is.logical(pp),
-            is.logical(dr),
-            length(g1) == 1,
-            length(g2) == 1,
-            length(drbound) == 1,
-            length(pp) == 1,
-            length(dr) == 1)
+  stopifnot(
+    length(x) == 5,
+    x >= 0,
+    g1 >= 0,
+    g1 <= 4,
+    g2 >= 0,
+    g2 <= 4,
+    drbound > 1e-6,
+    drbound <= 1,
+    xi >= 0,
+    xi <= 1,
+    alpha >= 0,
+    alpha <= 1,
+    is.logical(pp),
+    is.logical(dr),
+    length(g1) == 1,
+    length(g2) == 1,
+    length(drbound) == 1,
+    length(pp) == 1,
+    length(dr) == 1,
+    length(xi) == 1,
+    length(alpha) == 1)
 
   ## log marginal likelihood under alternative
   ma <- marg_alt_g(x = x)
@@ -113,7 +126,7 @@ bayes_men_g4 <- function(
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
     xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
   } else if (!pp && dr) {
-    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, ts1 = ts1, ts2 = ts2, output = "all", ...)
+    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, ts1 = ts1, ts2 = ts2, output = "all", xi = xi, ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
     xi1 <- 1/3
@@ -302,6 +315,8 @@ marg_f1_ndr_npp_g4 <- function(x,
 #' Here, parental genotypes are known.
 #'
 #' @inheritParams marg_f1_dr_pp_g4
+#' @param xi The known rate of preferential pairing. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -325,6 +340,7 @@ marg_f1_dr_npp_g4 <- function(x,
                               g1,
                               g2,
                               drbound = 1/6,
+                              xi = 1/3,
                               ts1 = 1,
                               ts2 = 1,
                               mixprop = 0.001,
@@ -341,7 +357,8 @@ marg_f1_dr_npp_g4 <- function(x,
                    g2 = g2,
                    mixprop = mixprop,
                    ts1 = ts1,
-                   ts2 = ts2)
+                   ts2 = ts2,
+                   xi = xi)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_npp_g4,
                               data = stan_dat,
                               verbose = FALSE,
