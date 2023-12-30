@@ -194,6 +194,7 @@ marg_f1_dr_npp_gl4 <- function(gl,
 #' Marginal likelihood, no double reduction, preferential pairing, genotype likelihoods.
 #'
 #' @inheritParams marg_f1_dr_pp_gl4
+#' @param alpha The known fixed rate of double reduction.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -234,6 +235,7 @@ marg_f1_dr_npp_gl4 <- function(gl,
 marg_f1_ndr_pp_gl4 <- function(gl,
                                p1_gl = rep(log(0.2), 5),
                                p2_gl = rep(log(0.2), 5),
+                               alpha = 0,
                                shape1 = 5/9,
                                shape2 = 10/9,
                                mixprop = 0.001,
@@ -253,7 +255,8 @@ marg_f1_ndr_pp_gl4 <- function(gl,
                    p2_gl = p2_gl,
                    mixprop = mixprop,
                    shape1 = shape1,
-                   shape2 = shape2)
+                   shape2 = shape2,
+                   alpha = alpha)
   stan_out <- rstan::sampling(object = stanmodels$marg_ndr_pp_gl4,
                               data = stan_dat,
                               verbose = FALSE,

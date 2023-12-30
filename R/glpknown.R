@@ -113,6 +113,7 @@ bayes_men_gl4 <- function(
       shape1 = shape1,
       shape2 = shape2,
       output = "all",
+      alpha = alpha,
       ...)
     m0 <- stout[[1]]
     alpha <- 0
@@ -163,6 +164,7 @@ bayes_men_gl4 <- function(
       shape1 = shape1,
       shape2 = shape2,
       output = "all",
+      alpha = alpha,
       ...)
     m0 <- stout[[1]]
     alpha <- 0
@@ -324,6 +326,7 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
 #' Marginal likelihood, no double reduction, preferential pairing, parent genotypes known, offspring genotypes unknown
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
+#' @param alpha The known fixed rate of double reduction.
 #'
 #' @examples
 #' ## null sims
@@ -352,6 +355,7 @@ marg_f1_dr_npp_glpknown4 <- function(gl,
 marg_f1_ndr_pp_glpknown4 <- function(gl,
                                      p1,
                                      p2,
+                                     alpha = 0,
                                      shape1 = 5/9,
                                      shape2 = 10/9,
                                      mixprop = 0.001,
@@ -367,7 +371,8 @@ marg_f1_ndr_pp_glpknown4 <- function(gl,
                    g2 = p2,
                    mixprop = mixprop,
                    shape1 = shape1,
-                   shape2 = shape2)
+                   shape2 = shape2,
+                   alpha = alpha)
   stan_out <- rstan::sampling(object = stanmodels$marg_ndr_pp_glpknown4,
                               data = stan_dat,
                               verbose = FALSE,

@@ -120,7 +120,7 @@ bayes_men_g4 <- function(
     xi1 <- mean(as.data.frame(stout[[2]])$xi1)
     xi2 <- mean(as.data.frame(stout[[2]])$xi2)
   } else if (pp && !dr) {
-    stout <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2, shape1 = shape1, shape2 = shape2, output = "all", ...)
+    stout <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2, shape1 = shape1, shape2 = shape2, output = "all", alpha = alpha, ...)
     m0 <- stout[[1]]
     alpha <- 0
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
@@ -387,6 +387,7 @@ marg_f1_dr_npp_g4 <- function(x,
 #' Marginal likelihood, no double reduction, preferential pairing, genotypes known.
 #'
 #' @inheritParams marg_f1_dr_pp_g4
+#' @param alpha The known fixed rate of double reduction.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -409,6 +410,7 @@ marg_f1_dr_npp_g4 <- function(x,
 marg_f1_ndr_pp_g4 <- function(x,
                               g1,
                               g2,
+                              alpha = 0,
                               shape1 = 5/9,
                               shape2 = 10/9,
                               mixprop = 0.001,
@@ -424,7 +426,8 @@ marg_f1_ndr_pp_g4 <- function(x,
                    g2 = g2,
                    mixprop = mixprop,
                    shape1 = shape1,
-                   shape2 = shape2)
+                   shape2 = shape2,
+                   alpha = alpha)
   stan_out <- rstan::sampling(object = stanmodels$marg_ndr_pp_g4,
                               data = stan_dat,
                               verbose = FALSE,
