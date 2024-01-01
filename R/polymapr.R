@@ -3,27 +3,47 @@
 
 #' Run segregation distortion tests as implemented in the polymapR package.
 #'
-#' The polymapR tests for segregation distortion by iterating through all
+#' The polymapR package tests for segregation distortion by iterating through all
 #' possible forms of disomic or polysomic inheritance from either parent,
 #' tests for concordance of the offspring genotypes using a chi-squared
 #' test, and returns the largest p-value. It sometimes chooses a different
-#' p-value based on other heuristics. When \code{type = "menbayes"},
-#' we only look at patterns of the given parent genotypes, choosing
-#' the largest p-value. When \code{type = "polymapR"}, we return what
-#' they use via their heuristics.
+#' p-value based on other heuristics. They also sometimes return NA.
+#' When \code{type = "menbayes"}, we only look at patterns of the
+#' given parent genotypes, choosing the largest p-value. When
+#' \code{type = "polymapR"}, we return what they use via their heuristics.
 #'
-#' @param g Either a vector of genotype counts, or a matrix of genotype
-#'     likelihoods where the rows index the individuals and the columns
+#' @param x Either a vector of genotype counts, or a matrix of genotype
+#'     posteriors where the rows index the individuals and the columns
 #'     index the genotypes.
+#' @param g1 Parent 1's genotype.
+#' @param g2 Parent 2's genotype.
 #' @param type Either my implementation which approximates that of
-#'     polymapR (\code{"menbayes"}) or the exact implementation
+#'     polymapR (\code{"menbayes"}) or the implementation
 #'     through polymapR (\code{"polymapR"}). Note that
 #'     polymapR needs to be installed for \code{type = "polymapR"}.
+#'
+#' @return A list with the following elements:
+#' \describe{
+#'  \item{p_value}{The p-value of the test.}
+#'  \item{bestfit}{The best fit model, using the same notation as in
+#'      \code{\link[polymapR]{checkF1}()}.}
+#'  \item{frq_invalid}{The frequency of invalid genotypes.}
+#' }
+#'
+#' @seealso \code{\link[polymapR]{checkF1}()}.
+#'
+#' @examples
+#' g1 <- 1
+#' g2 <- 2
+#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
+#' x <- offspring_geno(gf = gf, n = 100)
+#' polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
 #'
 #' @author David Gerard
 #'
 #' @export
-polymapr_test <- function(g, type = c("menbayes", "polymapR")) {
+polymapr_test <- function(x, g1, g2, type = c("menbayes", "polymapR")) {
+  type <- match.arg(type)
   if (!requireNamespace("polymapR", quietly = TRUE) && type == "polymapR") {
     stop(
       paste0(
@@ -34,6 +54,28 @@ polymapr_test <- function(g, type = c("menbayes", "polymapR")) {
       )
   }
 
+  dat <- NULL
+  if (length(x) == 5) {
+    dat <- "known"
+  } else if (ncol(x) == 5) {
+    dat <- "gl"
+  } else {
+    stop("x needs to either have length 5 or be a matrix with 5 columns.")
+  }
+
+  if (dat == "known" && type == "menbayes") {
+    ret <- polymapr_approx_g(x = x, g1 = g1, g2 = g2)
+  } else if (dat == "gl" && type == "menbayes") {
+    ret <- polymapr_apprx_gl(gl = x, g1 = g1, g2 = g2)
+  } else if (dat == "known" && type == "polymapR") {
+    ret <- polymapR_package_g(x = x, g1 = g1, g2 = g2)
+  } else if (dat == "gl" && type == "polymapR") {
+    ret <- polymapr_package_gl(gl = x, g1 = g1, g2 = g2)
+  } else {
+    stop("dud")
+  }
+
+  return(ret)
 }
 
 
@@ -52,6 +94,7 @@ polymapr_test <- function(g, type = c("menbayes", "polymapR")) {
 #' @noRd
 polymapR_package_g <- function(x, g1, g2) {
   stopifnot(requireNamespace("polymapR", quietly = TRUE))
+  seg_invalidrate <- 0.03
   ploidy <- length(x) - 1
   stopifnot(
     g1 >= 0,
@@ -79,11 +122,81 @@ polymapR_package_g <- function(x, g1, g2) {
     mixed = TRUE,
     ploidy = ploidy)
 
+  TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
+  p_invalid <- stats::pbinom(
+    q = cout$checked_F1$frqInvalid_bestParentfit[[1]] * n - TOL,
+    size = n,
+    prob = seg_invalidrate,
+    lower.tail = FALSE)
+
   ret <- list(
     p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
     bestfit = as.character(cout$checked_F1$bestParentfit[[1]]),
-    frq_invalid = cout$checked_F1$frqInvalid_bestParentfit[[1]]
-    )
+    frq_invalid = cout$checked_F1$frqInvalid_bestParentfit[[1]],
+    p_invalid = p_invalid
+  )
+
+  return(ret)
+}
+
+#' @param gl posterior probability matrix. Rows index individuals, columns
+#'     index genotypes
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' g1 <- 1
+#' g2 <- 2
+#' gl <- simf1gl(n = 100, g1 = g1, g2 = g2)
+#' gl <- exp(gl - apply(gl, 1, log_sum_exp))
+#'
+#'
+#' @noRd
+polymapr_package_gl <- function(gl, g1, g2) {
+  stopifnot(ncol(gl) == 5)
+  stopifnot(abs(rowSums(gl) - 1) < sqrt(.Machine$double.eps))
+  seg_invalidrate <- 0.03
+
+  n <- nrow(gl)
+  gl <- rbind(
+    gl,
+    (0:4 == g1) * 1,
+    (0:4 == g2) * 1
+  )
+
+  gp_df <- as.data.frame(gl)
+  colnames(gp_df) <- paste0("P", seq_len(ncol(gl)) - 1)
+  gp_df$SampleName <- c(paste0("F", seq_len(n)), "P1", "P2")
+  gp_df$MarkerName <- "M1"
+  gp_df$maxP <- apply(gl, 1, max)
+  gp_df$maxgeno <- apply(gl, 1, which.max) - 1
+  gp_df$geno <- gp_df$maxgeno
+
+  cout <- polymapR::checkF1(
+    input_type = "probabilistic",
+    probgeno_df = gp_df,
+    parent1 = "P1",
+    parent2 = "P2",
+    ploidy = 4,
+    polysomic = TRUE,
+    disomic = TRUE,
+    mixed = TRUE,
+    F1 = paste0("F", seq_len(n))
+  )
+
+  TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
+  p_invalid <- stats::pbinom(
+    q = cout$checked_F1$frqInvalid_bestParentfit[[1]] * n - TOL,
+    size = n,
+    prob = seg_invalidrate,
+    lower.tail = FALSE)
+
+  ret <- list(
+    p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
+    bestfit = as.character(cout$checked_F1$bestParentfit[[1]]),
+    frq_invalid = cout$checked_F1$frqInvalid_bestParentfit[[1]],
+    p_invalid = p_invalid
+  )
 
   return(ret)
 }
@@ -100,6 +213,7 @@ polymapR_package_g <- function(x, g1, g2) {
 #' @noRd
 polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
   ploidy <- 4
+  n <- sum(x)
   stopifnot(
     length(x) == 5,
     x >= 0,
@@ -109,6 +223,7 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
     g2 <= ploidy
   )
 
+  TOL <- sqrt(.Machine$double.eps)
   pval <- 0
   bi <- NULL
   frq_invalid <- NULL
@@ -125,10 +240,19 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
           chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
         )
       }
-      if (pval < chout$p.value) {
+      chout$frq_invalid <- sum(x[!not_0])
+      chout$p_invalid <- stats::pbinom(
+        q = chout$frq_invalid - TOL, ## to make sure >= in pbinom
+        size = n,
+        prob = seg_invalidrate,
+        lower.tail = FALSE)
+
+      ## weird criterion
+      if (pval * p_invalid < chout$p.value * chout$p_invalid) {
         pval <- chout$p.value
         bi <- i
-        frq_invalid <- sum(x[!not_0])
+        frq_invalid <- chout$frq_invalid
+        p_invalid <- chout$p_invalid
       }
     }
   }
@@ -136,7 +260,31 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
   ret <- list(
     p_value = pval,
     best_fit = segtypes$mod[[i]],
-    frq_invalid = frq_invalid
+    frq_invalid = frq_invalid,
+    p_invalid = p_invalid
   )
+  return(ret)
+}
+
+#' @param gl posterior probability matrix. Rows index individuals, columns
+#'     index genotypes
+#'
+#' @author David Gerard
+#'
+#' @noRd
+polymapr_approx_gl <- function(gl, g1, g2, seg_invalidrate = 0.03) {
+  stopifnot(ncol(gl) == 5)
+  stopifnot(abs(rowSums(gl) - 1) < sqrt(.Machine$double.eps))
+  x <- colSums(gl)
+  ## remove low counts and renormalize to sum to number of individuals
+  proba_correct <- 0.05 * nrow(gl) / (4 + 1)
+  x[x < proba_correct] <- 0
+  x <- (x/sum(x)) * nrow(gl)
+  ## now just run it things like genotypes are known
+  ret <- polymapr_approx_g(
+    x = x,
+    g1 = g1,
+    g2 = g2,
+    seg_invalidrate = seg_invalidrate)
   return(ret)
 }

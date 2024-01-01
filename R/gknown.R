@@ -122,7 +122,7 @@ bayes_men_g4 <- function(
   } else if (pp && !dr) {
     stout <- marg_f1_ndr_pp_g4(x = x, g1 = g1, g2 = g2, shape1 = shape1, shape2 = shape2, output = "all", alpha = alpha, ...)
     m0 <- stout[[1]]
-    alpha <- 0
+    alpha <- alpha
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
     xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
   } else if (!pp && dr) {

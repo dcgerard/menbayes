@@ -4,27 +4,51 @@
 \alias{polymapr_test}
 \title{Run segregation distortion tests as implemented in the polymapR package.}
 \usage{
-polymapr_test(g, type = c("menbayes", "polymapR"))
+polymapr_test(x, g1, g2, type = c("menbayes", "polymapR"))
 }
 \arguments{
-\item{g}{Either a vector of genotype counts, or a matrix of genotype
-likelihoods where the rows index the individuals and the columns
+\item{x}{Either a vector of genotype counts, or a matrix of genotype
+posteriors where the rows index the individuals and the columns
 index the genotypes.}
 
+\item{g1}{Parent 1's genotype.}
+
+\item{g2}{Parent 2's genotype.}
+
 \item{type}{Either my implementation which approximates that of
-polymapR (\code{"menbayes"}) or the exact implementation
+polymapR (\code{"menbayes"}) or the implementation
 through polymapR (\code{"polymapR"}). Note that
 polymapR needs to be installed for \code{type = "polymapR"}.}
 }
+\value{
+A list with the following elements:
+\describe{
+\item{p_value}{The p-value of the test.}
+\item{bestfit}{The best fit model, using the same notation as in
+\code{\link[polymapR]{checkF1}()}.}
+\item{frq_invalid}{The frequency of invalid genotypes.}
+}
+}
 \description{
-The polymapR tests for segregation distortion by iterating through all
+The polymapR package tests for segregation distortion by iterating through all
 possible forms of disomic or polysomic inheritance from either parent,
 tests for concordance of the offspring genotypes using a chi-squared
 test, and returns the largest p-value. It sometimes chooses a different
-p-value based on other heuristics. When \code{type = "menbayes"},
-we only look at patterns of the given parent genotypes, choosing
-the largest p-value. When \code{type = "polymapR"}, we return what
-they use via their heuristics.
+p-value based on other heuristics. They also sometimes return NA.
+When \code{type = "menbayes"}, we only look at patterns of the
+given parent genotypes, choosing the largest p-value. When
+\code{type = "polymapR"}, we return what they use via their heuristics.
+}
+\examples{
+g1 <- 1
+g2 <- 2
+gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
+x <- offspring_geno(gf = gf, n = 100)
+polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
+
+}
+\seealso{
+\code{\link[polymapR]{checkF1}()}.
 }
 \author{
 David Gerard
