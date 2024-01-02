@@ -33,8 +33,10 @@
 #'     rate of quadrivalent formation.
 #' @param ts2 The shape 2 parameter for the beta prior over the
 #'     rate of quadrivalent formation.
-#' @param xi If \code{pp = FALSE}, then \code{xi} is the known rate of
-#'     preferential pairing (assumed fixed).
+#' @param xi1 If \code{pp = FALSE}, then \code{xi} is the known rate of
+#'     preferential pairing (assumed fixed) of parent 1.
+#' @param xi2 If \code{pp = FALSE}, then \code{xi} is the known rate of
+#'     preferential pairing (assumed fixed) of parent 2.
 #' @param alpha If \code{dr = FALSE}, then \code{alpha} is the known rate of
 #'     double reduction (assumed fixed).
 #' @param ... Additional arguments to pass to Stan.
@@ -69,7 +71,8 @@ bayes_men_g4 <- function(
     ts2 = 1,
     pp = TRUE,
     dr = TRUE,
-    xi = 1/3,
+    xi1 = 1/3,
+    xi2 = 1/3,
     alpha = 0,
     ...) {
   ## check input
@@ -82,8 +85,10 @@ bayes_men_g4 <- function(
     g2 <= 4,
     drbound > 1e-6,
     drbound <= 1,
-    xi >= 0,
-    xi <= 1,
+    xi1 >= 0,
+    xi1 <= 1,
+    xi2 >= 0,
+    xi2 <= 1,
     alpha >= 0,
     alpha <= 1,
     is.logical(pp),
@@ -93,7 +98,8 @@ bayes_men_g4 <- function(
     length(drbound) == 1,
     length(pp) == 1,
     length(dr) == 1,
-    length(xi) == 1,
+    length(xi1) == 1,
+    length(xi2) == 1,
     length(alpha) == 1)
 
   ## log marginal likelihood under alternative
@@ -126,11 +132,11 @@ bayes_men_g4 <- function(
     xi1 <- mean(as.data.frame(stout[[2]])$gamma1)
     xi2 <- mean(as.data.frame(stout[[2]])$gamma2)
   } else if (!pp && dr) {
-    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, ts1 = ts1, ts2 = ts2, output = "all", xi = xi, ...)
+    stout <- marg_f1_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, ts1 = ts1, ts2 = ts2, output = "all", xi1 = xi1, xi2 = xi2, ...)
     m0 <- stout[[1]]
     alpha <- mean(as.data.frame(stout[[2]])$alpha)
-    xi1 <- 1/3
-    xi2 <- 1/3
+    xi1 <- xi1
+    xi2 <- xi2
   } else if (!pp && !dr) {
     m0 <- marg_f1_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
     alpha <- 0
@@ -340,7 +346,8 @@ marg_f1_dr_npp_g4 <- function(x,
                               g1,
                               g2,
                               drbound = 1/6,
-                              xi = 1/3,
+                              xi1 = 1/3,
+                              xi2 = 1/3,
                               ts1 = 1,
                               ts2 = 1,
                               mixprop = 0.001,
@@ -358,7 +365,8 @@ marg_f1_dr_npp_g4 <- function(x,
                    mixprop = mixprop,
                    ts1 = ts1,
                    ts2 = ts2,
-                   xi = xi)
+                   xi1 = xi1,
+                   xi2 = xi2)
   stan_out <- rstan::sampling(object = stanmodels$marg_dr_npp_g4,
                               data = stan_dat,
                               verbose = FALSE,

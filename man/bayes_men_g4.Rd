@@ -15,7 +15,8 @@ bayes_men_g4(
   ts2 = 1,
   pp = TRUE,
   dr = TRUE,
-  xi = 1/3,
+  xi1 = 1/3,
+  xi2 = 1/3,
   alpha = 0,
   ...
 )
@@ -50,8 +51,11 @@ rate of quadrivalent formation.}
 \item{dr}{A logical. Should we account for double reduction
 (\code{TRUE}) or not (\code{FALSE})?}
 
-\item{xi}{If \code{pp = FALSE}, then \code{xi} is the known rate of
-preferential pairing (assumed fixed).}
+\item{xi1}{If \code{pp = FALSE}, then \code{xi} is the known rate of
+preferential pairing (assumed fixed) of parent 1.}
+
+\item{xi2}{If \code{pp = FALSE}, then \code{xi} is the known rate of
+preferential pairing (assumed fixed) of parent 2.}
 
 \item{alpha}{If \code{dr = FALSE}, then \code{alpha} is the known rate of
 double reduction (assumed fixed).}

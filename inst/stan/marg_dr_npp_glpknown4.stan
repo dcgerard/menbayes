@@ -46,7 +46,8 @@ data {
   real<lower=0.0,upper=1.0> mixprop; // mixing component with uniform
   real<lower=0.0> ts1; // shape 1 of beta for tau
   real<lower=0.0> ts2; // shape 2 of beta for tau
-  real<lower=0.0,upper=1.0> xi; // known pp rate
+  real<lower=0.0,upper=1.0> xi1; // known pp rate
+  real<lower=0.0,upper=1.0> xi2; // known pp rate
 }
 
 parameters {
@@ -63,8 +64,8 @@ model {
   vector[3] p2;
   vector[5] q;
   vector[5] u = [0.2, 0.2, 0.2, 0.2, 0.2]';
-  p1 = segfreq4(alpha, xi, g1);
-  p2 = segfreq4(alpha, xi, g2);
+  p1 = segfreq4(alpha, xi1, g1);
+  p2 = segfreq4(alpha, xi2, g2);
   q = [p1[1] * p2[1], p1[1] * p2[2] + p1[2] * p2[1], p1[1] * p2[3] + p1[2] * p2[2] + p1[3] * p2[1], p1[2] * p2[3] + p1[3] * p2[2], p1[3] * p2[3]]';
   q = (1.0 - mixprop) * q + mixprop * u; // mixing to avoid gradient issues
   target += beta_lpdf(tau | ts1, ts2);
