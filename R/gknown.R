@@ -106,7 +106,8 @@ bayes_men_g4 <- function(
   ma <- marg_alt_g(x = x)
 
   ## Check if data are impossible under null
-  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr)) {
+  TOL <- sqrt(.Machine$double.eps)
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr || alpha > TOL)) {
     ret <- list(
       lbf = -Inf,
       m0 = -Inf,
@@ -138,10 +139,10 @@ bayes_men_g4 <- function(
     xi1 <- xi1
     xi2 <- xi2
   } else if (!pp && !dr) {
-    m0 <- marg_f1_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
-    alpha <- 0
-    xi1 <- 1/3
-    xi2 <- 1/3
+    m0 <- marg_f1_ndr_npp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+    alpha <- alpha
+    xi1 <- xi1
+    xi2 <- xi2
   }
   if (g1 != 2) {
     xi1 <- NA_real_
@@ -289,6 +290,11 @@ marg_alt_g <- function(x, beta = rep(1, length(x)), lg = TRUE, ...) {
 #' Marginal likelihood, no double reduction, no preferential pairing, genotypes known.
 #'
 #' @inheritParams marg_f1_dr_pp_g4
+#' @param alpha The known fixed rate of double reduction.
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -311,8 +317,11 @@ marg_alt_g <- function(x, beta = rep(1, length(x)), lg = TRUE, ...) {
 marg_f1_ndr_npp_g4 <- function(x,
                                g1,
                                g2,
+                               alpha = 0,
+                               xi1 = 1/3,
+                               xi2 = 1/3,
                                lg = TRUE) {
-  gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
+  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
   return(stats::dmultinom(x = x, prob = gf, log = lg))
 }
 
@@ -321,7 +330,9 @@ marg_f1_ndr_npp_g4 <- function(x,
 #' Here, parental genotypes are known.
 #'
 #' @inheritParams marg_f1_dr_pp_g4
-#' @param xi The known rate of preferential pairing. A value of 1/3
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
 #'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard

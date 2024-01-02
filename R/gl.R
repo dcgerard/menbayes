@@ -39,6 +39,11 @@ marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
 #' Marginal likelihood, no double reduction, no preferential pairing, genotype likelihoods.
 #'
 #' @inheritParams marg_f1_dr_pp_gl4
+#' @param alpha The known fixed rate of double reduction.
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard
 #'
@@ -75,6 +80,9 @@ marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
 marg_f1_ndr_npp_gl4 <- function(gl,
                                 p1_gl = rep(log(0.2), 5),
                                 p2_gl = rep(log(0.2), 5),
+                                alpha = 0,
+                                xi1 = 1/3,
+                                xi2 = 1/3,
                                 lg = TRUE,
                                 output = c("marg", "all"), ...) {
   stopifnot(ncol(gl) == 5,
@@ -85,7 +93,7 @@ marg_f1_ndr_npp_gl4 <- function(gl,
   glmat <- matrix(data = NA_real_, nrow = 5, ncol = 5)
   for (i in 0:4) {
     for (j in 0:4) {
-      gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = i, p2 = j)
+      gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = i, p2 = j)
       lgf <- log(gf)
       glmat[i + 1, j + 1] <- sum(apply(X = t(gl) + lgf, MARGIN = 2, FUN = updog::log_sum_exp)) +
         p1_gl[[i + 1]] +
@@ -102,7 +110,9 @@ marg_f1_ndr_npp_gl4 <- function(gl,
 #' Marginal likelihood, double reduction, no preferential pairing, genotype likelihoods.
 #'
 #' @inheritParams marg_f1_dr_pp_gl4
-#' @param xi The known rate of preferential pairing. A value of 1/3
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
 #'     corresponds to no preferential pairing.
 #'
 #' @author Mira Thakkar and David Gerard

@@ -15,9 +15,9 @@ bayes_men_gl4(
   ts2 = 1,
   pp = TRUE,
   dr = TRUE,
+  alpha = 0,
   xi1 = 1/3,
   xi2 = 1/3,
-  alpha = 0,
   ...
 )
 }
@@ -51,14 +51,14 @@ rate of quadrivalent formation.}
 \item{dr}{A logical. Should we account for double reduction
 (\code{TRUE}) or not (\code{FALSE})?}
 
+\item{alpha}{If \code{dr = FALSE}, then \code{alpha} is the known rate of
+double reduction (assumed fixed).}
+
 \item{xi1}{If \code{pp = FALSE}, then \code{xi} is the known rate of
 preferential pairing (assumed fixed) of parent 1.}
 
 \item{xi2}{If \code{pp = FALSE}, then \code{xi} is the known rate of
 preferential pairing (assumed fixed) of parent 2.}
-
-\item{alpha}{If \code{dr = FALSE}, then \code{alpha} is the known rate of
-double reduction (assumed fixed).}
 
 \item{...}{Additional arguments to pass to Stan.}
 }

@@ -51,9 +51,9 @@ bayes_men_gl4 <- function(
     ts2 = 1,
     pp = TRUE,
     dr = TRUE,
+    alpha = 0,
     xi1 = 1/3,
     xi2 = 1/3,
-    alpha = 0,
     ...) {
   ## check input ----
   stopifnot(
@@ -140,10 +140,10 @@ bayes_men_gl4 <- function(
     xi1 <- xi1
     xi2 <- xi2
   } else if (!pp && !dr && pknown) {
-    m0 <- marg_f1_ndr_npp_glpknown4(gl = gl, p1 = g1, p2 = g2)
-    alpha <- 0
-    xi1 <- 1/3
-    xi2 <- 1/3
+    m0 <- marg_f1_ndr_npp_glpknown4(gl = gl, p1 = g1, p2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+    alpha <- alpha
+    xi1 <- xi1
+    xi2 <- xi2
   } else if (pp && dr && !pknown) {
     stout <- marg_f1_dr_pp_gl4(
       gl = gl,
@@ -192,10 +192,10 @@ bayes_men_gl4 <- function(
     xi1 <- xi1
     xi2 <- xi2
   } else if (!pp && !dr && !pknown) {
-    m0 <- marg_f1_ndr_npp_gl4(gl = gl, p1_gl = g1, p2_gl = g2)
-    alpha <- 0
-    xi1 <- 1/3
-    xi2 <- 1/3
+    m0 <- marg_f1_ndr_npp_gl4(gl = gl, p1_gl = g1, p2_gl = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+    alpha <- alpha
+    xi1 <- xi1
+    xi2 <- xi2
   }
 
   ret <- list(
@@ -213,6 +213,11 @@ bayes_men_gl4 <- function(
 #' Marginal likelihood, no double reduction, no preferential pairing, parent genotypes known, offspring genotypes unknown
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
+#' @param alpha The known fixed rate of double reduction.
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
+#'     corresponds to no preferential pairing.
 #'
 #' @examples
 #' ## null sims
@@ -241,8 +246,11 @@ bayes_men_gl4 <- function(
 marg_f1_ndr_npp_glpknown4 <- function(gl,
                                       p1,
                                       p2,
+                                      alpha = 0,
+                                      xi1 = 1/3,
+                                      xi2 = 1/3,
                                       lg = TRUE) {
-  gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = p1, p2 = p2)
+  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = p1, p2 = p2)
   lgf <- log(gf)
   mx <- sum(apply(X = t(gl) + lgf, MARGIN = 2, FUN = updog::log_sum_exp))
   if(!lg) {
@@ -254,7 +262,9 @@ marg_f1_ndr_npp_glpknown4 <- function(gl,
 #' Marginal likelihood, double reduction, no preferential pairing, parent genotypes known, offspring genotypes unknown
 #'
 #' @inheritParams marg_f1_dr_pp_glpknown4
-#' @param xi The known rate of preferential pairing. A value of 1/3
+#' @param xi1 The known rate of preferential pairing for parent 1. A value of 1/3
+#'     corresponds to no preferential pairing.
+#' @param xi2 The known rate of preferential pairing for parent 2. A value of 1/3
 #'     corresponds to no preferential pairing.
 #'
 #' @examples
