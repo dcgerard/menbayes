@@ -6,8 +6,8 @@
 \usage{
 bayes_men_gl4(
   gl,
-  g1,
-  g2,
+  g1 = rep(-log(5), 5),
+  g2 = rep(-log(5), 5),
   drbound = 1/6,
   shape1 = 5/9,
   shape2 = 10/9,
@@ -18,6 +18,7 @@ bayes_men_gl4(
   alpha = 0,
   xi1 = 1/3,
   xi2 = 1/3,
+  parent_method = c("est", "marg"),
   ...
 )
 }
@@ -60,6 +61,10 @@ preferential pairing (assumed fixed) of parent 1.}
 \item{xi2}{If \code{pp = FALSE}, then \code{xi} is the known rate of
 preferential pairing (assumed fixed) of parent 2.}
 
+\item{parent_method}{If unknown, should we estimate the parent genotypes
+by maximum likelihood (\code{"est"}) or marginalize over them
+(\code{"marg"})?}
+
 \item{...}{Additional arguments to pass to Stan.}
 }
 \description{
@@ -75,10 +80,10 @@ meaningless. Do NOT interpret them. The log-BF is fine, though.
 \examples{
 \dontrun{
 ## null sims
-set.seed(1)
+set.seed(10)
 g1 <- 1
 g2 <- 2
-gl <- simf1gl(n = 25, g1 = g1, g2 = g2)
+gl <- simf1gl(n = 100, g1 = g1, g2 = g2)
 bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 
 ## genotypes of parents not known

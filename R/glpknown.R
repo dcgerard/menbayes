@@ -15,14 +15,17 @@
 #'    and the columns index the genotypes.
 #' @param g1 Either parent 1's genotype, or parent 1's genotype log-likelihoods.
 #' @param g2 Either parent 2's genotype, or parent 2's genotype log-likelihoods.
+#' @param parent_method If unknown, should we estimate the parent genotypes
+#'    by maximum likelihood (\code{"est"}) or marginalize over them
+#'    (\code{"marg"})?
 #'
 #' @examples
 #' \dontrun{
 #' ## null sims
-#' set.seed(1)
+#' set.seed(10)
 #' g1 <- 1
 #' g2 <- 2
-#' gl <- simf1gl(n = 25, g1 = g1, g2 = g2)
+#' gl <- simf1gl(n = 100, g1 = g1, g2 = g2)
 #' bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 #'
 #' ## genotypes of parents not known
@@ -42,8 +45,8 @@
 #' @export
 bayes_men_gl4 <- function(
     gl,
-    g1,
-    g2,
+    g1 = rep(-log(5), 5),
+    g2 = rep(-log(5), 5),
     drbound = 1/6,
     shape1 = 5/9,
     shape2 = 10/9,
@@ -54,8 +57,10 @@ bayes_men_gl4 <- function(
     alpha = 0,
     xi1 = 1/3,
     xi2 = 1/3,
+    parent_method = c("est", "marg"),
     ...) {
   ## check input ----
+  parent_method <- match.arg(parent_method)
   stopifnot(
     ncol(gl) == 5,
     drbound > 1e-6,
@@ -86,6 +91,14 @@ bayes_men_gl4 <- function(
     g2 <- g2 - log_sum_exp(g2)
   } else {
     stop("g1 and g2 should either both be length 1 (known genotypes)\nor both be length 5 (genotype log-likelihoods).")
+  }
+
+  ## Deal with unknown parental genotypes
+  if (!pknown && parent_method == "est") {
+    lrtout <- lrt_gl4(gl = gl, p1_gl = g1, p2_gl = g2)
+    g1 <- lrtout$p1
+    g2 <- lrtout$p2
+    pknown <- TRUE
   }
 
   ## log marginal likelihood under alternative ----
@@ -204,7 +217,9 @@ bayes_men_gl4 <- function(
     ma = ma,
     alpha = alpha,
     xi1 = xi1,
-    xi2 = xi2
+    xi2 = xi2,
+    g1 = g1,
+    g2 = g2
   )
 
   return(ret)
