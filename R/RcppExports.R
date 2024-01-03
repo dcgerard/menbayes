@@ -10,6 +10,7 @@
 #'
 #' @author David Gerard
 #'
+#' @noRd
 log_sum_exp <- function(x) {
     .Call(`_menbayes_log_sum_exp`, x)
 }
@@ -23,6 +24,7 @@ log_sum_exp <- function(x) {
 #'
 #' @author David Gerard
 #'
+#' @noRd
 log_sum_exp_2 <- function(x, y) {
     .Call(`_menbayes_log_sum_exp_2`, x, y)
 }
@@ -35,6 +37,7 @@ log_sum_exp_2 <- function(x, y) {
 #'
 #' @author David Gerard
 #'
+#' @export
 llike_li <- function(B, lpivec) {
     .Call(`_menbayes_llike_li`, B, lpivec)
 }
@@ -45,7 +48,7 @@ llike_li <- function(B, lpivec) {
 #' likelihoods.
 #'
 #' @param B Matrix of genotype log-likelihoods. The rows index the individuals
-#'     and the columsn index the genotypes.
+#'     and the columns index the genotypes.
 #' @param itermax The maximum number of iterations.
 #' @param eps The stopping criteria.
 #'
@@ -58,6 +61,7 @@ llike_li <- function(B, lpivec) {
 #'   \item{Li, H. (2011). A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. \emph{Bioinformatics}, 27(21), 2987-2993. \doi{10.1093/bioinformatics/btr509}}
 #' }
 #'
+#' @export
 em_li <- function(B, itermax = 100L, eps = 1e-5) {
     .Call(`_menbayes_em_li`, B, itermax, eps)
 }

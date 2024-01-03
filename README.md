@@ -33,7 +33,7 @@ Code of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.
 
-## Acknowledgements
+## Acknowledgments
 
 This material is based upon work supported by the National Science
 Foundation under Grant No. 2132247.

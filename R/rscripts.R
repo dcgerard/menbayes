@@ -263,7 +263,7 @@ po_gl <- function(genovec, p1_geno, p2_geno, ploidy, seq = 0.01, rd = 10, bias =
 #' @param rd The read depth.
 #' @param alpha The double reduction rate.
 #' @param xi1 The first parent's preferential pairing parameter.
-#' @param xi2 The second parent's preferential pairing paramter.
+#' @param xi2 The second parent's preferential pairing parameter.
 #'
 #' @return The matrix of offspring genotype log-likelihoods.
 #'
@@ -283,12 +283,12 @@ simf1gl <- function(n, g1, g2, rd = 10, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   return(fout$genologlike)
 }
 
-#' Simulate genotypes from F1 individiuals
+#' Simulate genotypes from F1 individuals
 #'
 #' @inheritParams simf1gl
 #'
 #' @return A vector of counts, where element \code{i} is the number of
-#'     simulated inviduals with genotype \code{i-1}.
+#'     simulated individuals with genotype \code{i-1}.
 #'
 #' @author David Gerard
 #'

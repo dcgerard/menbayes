@@ -58,7 +58,7 @@ gl <- simf1gl(
   xi2 = xi2)
 ```
 
-The LRT has a large $p$-value, and the Bayes test has a positve log Bayes factor.
+The LRT has a large $p$-value, and the Bayes test has a positive log Bayes factor.
 
 ```{r}
 lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)

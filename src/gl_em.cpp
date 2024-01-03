@@ -12,6 +12,7 @@ using namespace arma;
 //'
 //' @author David Gerard
 //'
+//' @noRd
 // [[Rcpp::export]]
 double log_sum_exp(const arma::vec &x) {
   double max_x = arma::max(x);
@@ -34,6 +35,7 @@ double log_sum_exp(const arma::vec &x) {
 //'
 //' @author David Gerard
 //'
+//' @noRd
 // [[Rcpp::export]]
 double log_sum_exp_2(double x, double y) {
   double z = std::max(x, y);
@@ -54,6 +56,7 @@ double log_sum_exp_2(double x, double y) {
 //'
 //' @author David Gerard
 //'
+//' @export
 // [[Rcpp::export]]
 double llike_li(const arma::mat &B, const arma::vec &lpivec) {
 
@@ -81,7 +84,7 @@ double llike_li(const arma::mat &B, const arma::vec &lpivec) {
 //' likelihoods.
 //'
 //' @param B Matrix of genotype log-likelihoods. The rows index the individuals
-//'     and the columsn index the genotypes.
+//'     and the columns index the genotypes.
 //' @param itermax The maximum number of iterations.
 //' @param eps The stopping criteria.
 //'
@@ -94,6 +97,7 @@ double llike_li(const arma::mat &B, const arma::vec &lpivec) {
 //'   \item{Li, H. (2011). A statistical framework for SNP calling, mutation discovery, association mapping and population genetical parameter estimation from sequencing data. \emph{Bioinformatics}, 27(21), 2987-2993. \doi{10.1093/bioinformatics/btr509}}
 //' }
 //'
+//' @export
 // [[Rcpp::export]]
 arma::vec em_li(const arma::mat &B, int itermax = 100, double eps = 1e-5) {
   int K = B.n_cols - 1;

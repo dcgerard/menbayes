@@ -11,7 +11,7 @@ plot_beta(a, b, level = 0.8, ...)
 
 \item{b}{the second shape parameter}
 
-\item{level}{The leve of the interval.}
+\item{level}{The level of the interval.}
 
 \item{...}{Additional arguments to pass to \code{\link[graphics]{plot}}.}
 }

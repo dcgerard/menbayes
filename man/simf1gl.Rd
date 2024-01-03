@@ -19,7 +19,7 @@ simf1gl(n, g1, g2, rd = 10, alpha = 0, xi1 = 1/3, xi2 = 1/3)
 
 \item{xi1}{The first parent's preferential pairing parameter.}
 
-\item{xi2}{The second parent's preferential pairing paramter.}
+\item{xi2}{The second parent's preferential pairing parameter.}
 }
 \value{
 The matrix of offspring genotype log-likelihoods.

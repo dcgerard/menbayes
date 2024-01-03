@@ -8,7 +8,7 @@ em_li(B, itermax = 100L, eps = 1e-05)
 }
 \arguments{
 \item{B}{Matrix of genotype log-likelihoods. The rows index the individuals
-and the columsn index the genotypes.}
+and the columns index the genotypes.}
 
 \item{itermax}{The maximum number of iterations.}
 

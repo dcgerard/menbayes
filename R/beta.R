@@ -7,7 +7,7 @@
 #'
 #' @param a the first shape parameter
 #' @param b the second shape parameter
-#' @param level The leve of the interval.
+#' @param level The level of the interval.
 #' @param ... Additional arguments to pass to \code{\link[graphics]{plot}}.
 #'
 #' @author David Gerard

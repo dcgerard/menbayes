@@ -2,7 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{simf1g}
 \alias{simf1g}
-\title{Simulate genotypes from F1 individiuals}
+\title{Simulate genotypes from F1 individuals}
 \usage{
 simf1g(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3)
 }
@@ -17,14 +17,14 @@ simf1g(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3)
 
 \item{xi1}{The first parent's preferential pairing parameter.}
 
-\item{xi2}{The second parent's preferential pairing paramter.}
+\item{xi2}{The second parent's preferential pairing parameter.}
 }
 \value{
 A vector of counts, where element \code{i} is the number of
-simulated inviduals with genotype \code{i-1}.
+simulated individuals with genotype \code{i-1}.
 }
 \description{
-Simulate genotypes from F1 individiuals
+Simulate genotypes from F1 individuals
 }
 \examples{
 set.seed(1)
