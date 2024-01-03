@@ -29,15 +29,13 @@
 #' bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 #'
 #' ## genotypes of parents not known
-#' g1_gl <- log(c(0.2, 0.5, 0.2, 0.09, 0.01))
-#' g2_gl <- log(c(0.09, 0.2, 0.4, 0.3, 0.01))
-#' bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+#' bayes_men_gl4(gl = gl, chains = 1, iter = 1000)
 #'
 #' ## alt sims
 #' gl <- hwep::simgl(nvec = rep(5, 5), rdepth = 10)
 #' bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 #'
-#' bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+#' bayes_men_gl4(gl = gl, chains = 1, iter = 1000)
 #' }
 #'
 #' @author David Gerard
@@ -95,7 +93,17 @@ bayes_men_gl4 <- function(
 
   ## Deal with unknown parental genotypes
   if (!pknown && parent_method == "est") {
-    lrtout <- lrt_gl4(gl = gl, p1_gl = g1, p2_gl = g2)
+    ## estiamte parental genotypes using ML
+    lrtout <- lrt_gl4(
+      gl = gl,
+      p1_gl = g1,
+      p2_gl = g2,
+      drbound = drbound,
+      dr = dr,
+      pp = pp,
+      alpha = alpha,
+      xi1 = xi1,
+      xi2 = xi2)
     g1 <- lrtout$p1
     g2 <- lrtout$p2
     pknown <- TRUE
