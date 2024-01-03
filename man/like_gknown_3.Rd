@@ -4,7 +4,7 @@
 \alias{like_gknown_3}
 \title{Likelihood under three parameter model when genotypes are known}
 \usage{
-like_gknown_3(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE)
+like_gknown_3(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE, pen = 1e-10)
 }
 \arguments{
 \item{x}{A vector of length 5. \code{x[i]} is the count of individuals with
@@ -23,6 +23,8 @@ genotype \code{i-1}.}
 \item{g2}{Parent 2's genotype.}
 
 \item{log_p}{A logical. Should we return the log likelihood or not?}
+
+\item{pen}{A tiny penalty to help with numerical stability}
 }
 \value{
 The (log) likelihood.

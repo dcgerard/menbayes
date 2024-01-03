@@ -182,6 +182,7 @@ nzeros <- function(g1, g2, dr = TRUE) {
 #' @param g1 Parent 1's genotype.
 #' @param g2 Parent 2's genotype.
 #' @param log_p A logical. Should we return the log likelihood or not?
+#' @param pen A tiny penalty to help with numerical stability
 #'
 #' @return The (log) likelihood.
 #'
@@ -205,7 +206,7 @@ nzeros <- function(g1, g2, dr = TRUE) {
 #' @author David Gerard
 #'
 #' @export
-like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
+like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE, pen = 1e-10) {
   stopifnot(length(x) == 5)
   stopifnot(tau >= 0, tau <= 1,
             beta >= 0, beta <= 1,
@@ -222,6 +223,9 @@ like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
     p1 = g1,
     p2 = g2)
 
+  gf <- gf + pen
+  gf <- gf / sum(gf)
+
   return(stats::dmultinom(x = x, prob = gf, log = log_p))
 }
 
@@ -237,6 +241,7 @@ like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
 #' @param g1 Parent 1's genotype.
 #' @param g2 Parent 2's genotype.
 #' @param log_p A logical. Should we return the log likelihood or not?
+#' @param pen A tiny penalty to help with numerical stability
 #'
 #' @return The (log) likelihood.
 #'
@@ -258,7 +263,7 @@ like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
 #' @author David Gerard
 #'
 #' @export
-like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
+like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 1e-10) {
   stopifnot(length(x) == 5)
   stopifnot(alpha >= 0, alpha <= 1,
             xi1 >= 0, xi1 <= 1,
@@ -273,6 +278,9 @@ like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
     xi2 = xi2,
     p1 = g1,
     p2 = g2)
+
+  gf <- gf + pen
+  gf <- gf / sum(gf)
 
   return(stats::dmultinom(x = x, prob = gf, log = log_p))
 }
