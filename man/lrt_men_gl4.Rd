@@ -4,7 +4,17 @@
 \alias{lrt_men_gl4}
 \title{Likelihood ratio test using genotype likelihoods.}
 \usage{
-lrt_men_gl4(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr = TRUE)
+lrt_men_gl4(
+  gl,
+  g1 = NULL,
+  g2 = NULL,
+  drbound = 1/6,
+  pp = TRUE,
+  dr = TRUE,
+  alpha = 0,
+  xi1 = 1/3,
+  xi2 = 1/3
+)
 }
 \arguments{
 \item{gl}{The genotype log-likelihoods. The rows index the individuals
@@ -21,6 +31,15 @@ not (\code{FALSE})?}
 
 \item{dr}{Is double reduction possible (\code{TRUE}) or
 not (\code{FALSE})?}
+
+\item{alpha}{If \code{dr = FALSE}, this is the known rate of double
+reduction.}
+
+\item{xi1}{If \code{pp = FALSE}, this is the known preferential pairing
+parameter of parent 1.}
+
+\item{xi2}{If \code{pp = FALSE}, this is the known preferential pairing
+parameter of parent 2.}
 }
 \description{
 Likelihood ratio test using genotype likelihoods.

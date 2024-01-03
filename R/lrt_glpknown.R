@@ -11,6 +11,12 @@
 #'    not (\code{FALSE})?
 #' @param dr Is double reduction possible (\code{TRUE}) or
 #'    not (\code{FALSE})?
+#' @param alpha If \code{dr = FALSE}, this is the known rate of double
+#'     reduction.
+#' @param xi1 If \code{pp = FALSE}, this is the known preferential pairing
+#'     parameter of parent 1.
+#' @param xi2 If \code{pp = FALSE}, this is the known preferential pairing
+#'     parameter of parent 2.
 #'
 #' @author David Gerard
 #'
@@ -30,15 +36,33 @@
 #'
 #'
 #' @export
-lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr = TRUE) {
+lrt_men_gl4 <- function(
+    gl,
+    g1 = NULL,
+    g2 = NULL,
+    drbound = 1/6,
+    pp = TRUE,
+    dr = TRUE,
+    alpha = 0,
+    xi1 = 1/3,
+    xi2 = 1/3) {
   stopifnot(ncol(gl) == 5,
             length(drbound) == 1,
             drbound <= 1,
             drbound > 1e-6,
+            alpha >= 0,
+            alpha <= 1,
+            xi1 >= 0,
+            xi1 <= 1,
+            xi2 >= 0,
+            xi2 <= 1,
             length(pp) == 1,
             is.logical(pp),
             length(dr) == 1,
-            is.logical(dr))
+            is.logical(dr),
+            length(alpha) == 1,
+            length(xi1) == 1,
+            length(xi2) == 1)
 
   ## if parent geno is NULL, then use unknown genotypes method
   if (is.null(g1) && is.null(g2)) {
@@ -79,11 +103,11 @@ lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr =
   if (pp && dr && pknown) {
     ret <- lrt_dr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
   } else if (pp && !dr && pknown) {
-    ret <- lrt_ndr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2)
+    ret <- lrt_ndr_pp_glpknown4(gl = gl, g1 = g1, g2 = g2, alpha = alpha)
   } else if (!pp && dr && pknown) {
-    ret <- lrt_dr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound)
+    ret <- lrt_dr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, drbound = drbound, xi1 = xi1, xi2 = xi2)
   } else if (!pp && !dr && pknown) {
-    ret <- lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2)
+    ret <- lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
   } else {
     ret <- lrt_gl4(
       gl = gl,
@@ -91,7 +115,10 @@ lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr =
       p2_gl = g2,
       drbound = drbound,
       dr = dr,
-      pp = pp)
+      pp = pp,
+      alpha = alpha,
+      xi1 = xi1,
+      xi2 = xi2)
   }
 
   return(ret)
@@ -217,13 +244,13 @@ like_glpknown_2 <- function(gl, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
 #' @author David Gerard
 #'
 #' @noRd
-lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
+lrt_ndr_npp_glpknown4 <- function(gl, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   ## MLE under alternative
   log_qhat1 <- c(em_li(B = gl))
   l1 <- llike_li(B = gl, lpivec = log_qhat1)
 
   ## null likelihood
-  qhat2 <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
+  qhat2 <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
   l0 <- llike_li(B = gl, lpivec = log(qhat2))
 
   ## calculate test statistic and run test
@@ -231,7 +258,15 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
   df <- 4
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
-  return(list(statistic = llr, p_value = p_value, df = df))
+  ret <- list(
+    statistic = llr,
+    p_value = p_value,
+    df = df,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2)
+
+  return(ret)
 }
 
 ## LRT when dr and pp are estimated --------------------------------------
@@ -412,11 +447,13 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
 #' Likelihood ratio test, gl for offspring, known for parents, dr, no pp.
 #'
 #' @inheritParams lrt_dr_pp_glpknown4
+#' @param xi1 The known preferential pairing parameter of parent 1.
+#' @param xi2 The known preferential pairing parameter of parent 2.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
+lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3, ntry = 5) {
 
   ## Same scenario when no 2
   if (g1 != 2  && g2 != 2) {
@@ -430,15 +467,14 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
   ## MLE under null
   fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_glpknown_3,
+                       fn = like_glpknown_2,
                        method = "L-BFGS-B",
                        lower = fudge,
                        upper = drbound,
                        control = list(fnscale = -1),
                        gl = gl,
-                       tau = 1,
-                       gamma1 = 1/3,
-                       gamma2 = 1/3,
+                       xi1 = xi1,
+                       xi2 = xi2,
                        g1 = g1,
                        g2 = g2,
                        log_p = TRUE)
@@ -453,8 +489,8 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     p_value = p_value,
     df = df,
     alpha = alpha,
-    xi1 = 1/3,
-    xi2 = 1/3)
+    xi1 = xi1,
+    xi2 = xi2)
 
   return(ret)
 }
@@ -467,43 +503,41 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
 #' @param par if g1 != 2 or g2 != 2, then should be xi1 (or xi2). If
 #'     both g1 == 2 and g2 == 2, then first element is xi1 and second
 #'     element is xi2.
+#' @param alpha The known rate of double reduction.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-obj_ndr_pp_gl <- function(par, gl, g1, g2) {
+obj_ndr_pp_gl <- function(par, gl, g1, g2, alpha = 0) {
   if (g1 != 2 && g2 != 2) {
     stop("obj_ndr_pp_gl: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_glpknown_3(
+    obj <- like_glpknown_2(
       gl = gl,
-      tau = 0,
-      beta = 0,
-      gamma1 = par[[1]],
-      gamma2 = 1/3,
+      alpha = alpha,
+      xi1 = par[[1]],
+      xi2 = 1/3,
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
   } else if (g1 != 2 && g2 == 2) {
     stopifnot(length(par) == 1)
-    obj <- like_glpknown_3(
+    obj <- like_glpknown_2(
       gl = gl,
-      tau = 0,
-      beta = 0,
-      gamma1 = 1/3,
-      gamma2 = par[[1]],
+      alpha = alpha,
+      xi1 = 1/3,
+      xi2 = par[[1]],
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
   } else if (g1 == 2 && g2 == 2) {
     stopifnot(length(par) == 2)
-    obj <- like_glpknown_3(
+    obj <- like_glpknown_2(
       gl = gl,
-      tau = 0,
-      beta = 0,
-      gamma1 = par[[1]],
-      gamma2 = par[[2]],
+      alpha = alpha,
+      xi1 = par[[1]],
+      xi2 = par[[2]],
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
@@ -514,14 +548,15 @@ obj_ndr_pp_gl <- function(par, gl, g1, g2) {
 #' LRT when there is pp, but no dr
 #'
 #' @inheritParams lrt_dr_pp_glpknown4
+#' @param alpha The known rate of double reduction.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
+lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0) {
   fudge <- 1e-7
   if (g1 != 2 && g2 != 2) {
-    return(lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2))
+    return(lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, alpha = alpha))
   }
 
   ## MLE under alternative
@@ -538,6 +573,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       gl = gl,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- oout$par[[1]]
@@ -551,6 +587,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       gl = gl,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- NA_real_
@@ -564,6 +601,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       gl = gl,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- oout$par[[1]]
@@ -581,7 +619,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2) {
     statistic = llr,
     p_value = p_value,
     df = df,
-    alpha = 0,
+    alpha = alpha,
     xi1 = xi1,
     xi2 = xi2)
 

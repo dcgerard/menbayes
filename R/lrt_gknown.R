@@ -283,8 +283,8 @@ like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
 #'
 #' @inheritParams like_gknown_3
 #' @param alpha The known rate of double reduction.
-#' @param xi1 The known preferential pairingn parameter of parent 1.
-#' @param xi2 The known preferential pairingn parameter of parent 2.
+#' @param xi1 The known preferential pairing parameter of parent 1.
+#' @param xi2 The known preferential pairing parameter of parent 2.
 #'
 #' @return A list of length three with the following elements
 #' \describe{
