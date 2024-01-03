@@ -1,5 +1,5 @@
 Package: menbayes
-Title: Bayesian Tests for Mendelian Segregation in Polyploids
+Title: Tests for Mendelian Segregation in Polyploids
 Version: 0.0.1
 Authors@R: 
     c(person("Mira", "Thakkar", , "mt7562a@american.edu ", role = c("aut")),
@@ -9,7 +9,7 @@ Authors@R:
              role = "fnd",
              comment = "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247")
      )
-Description: Provides a suite of methods for Bayesian tests for
+Description: Provides a suite of methods for tests for
     Mendelian segregation in experimental polyploid populations (right
     now just for tetraploids). This is under different assumptions of
     meiosis. This material is based upon work supported by the
@@ -45,6 +45,9 @@ LinkingTo:
     StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
 Suggests: 
+    knitr,
     polymapR,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+VignetteBuilder: knitr

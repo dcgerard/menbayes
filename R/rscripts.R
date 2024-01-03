@@ -268,15 +268,38 @@ po_gl <- function(genovec, p1_geno, p2_geno, ploidy, seq = 0.01, rd = 10, bias =
 #' @return The matrix of offspring genotype log-likelihoods.
 #'
 #' @examples
+#' set.seed(1)
 #' simf1gl(n = 10, g1 = 1, g2 = 2)
 #'
 #' @author David Gerard
 #'
 #' @export
 simf1gl <- function(n, g1, g2, rd = 10, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
-  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
-  gcount <- offspring_geno(gf = gf, n = n)
+  gcount <- simf1g(n = n, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
   gvec <- gcount_to_gvec(gcount = gcount)
   fout <- po_gl(genovec = gvec, p1_geno = g1, p2_geno = g2, ploidy = 4, rd = rd)
+  rownames(fout$genologlike) <- paste0("F", seq_len(nrow(fout$genologlike)))
+  colnames(fout$genologlike) <- 0:4
   return(fout$genologlike)
+}
+
+#' Simulate genotypes from F1 individiuals
+#'
+#' @inheritParams simf1gl
+#'
+#' @return A vector of counts, where element \code{i} is the number of
+#'     simulated inviduals with genotype \code{i-1}.
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' set.seed(1)
+#' simf1g(n = 10, g1 = 1, g2 = 2)
+#'
+#' @export
+simf1g <- function(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
+  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
+  gcount <- offspring_geno(gf = gf, n = n)
+  names(gcount) <- 0:4
+  return(gcount)
 }

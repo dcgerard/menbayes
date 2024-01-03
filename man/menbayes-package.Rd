@@ -4,9 +4,9 @@
 \name{menbayes-package}
 \alias{menbayes}
 \alias{menbayes-package}
-\title{menbayes: Bayesian Tests for Mendelian Segregation in Polyploids}
+\title{menbayes: Tests for Mendelian Segregation in Polyploids}
 \description{
-Provides a suite of methods for Bayesian tests for Mendelian segregation in experimental polyploid populations (right now just for tetraploids). This is under different assumptions of meiosis. This material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
+Provides a suite of methods for tests for Mendelian segregation in experimental polyploid populations (right now just for tetraploids). This is under different assumptions of meiosis. This material is based upon work supported by the National Science Foundation under Grant No. 2132247. The opinions, findings, and conclusions or recommendations expressed are those of the author and do not necessarily reflect the views of the National Science Foundation.
 }
 \seealso{
 Useful links:

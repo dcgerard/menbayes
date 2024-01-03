@@ -21,8 +21,7 @@ chisq_gl4 <- function(gl, g1, g2){
   col_max <- apply(gl, 1, which.max) - 1
   col_max <- factor(col_max, levels = 0:ploidy)
   x <- c(table(col_max))
-  output <- chisq_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
-
+  output <- chisq_g4(x = x, g1 = g1, g2 = g2)
   return(output)
 }
 
@@ -43,15 +42,15 @@ chisq_gl4 <- function(gl, g1, g2){
 #' x <- c(1, 2, 4, 3, 0)
 #' g1 <- 2
 #' g2 <- 2
-#' chisq_ndr_npp_g4(x, g1, g2)
+#' chisq_g4(x, g1, g2)
 #'
 #' x <- c(10, 25, 10, 0, 0)
 #' g1 <- 1
 #' g2 <- 1
-#' chisq_ndr_npp_g4(x, g1, g2)
+#' chisq_g4(x, g1, g2)
 #'
 #' @export
-chisq_ndr_npp_g4 <- function(x, g1, g2){
+chisq_g4 <- function(x, g1, g2){
   TOL <- sqrt(.Machine$double.eps)
   gf <- menbayes::offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
   which_zero <- gf < TOL

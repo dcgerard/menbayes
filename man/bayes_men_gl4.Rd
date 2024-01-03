@@ -87,15 +87,13 @@ gl <- simf1gl(n = 100, g1 = g1, g2 = g2)
 bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 
 ## genotypes of parents not known
-g1_gl <- log(c(0.2, 0.5, 0.2, 0.09, 0.01))
-g2_gl <- log(c(0.09, 0.2, 0.4, 0.3, 0.01))
-bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+bayes_men_gl4(gl = gl, chains = 1, iter = 1000)
 
 ## alt sims
 gl <- hwep::simgl(nvec = rep(5, 5), rdepth = 10)
 bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
 
-bayes_men_gl4(gl = gl, g1 = g1_gl, g2 = g2_gl, chains = 1, iter = 1000)
+bayes_men_gl4(gl = gl, chains = 1, iter = 1000)
 }
 
 }
