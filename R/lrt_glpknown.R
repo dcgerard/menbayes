@@ -213,7 +213,6 @@ like_glpknown_2 <- function(gl, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
   stopifnot(alpha >= 0, alpha <= 1,
             xi1 >= 0, xi1 <= 1,
             xi2 >= 0, xi2 <= 1,
-            x >= 0,
             g1 >= 0, g1 <= 4,
             g2 >= 0, g2 <= 4)
 

@@ -37,7 +37,7 @@
 #' g2 <- 2
 #' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
 #' x <- offspring_geno(gf = gf, n = 100)
-#' polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
+#' polymapr_test(x = x, g1 = g1, g2 = g2, type = "menbayes")
 #'
 #' @author David Gerard
 #'
@@ -66,7 +66,7 @@ polymapr_test <- function(x, g1, g2, type = c("menbayes", "polymapR")) {
   if (dat == "known" && type == "menbayes") {
     ret <- polymapr_approx_g(x = x, g1 = g1, g2 = g2)
   } else if (dat == "gl" && type == "menbayes") {
-    ret <- polymapr_apprx_gl(gl = x, g1 = g1, g2 = g2)
+    ret <- polymapr_approx_gl(gl = x, g1 = g1, g2 = g2)
   } else if (dat == "known" && type == "polymapR") {
     ret <- polymapR_package_g(x = x, g1 = g1, g2 = g2)
   } else if (dat == "gl" && type == "polymapR") {
@@ -103,6 +103,7 @@ polymapR_package_g <- function(x, g1, g2) {
     g2 <= ploidy
   )
 
+  n <- sum(x)
   df <- matrix(c(g1, g2, gcount_to_gvec(gcount = x)), nrow = 1)
   fnames <- paste0("F", seq_len(ncol(df) - 2))
   colnames(df) <- c("P1", "P2", fnames)
@@ -225,6 +226,7 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
 
   TOL <- sqrt(.Machine$double.eps)
   pval <- 0
+  p_invalid <- 0
   bi <- NULL
   frq_invalid <- NULL
   for (i in seq_len(nrow(segtypes))) {
