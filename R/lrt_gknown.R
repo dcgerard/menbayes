@@ -146,6 +146,8 @@ nzeros <- function(g1, g2, dr = TRUE) {
 
 #' Likelihood under three parameter model when genotypes are known
 #'
+#' This is under the three parameter model.
+#'
 #' @param x A vector of length 5. \code{x[i]} is the count of individuals with
 #'     genotype \code{i-1}.
 #' @param tau The probability of quadrivalent formation.
@@ -166,7 +168,7 @@ nzeros <- function(g1, g2, dr = TRUE) {
 #' gamma2 <- 0.3
 #' g1 <- 1
 #' g2 <- 2
-#' like_gknown(
+#' like_gknown_3(
 #'   x = x,
 #'   tau = tau,
 #'   beta = beta,
@@ -178,7 +180,7 @@ nzeros <- function(g1, g2, dr = TRUE) {
 #' @author David Gerard
 #'
 #' @export
-like_gknown <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
+like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
   stopifnot(length(x) == 5)
   stopifnot(tau >= 0, tau <= 1,
             beta >= 0, beta <= 1,
@@ -198,11 +200,63 @@ like_gknown <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
   return(stats::dmultinom(x = x, prob = gf, log = log_p))
 }
 
+#' Likelihood under three parameter model when genotypes are known
+#'
+#' This is under the two parameter model.
+#'
+#' @param x A vector of length 5. \code{x[i]} is the count of individuals with
+#'     genotype \code{i-1}.
+#' @param alpha The double reduction rate.
+#' @param xi1 The preferential pairing parameter of parent 1.
+#' @param xi2 The preferential pairing parameter of parent 2.
+#' @param g1 Parent 1's genotype.
+#' @param g2 Parent 2's genotype.
+#' @param log_p A logical. Should we return the log likelihood or not?
+#'
+#' @return The (log) likelihood.
+#'
+#' @examples
+#' x <- c(1, 4, 5, 3, 1)
+#' alpha <- 0.01
+#' xi1 <- 0.5
+#' xi2 <- 0.3
+#' g1 <- 1
+#' g2 <- 2
+#' like_gknown_2(
+#'   x = x,
+#'   alpha = alpha,
+#'   xi1 = xi1,
+#'   xi2 = xi2,
+#'   g1 = g1,
+#'   g2 = g2)
+#'
+#' @author David Gerard
+#'
+#' @export
+like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
+  stopifnot(length(x) == 5)
+  stopifnot(alpha >= 0, alpha <= 1,
+            xi1 >= 0, xi1 <= 1,
+            xi2 >= 0, xi2 <= 1,
+            x >= 0,
+            g1 >= 0, g1 <= 4,
+            g2 >= 0, g2 <= 4)
+
+  gf <- offspring_gf_2(
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    p1 = g1,
+    p2 = g2)
+
+  return(stats::dmultinom(x = x, prob = gf, log = log_p))
+}
+
 #' Likelihood ratio test assuming no double reduction and no preferential pairing
 #'
 #' This is when all genotypes are known.
 #'
-#' @inheritParams like_gknown
+#' @inheritParams like_gknown_3
 #'
 #' @return A list of length three with the following elements
 #' \describe{
@@ -230,7 +284,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2) {
 
   ## Run test
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
-  l0 <- like_gknown(
+  l0 <- like_gknown_3(
     x = x,
     tau = 1,
     beta = 0,
@@ -272,7 +326,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2) {
 obj_dr_pp <- function(par, x, g1, g2) {
   if (g1 != 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = 1,
       beta = par[[1]],
@@ -283,7 +337,7 @@ obj_dr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   } else if (g1 == 2 && g2 != 2){
     stopifnot(length(par) == 3)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = par[[1]],
       beta = par[[2]],
@@ -294,7 +348,7 @@ obj_dr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   } else if (g1 != 2 && g2 == 2){
     stopifnot(length(par) == 3)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = par[[1]],
       beta = par[[2]],
@@ -305,7 +359,7 @@ obj_dr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   } else {
     stopifnot(length(par) == 4)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = par[[1]],
       beta = par[[2]],
@@ -409,7 +463,7 @@ onbound <- function(g1, g2, alpha, xi1, xi2, drbound) {
 #'
 #' All genotypes are known.
 #'
-#' @inheritParams like_gknown
+#' @inheritParams like_gknown_3
 #' @param drbound the upper bound on the double reduction rate.
 #' @param ntry The number of times to run the gradient ascent.
 #'
@@ -611,7 +665,7 @@ obj_ndr_pp <- function(par, x, g1, g2) {
     stop("obj_ndr_pp: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = 0,
       beta = 0,
@@ -622,7 +676,7 @@ obj_ndr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   } else if (g1 != 2 && g2 == 2) {
     stopifnot(length(par) == 1)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = 0,
       beta = 0,
@@ -633,7 +687,7 @@ obj_ndr_pp <- function(par, x, g1, g2) {
       log_p = TRUE)
   } else if (g1 == 2 && g2 == 2) {
     stopifnot(length(par) == 2)
-    obj <- like_gknown(
+    obj <- like_gknown_3(
       x = x,
       tau = 0,
       beta = 0,
@@ -832,7 +886,7 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
   ## max likelihood under null
   fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_gknown,
+                       fn = like_gknown_3,
                        method = "L-BFGS-B",
                        lower = fudge,
                        upper = drbound,

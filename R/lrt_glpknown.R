@@ -100,7 +100,9 @@ lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr =
 #' Likelihood under three parameter model when using offspring genotypes
 #' likelihoods but parent genotypes are known.
 #'
-#' @inheritParams like_gknown
+#' This is under the three parameter model.
+#'
+#' @inheritParams like_gknown_3
 #' @param gl The matrix of genotype likelihoods of the offspring. Rows index
 #'     The individuals, columns index the genotypes.
 #'
@@ -117,7 +119,7 @@ lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr =
 #'   alpha = 0,
 #'   xi1 = 1/3,
 #'   xi2 = 1/3)
-#' like_glpknown(
+#' like_glpknown_3(
 #'   gl = gl,
 #'   tau = 1/2,
 #'   beta = 1/12,
@@ -128,7 +130,7 @@ lrt_men_gl4 <- function(gl, g1 = NULL, g2 = NULL, drbound = 1/6, pp = TRUE, dr =
 #'   log_p = TRUE)
 #'
 #' @export
-like_glpknown <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
+like_glpknown_3 <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
   stopifnot(ncol(gl) == 5)
   stopifnot(tau >= 0, tau <= 1,
             beta >= 0, beta <= 1,
@@ -147,12 +149,63 @@ like_glpknown <- function(gl, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE) {
   return(llike_li(B = gl, lpivec = log(gf)))
 }
 
+#' Likelihood under three parameter model when using offspring genotypes
+#' likelihoods but parent genotypes are known.
+#'
+#' This is under the two parameter model.
+#'
+#' @inheritParams like_gknown_2
+#' @param gl The matrix of genotype likelihoods of the offspring. Rows index
+#'     The individuals, columns index the genotypes.
+#'
+#' @author David Gerard
+#'
+#' @examples
+#' g1 <- 1
+#' g2 <- 0
+#' gl <- simf1gl(
+#'   n = 25,
+#'   g1 = g1,
+#'   g2 = g2,
+#'   rd = 10,
+#'   alpha = 0,
+#'   xi1 = 1/3,
+#'   xi2 = 1/3)
+#' like_glpknown_2(
+#'   gl = gl,
+#'   alpha = 0.01,
+#'   xi1 = 0.5,
+#'   xi2 = 0.3,
+#'   g1 = g1,
+#'   g2 = g2,
+#'   log_p = TRUE)
+#'
+#' @export
+like_glpknown_2 <- function(gl, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
+  stopifnot(ncol(gl) == 5)
+  stopifnot(alpha >= 0, alpha <= 1,
+            xi1 >= 0, xi1 <= 1,
+            xi2 >= 0, xi2 <= 1,
+            x >= 0,
+            g1 >= 0, g1 <= 4,
+            g2 >= 0, g2 <= 4)
+
+  gf <- offspring_gf_2(
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    p1 = g1,
+    p2 = g2)
+
+  return(llike_li(B = gl, lpivec = log(gf)))
+}
+
 
 #' Likelihood ratio test assuming no double reduction and no preferential pairing
 #'
 #' This is when offspring genotypes are not known
 #'
-#' @inheritParams like_glpknown
+#' @inheritParams like_glpknown_3
 #'
 #' @return A list of length three with the following elements
 #' \describe{
@@ -199,7 +252,7 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2) {
 obj_dr_pp_gl <- function(par, gl, g1, g2) {
   if (g1 != 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = 1,
       beta = par[[1]],
@@ -209,7 +262,7 @@ obj_dr_pp_gl <- function(par, gl, g1, g2) {
       g2 = g2)
   } else if (g1 == 2 && g2 != 2){
     stopifnot(length(par) == 3)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = par[[1]],
       beta = par[[2]],
@@ -219,7 +272,7 @@ obj_dr_pp_gl <- function(par, gl, g1, g2) {
       g2 = g2)
   } else if (g1 != 2 && g2 == 2){
     stopifnot(length(par) == 3)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = par[[1]],
       beta = par[[2]],
@@ -229,7 +282,7 @@ obj_dr_pp_gl <- function(par, gl, g1, g2) {
       g2 = g2)
   } else {
     stopifnot(length(par) == 4)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = par[[1]],
       beta = par[[2]],
@@ -245,7 +298,7 @@ obj_dr_pp_gl <- function(par, gl, g1, g2) {
 #'
 #' Offspring use genotype likelihoods, parent genotypes are known.
 #'
-#' @inheritParams like_glpknown
+#' @inheritParams like_glpknown_3
 #' @param drbound Maximum value of double reduction.
 #' @param ntry The number of times to run the gradient ascent.
 #'
@@ -377,7 +430,7 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
   ## MLE under null
   fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_glpknown,
+                       fn = like_glpknown_3,
                        method = "L-BFGS-B",
                        lower = fudge,
                        upper = drbound,
@@ -423,7 +476,7 @@ obj_ndr_pp_gl <- function(par, gl, g1, g2) {
     stop("obj_ndr_pp_gl: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = 0,
       beta = 0,
@@ -434,7 +487,7 @@ obj_ndr_pp_gl <- function(par, gl, g1, g2) {
       log_p = TRUE)
   } else if (g1 != 2 && g2 == 2) {
     stopifnot(length(par) == 1)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = 0,
       beta = 0,
@@ -445,7 +498,7 @@ obj_ndr_pp_gl <- function(par, gl, g1, g2) {
       log_p = TRUE)
   } else if (g1 == 2 && g2 == 2) {
     stopifnot(length(par) == 2)
-    obj <- like_glpknown(
+    obj <- like_glpknown_3(
       gl = gl,
       tau = 0,
       beta = 0,
