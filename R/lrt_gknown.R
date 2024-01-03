@@ -38,6 +38,12 @@
 #'     (\code{TRUE}) or not (\code{FALSE})?
 #' @param dr A logical. Should we account for double reduction
 #'     (\code{TRUE}) or not (\code{FALSE})?
+#' @param alpha If \code{dr = FALSE}, this is the known rate of double
+#'     reduction.
+#' @param xi1 If \code{pp = FALSE}, this is the known preferential pairing
+#'     parameter of parent 1.
+#' @param xi2 If \code{pp = FALSE}, this is the known preferential pairing
+#'     parameter of parent 2.
 #'
 #' @return A list with the following elements
 #' \describe{
@@ -58,7 +64,16 @@
 #' lrt_men_g4(x = x, g1 = 1, g2 = 0)
 #'
 #' @export
-lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
+lrt_men_g4 <- function(
+    x,
+    g1,
+    g2,
+    drbound = 1/6,
+    pp = TRUE,
+    dr = TRUE,
+    alpha = 0,
+    xi1 = 1/3,
+    xi2 = 1/3) {
   ## check input
   stopifnot(length(x) == 5,
             x >= 0,
@@ -68,16 +83,26 @@ lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
             g2 <= 4,
             drbound >= 0,
             drbound <= 1,
+            alpha >= 0,
+            alpha <= 1,
+            xi1 >= 0,
+            xi1 <= 1,
+            xi2 >= 0,
+            xi2 <= 1,
             is.logical(pp),
             is.logical(dr),
             length(g1) == 1,
             length(g2) == 1,
             length(drbound) == 1,
             length(pp) == 1,
-            length(dr) == 1)
+            length(dr) == 1,
+            length(alpha) == 1,
+            length(xi1) == 1,
+            length(xi2) == 1)
 
   ## Check if data are possible under null
-  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr)) {
+  TOL <- sqrt(.Machine$double.eps)
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr || alpha > TOL)) {
     ret <- list(
       statistic = Inf,
       p_value = 0,
@@ -91,11 +116,11 @@ lrt_men_g4 <- function(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE) {
   if (pp && dr) {
     ret <- lrt_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound)
   } else if (pp && !dr) {
-    ret <- lrt_ndr_pp_g4(x = x, g1 = g1, g2 = g2)
+    ret <- lrt_ndr_pp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha)
   } else if (!pp && dr) {
-    ret <- lrt_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound)
+    ret <- lrt_dr_npp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound, xi1 = xi1, xi2 = xi2)
   } else {
-    ret <- lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
+    ret <- lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
   }
 
   return(ret)
@@ -257,6 +282,9 @@ like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
 #' This is when all genotypes are known.
 #'
 #' @inheritParams like_gknown_3
+#' @param alpha The known rate of double reduction.
+#' @param xi1 The known preferential pairingn parameter of parent 1.
+#' @param xi2 The known preferential pairingn parameter of parent 2.
 #'
 #' @return A list of length three with the following elements
 #' \describe{
@@ -268,10 +296,11 @@ like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE) {
 #' @author David Gerard
 #'
 #' @noRd
-lrt_ndr_npp_g4 <- function(x, g1, g2) {
+lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 
   ## check impossible genotype ----
-  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = FALSE)) {
+  TOL <- sqrt(.Machine$double.eps)
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = alpha > TOL)) {
     ret <- list(
       statistic = Inf,
       p_value = 0,
@@ -284,27 +313,26 @@ lrt_ndr_npp_g4 <- function(x, g1, g2) {
 
   ## Run test
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
-  l0 <- like_gknown_3(
+  l0 <- like_gknown_2(
     x = x,
-    tau = 1,
-    beta = 0,
-    gamma1 = 1/3,
-    gamma2 = 1/3,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
     g1 = g1,
     g2 = g2,
     log_p = TRUE)
 
   llr <- -2 * (l0 - l1)
-  df <- 4 - nzeros(g1 = g1, g2 = g2, dr = FALSE) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
+  df <- 4 - nzeros(g1 = g1, g2 = g2, dr = alpha > TOL) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
   ret <- list(
     statistic = llr,
     p_value = p_value,
     df = df,
-    alpha = 0,
-    xi1 = 1/3,
-    xi2 = 1/3)
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2)
 
   return(ret)
 }
@@ -656,43 +684,41 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 #' @param par if g1 != 2 or g2 != 2, then should be xi1 (or xi2). If
 #'     both g1 == 2 and g2 == 2, then first element is xi1 and second
 #'     element is xi2.
+#' @param alpha The known rate of double reduction.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-obj_ndr_pp <- function(par, x, g1, g2) {
+obj_ndr_pp <- function(par, x, g1, g2, alpha = 0) {
   if (g1 != 2 && g2 != 2) {
     stop("obj_ndr_pp: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
     stopifnot(length(par) == 1)
-    obj <- like_gknown_3(
+    obj <- like_gknown_2(
       x = x,
-      tau = 0,
-      beta = 0,
-      gamma1 = par[[1]],
-      gamma2 = 1/3,
+      alpha = alpha,
+      xi1 = par[[1]],
+      xi2 = 1/3,
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
   } else if (g1 != 2 && g2 == 2) {
     stopifnot(length(par) == 1)
-    obj <- like_gknown_3(
+    obj <- like_gknown_2(
       x = x,
-      tau = 0,
-      beta = 0,
-      gamma1 = 1/3,
-      gamma2 = par[[1]],
+      alpha = alpha,
+      xi1 = 1/3,
+      xi2 = par[[1]],
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
   } else if (g1 == 2 && g2 == 2) {
     stopifnot(length(par) == 2)
-    obj <- like_gknown_3(
+    obj <- like_gknown_2(
       x = x,
-      tau = 0,
-      beta = 0,
-      gamma1 = par[[1]],
-      gamma2 = par[[2]],
+      alpha = alpha,
+      xi1 = par[[1]],
+      xi2 = par[[2]],
       g1 = g1,
       g2 = g2,
       log_p = TRUE)
@@ -705,6 +731,7 @@ obj_ndr_pp <- function(par, x, g1, g2) {
 #' All genotypes are known.
 #'
 #' @inherit lrt_dr_pp_g4
+#' @param alpha The known rate of double reduction.
 #'
 #' @author David Gerard
 #'
@@ -746,14 +773,15 @@ obj_ndr_pp <- function(par, x, g1, g2) {
 #' lrt_ndr_pp_g4(x = x, g1 = 2, g2 = 4)
 #'
 #' @noRd
-lrt_ndr_pp_g4 <- function(x, g1, g2) {
+lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
   fudge <- 1e-7
   if (g1 != 2 && g2 != 2) {
-    return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2))
+    return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha))
   }
 
   ## look at impossible genotypes under null ----
-  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = FALSE)) {
+  TOL <- sqrt(.Machine$double.eps)
+  if (is_impossible(x = x, g1 = g1, g2 = g2, dr = alpha > TOL)) {
     ret <- list(
       statistic = Inf,
       p_value = 0,
@@ -779,6 +807,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       x = x,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- oout$par[[1]]
@@ -792,6 +821,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       x = x,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- NA_real_
@@ -805,6 +835,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
       method = "L-BFGS-B",
       control = list(fnscale = -1),
       x = x,
+      alpha = alpha,
       g1 = g1,
       g2 = g2)
     xi1 <- oout$par[[1]]
@@ -812,7 +843,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
   }
   l0 <- oout$value
 
-  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = FALSE) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
+  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = alpha > TOL) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
 
   llr <- -2 * (l0 - l1)
 
@@ -822,7 +853,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
     statistic = llr,
     p_value = p_value,
     df = df,
-    alpha = 0,
+    alpha = alpha,
     xi1 = xi1,
     xi2 = xi2)
 
@@ -836,6 +867,8 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
 #' All genotypes are known.
 #'
 #' @inherit lrt_dr_pp_g4
+#' @param xi1 The known preferential pairingn parameter of parent 1.
+#' @param xi2 The known preferential pairingn parameter of parent 2.
 #'
 #' @author David Gerard
 #'
@@ -862,7 +895,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2) {
 #' lrt_dr_npp_g4(x = x, g1 = 4, g2 = 2)
 #'
 #' @noRd
-lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
+lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
   ## Same as in lrt_dr_pp_g4 when no 2's
   if (g1 != 2 & g2 != 2) {
     return(lrt_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound))
@@ -886,15 +919,14 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
   ## max likelihood under null
   fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_gknown_3,
+                       fn = like_gknown_2,
                        method = "L-BFGS-B",
                        lower = fudge,
                        upper = drbound,
                        control = list(fnscale = -1),
                        x = x,
-                       tau = 1,
-                       gamma1 = 1/3,
-                       gamma2 = 1/3,
+                       xi1 = xi1,
+                       xi2 = xi2,
                        g1 = g1,
                        g2 = g2,
                        log_p = TRUE)
@@ -909,8 +941,8 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6) {
     p_value = p_value,
     df = df,
     alpha = alpha,
-    xi1 = 1/3,
-    xi2 = 1/3)
+    xi1 = xi1,
+    xi2 = xi2)
 
   return(ret)
 }

@@ -4,7 +4,17 @@
 \alias{lrt_men_g4}
 \title{Likelihood ratio test for segregation distortion with known genotypes}
 \usage{
-lrt_men_g4(x, g1, g2, drbound = 1/6, pp = TRUE, dr = TRUE)
+lrt_men_g4(
+  x,
+  g1,
+  g2,
+  drbound = 1/6,
+  pp = TRUE,
+  dr = TRUE,
+  alpha = 0,
+  xi1 = 1/3,
+  xi2 = 1/3
+)
 }
 \arguments{
 \item{x}{A vector of genotype counts. \code{x[i]} is the number of
@@ -23,6 +33,15 @@ segregation model of meiosis.}
 
 \item{dr}{A logical. Should we account for double reduction
 (\code{TRUE}) or not (\code{FALSE})?}
+
+\item{alpha}{If \code{dr = FALSE}, this is the known rate of double
+reduction.}
+
+\item{xi1}{If \code{pp = FALSE}, this is the known preferential pairing
+parameter of parent 1.}
+
+\item{xi2}{If \code{pp = FALSE}, this is the known preferential pairing
+parameter of parent 2.}
 }
 \value{
 A list with the following elements
