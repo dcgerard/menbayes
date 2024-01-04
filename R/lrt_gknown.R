@@ -171,7 +171,7 @@ nzeros_old <- function(g1, g2, dr = TRUE) {
 
 nzeros <- function(g1, g2, alpha, xi1, xi2) {
   gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
-  TOL <- sqrt(.Machine$double.eps)
+  TOL <- 1e-6
   return(sum(gf < TOL))
 }
 
@@ -339,7 +339,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 
   llr <- -2 * (l0 - l1)
   nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  df <- 4 - nz ## 4 under alt, 0 under null, remove 0 categories (at most 3)
+  df <- max(4 - nz, 1) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
 
   if (df == 0) {
     ret <- list(
@@ -679,10 +679,10 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  ## df is 4 under alt, min 1 under null, remove zeros (at most 2), add one if parameter is estimated on boundary
-  ## ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
+  ## df is 4 under alt, min 1 under null, remove zeros
   nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  df <- 4 - 1 - nz
+  nz <- max(nz, 1)
+  df <- max(4 - nz, 1)
 
   llr <- -2 * (l0 - l1)
 
@@ -882,8 +882,9 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
   l0 <- oout$value
 
   nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+  nz <- max(nz, 1)
 
-  df <- 4 - 1 - nz ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
+  df <- max(4 - nz, 1) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
 
   llr <- -2 * (l0 - l1)
 
@@ -974,7 +975,8 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
   l0 <- oout$value
   alpha <- oout$par[[1]]
   nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  df <- 4 - 1 - nz ## 4 under alt, 1 under null, remove zero categories (at most 2).
+  ## nz <- max(nz, 1) ## don't use. probably because alpha on boundary controls number of zeros
+  df <- max(4 - nz, 1)
   llr <- -2 * (l0 - l1)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 

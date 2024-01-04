@@ -411,7 +411,6 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  # ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
   df <- 4 - 1
   llr <- -2 * (l0 - l1)
 
@@ -568,7 +567,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0) {
       fn = obj_ndr_pp_gl,
       lower = fudge,
       upper = 1 - fudge,
-      method = "L-BFGS-B",
+      method = "Brent",
       control = list(fnscale = -1),
       gl = gl,
       alpha = alpha,
@@ -582,7 +581,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0) {
       fn = obj_ndr_pp_gl,
       lower = fudge,
       upper = 1 - fudge,
-      method = "L-BFGS-B",
+      method = "Brent",
       control = list(fnscale = -1),
       gl = gl,
       alpha = alpha,
