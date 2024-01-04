@@ -339,9 +339,8 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 
   llr <- -2 * (l0 - l1)
   nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  df <- max(4 - nz, 1) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
 
-  if (df == 0) {
+  if (nz == 4) { ## only one genotype observed and not impossible
     ret <- list(
       statistic = 0,
       p_value = 1,
@@ -351,6 +350,8 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
       xi2 = xi2)
     return(ret)
   }
+
+  df <- max(4 - nz, 1) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
 
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
@@ -811,7 +812,7 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0, pen = 1e-6) {
 #' lrt_ndr_pp_g4(x = x, g1 = 2, g2 = 4)
 #'
 #' @noRd
-lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
+lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
   fudge <- 1e-7
   if (g1 != 2 && g2 != 2) {
     return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha))
@@ -865,17 +866,24 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
     xi1 <- NA_real_
     xi2 <- oout$par[[1]]
   } else if (g1 == 2 && g2 == 2) {
-    oout <- stats::optim(
-      par = c(1/3, 1/3),
-      fn = obj_ndr_pp,
-      lower = c(fudge, fudge),
-      upper = c(1 - fudge, 1 - fudge),
-      method = "L-BFGS-B",
-      control = list(fnscale = -1),
-      x = x,
-      alpha = alpha,
-      g1 = g1,
-      g2 = g2)
+    oout$value <- -Inf
+    for (i in seq_len(ntry)) {
+      par_init <- stats::runif(n = 2, min = 0, max = 1)
+      bout <- stats::optim(
+        par = par_init,
+        fn = obj_ndr_pp,
+        lower = c(fudge, fudge),
+        upper = c(1 - fudge, 1 - fudge),
+        method = "L-BFGS-B",
+        control = list(fnscale = -1),
+        x = x,
+        alpha = alpha,
+        g1 = g1,
+        g2 = g2)
+      if (bout$value > oout$value) {
+        oout <- bout
+      }
+    }
     xi1 <- oout$par[[1]]
     xi2 <- oout$par[[2]]
   }

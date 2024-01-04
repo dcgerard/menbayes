@@ -7,12 +7,12 @@ test_that("LRT works on edge cases", {
 
 
 test_that("qq plot is unif in some cases", {
-  g1 <- 2
-  g2 <- 1
-  alpha <- 1/6
-  xi1 <- 1/3
+  g1 <- 0
+  g2 <- 2
+  alpha <- 0
+  xi1 <- 1
   xi2 <- 1/3
-  pp <- FALSE
+  pp <- TRUE
   dr <- FALSE
   n <- 1000
   iter <- 1000
