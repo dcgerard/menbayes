@@ -866,6 +866,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
     xi1 <- NA_real_
     xi2 <- oout$par[[1]]
   } else if (g1 == 2 && g2 == 2) {
+    oout <- list()
     oout$value <- -Inf
     for (i in seq_len(ntry)) {
       par_init <- stats::runif(n = 2, min = 0, max = 1)
