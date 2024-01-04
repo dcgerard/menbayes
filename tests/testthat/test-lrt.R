@@ -7,11 +7,11 @@ test_that("LRT works on edge cases", {
 
 
 test_that("qq plot is unif in some cases", {
-  g1 <- 0
+  g1 <- 2
   g2 <- 2
   alpha <- 0
-  xi1 <- 1
-  xi2 <- 1/3
+  xi1 <- 0
+  xi2 <- 1
   pp <- TRUE
   dr <- FALSE
   n <- 1000
@@ -19,6 +19,9 @@ test_that("qq plot is unif in some cases", {
   pvec <- rep(NA_real_, iter)
   stat <- rep(NA_real_, iter)
   df <- rep(NA_real_, iter)
+  aest <- rep(NA_real_, iter)
+  xi1est <- rep(NA_real_, iter)
+  xi2est <- rep(NA_real_, iter)
   gf <- matrix(ncol = 5, nrow = iter)
   for (i in seq_len(iter)) {
     x <- simf1g(n = n, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
@@ -26,16 +29,23 @@ test_that("qq plot is unif in some cases", {
     pvec[[i]] <- lout$p_value
     stat[[i]] <- lout$statistic
     df[[i]] <- lout$df
-    gf[i, ] <- offspring_gf_2(alpha = lout$alpha, xi1 = lout$xi1, xi2 = lout$xi2, p1 = g1, p2 = g2)
+    #gf[i, ] <- offspring_gf_2(alpha = lout$alpha, xi1 = lout$xi1, xi2 = lout$xi2, p1 = g1, p2 = g2)
+    aest[[i]] <- lout$alpha
+    xi1est[[i]] <- lout$xi1
+    xi2est[[i]] <- lout$xi2
   }
 
   table(df)
 
   hwep::qqpvalue(pvals = pvec)
-  qqplot(x = ppoints(iter), y = pvec)
+  qqplot(x = ppoints(iter), y = pvec, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 
-  pvec2 <- stats::pchisq(q = stat, df = 2, lower.tail = FALSE)
-  qqplot(x = ppoints(iter), y = pvec2)
+  pvec2 <- stats::pchisq(q = stat, df = 3, lower.tail = FALSE)
+  qqplot(x = ppoints(iter), y = pvec2, xlim = c(0, 1), ylim = c(0, 1))
+  abline(a = 0, b = 1, col = 2, lty = 2)
+
+  pvec3 <- stats::pchisq(q = stat, df = ifelse(aest < alpha - 1e-7, 2, 1), lower.tail = FALSE)
+  qqplot(x = ppoints(iter), y = pvec3, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 })

@@ -100,13 +100,23 @@ lrt_men_g4 <- function(
             length(xi1) == 1,
             length(xi2) == 1)
 
-  ## Check if data are possible under null
   TOL <- sqrt(.Machine$double.eps)
   if (is_impossible(x = x, g1 = g1, g2 = g2, dr = dr || alpha > TOL)) {
+    ## Check if data are possible under null
     ret <- list(
       statistic = Inf,
       p_value = 0,
       df = NA_real_,
+      alpha = NA_real_,
+      xi1 = NA_real_,
+      xi2 = NA_real_)
+    return(ret)
+  } else if (sum(x > 0.5) == 1) {
+    ## only one genotype, and data conform to it
+    ret <- list(
+      statistic = 0,
+      p_value = 1,
+      df = 0,
       alpha = NA_real_,
       xi1 = NA_real_,
       xi2 = NA_real_)
@@ -173,6 +183,73 @@ nzeros <- function(g1, g2, alpha, xi1, xi2) {
   gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
   TOL <- 1e-6
   return(sum(gf < TOL))
+}
+
+#' Experimental calculation of degrees of freedom
+#'
+#' The complicated non-identifiability actually makes calculating the degrees
+#' of freedom really hard. This function was created by experimentally running
+#' through every possible scenario to see what is the empirical null
+#' distribution. I don't have theoretical results about this. Rather, this
+#' was done entirely through simulations.
+#'
+#' @param g1 Parent 1's genotype
+#' @param g2 Parent 2's genotype
+#' @param alpha The estimated double reduction rate
+#' @param xi1 The estimated preferential pairing parameter for parent 1.
+#' @param xi2 The estimated preferential pairing parmaeter for parent 2.
+#' @param TOL tolerance to check boundary of parameter space.
+#' @param dr Was double reduction being estimated?
+#' @param pp Was preferential pairing being estimated?
+#'
+#' @author David Gerard
+#'
+#' @noRd
+get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+  df <- 4 - nz
+
+  if (dr && (g1 %in% c(1, 3)) && (g2 %in% c(1, 3))) {
+    if (alpha > drbound - TOL) {
+      df <- df + 1
+    } else {
+      ## do nothing
+    }
+  } else if (dr && !pp && (g1 == 2 || g2 == 2)) {
+    if (alpha > TOL && alpha < drbound - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  } else if (pp && dr && ((g1 %in% c(1, 2, 3) && g2 == 2) || (g1 == 2 && g2 %in% c(1, 2, 3)))) {
+    if (alpha < drbound - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  } else if (pp && !dr && g1 == 2 && g2 != 2) {
+    if (xi1 > TOL && xi1 < 1 - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  } else if (pp && !dr && g1 != 2 && g2 == 2) {
+    if (xi2 > TOL && xi2 < 1 - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  } else if (pp && !dr && g1 == 2 && g2 == 2) {
+    if ((xi1 < 0.001 || xi1 > 0.999) && (xi2 < 0.001 || xi2 > 0.999)) {
+      ## do nothing
+    } else {
+      df <- df - 1
+    }
+  } else if (pp && dr) {
+    df <- df - 1
+  }
+
+  return(df)
 }
 
 
@@ -338,20 +415,9 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
     log_p = TRUE)
 
   llr <- -2 * (l0 - l1)
-  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
 
-  if (nz == 4) { ## only one genotype observed and not impossible
-    ret <- list(
-      statistic = 0,
-      p_value = 1,
-      df = 0,
-      alpha = alpha,
-      xi1 = xi1,
-      xi2 = xi2)
-    return(ret)
-  }
-
-  df <- max(4 - nz, 1) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
+  ## Get degrees of freedom ----
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE, drbound = drbound)
 
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
@@ -609,6 +675,11 @@ onbound <- function(g1, g2, alpha, xi1, xi2, drbound) {
 #' @noRd
 lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 
+  if (g1 %in% c(0, 4) && g2 %in% c(0, 4)) {
+    ret <- lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2)
+    return(ret)
+  }
+
   ## Deal with impossible values under null ----
   if (is_impossible(x = x, g1 = g1, g2 = g2, dr = TRUE)) {
     ret <- list(
@@ -680,10 +751,9 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  ## df is 4 under alt, min 1 under null, remove zeros
-  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  nz <- max(nz, 1)
-  df <- max(4 - nz, 1)
+
+  ## Get degrees of freedom ----
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = TRUE, drbound = drbound)
 
   llr <- -2 * (l0 - l1)
 
@@ -890,10 +960,8 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
   }
   l0 <- oout$value
 
-  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  nz <- max(nz, 1)
-
-  df <- max(4 - nz, 1) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
+  ## Get degrees of freedom ----
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE, drbound = drbound)
 
   llr <- -2 * (l0 - l1)
 
@@ -983,9 +1051,10 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
                        pen = 1e-6)
   l0 <- oout$value
   alpha <- oout$par[[1]]
-  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  ## nz <- max(nz, 1) ## don't use. probably because alpha on boundary controls number of zeros
-  df <- max(4 - nz, 1)
+
+  ## Get degrees of freedom ----
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = FALSE, drbound = drbound)
+
   llr <- -2 * (l0 - l1)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
