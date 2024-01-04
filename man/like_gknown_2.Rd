@@ -4,7 +4,7 @@
 \alias{like_gknown_2}
 \title{Likelihood under three parameter model when genotypes are known}
 \usage{
-like_gknown_2(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 1e-10)
+like_gknown_2(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 0)
 }
 \arguments{
 \item{x}{A vector of length 5. \code{x[i]} is the count of individuals with

@@ -131,7 +131,7 @@ lrt_men_g4 <- function(
 #' @inheritParams is_impossible
 #'
 #' @noRd
-nzeros <- function(g1, g2, dr = TRUE) {
+nzeros_old <- function(g1, g2, dr = TRUE) {
   if (g1 == 0 && g2 == 0) {
     return(4)
   } else if (g1 == 4 & g2 == 4) {
@@ -168,6 +168,13 @@ nzeros <- function(g1, g2, dr = TRUE) {
 
   return(0)
 }
+
+nzeros <- function(g1, g2, alpha, xi1, xi2) {
+  gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
+  TOL <- sqrt(.Machine$double.eps)
+  return(sum(gf < TOL))
+}
+
 
 #' Likelihood under three parameter model when genotypes are known
 #'
@@ -206,7 +213,7 @@ nzeros <- function(g1, g2, dr = TRUE) {
 #' @author David Gerard
 #'
 #' @export
-like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE, pen = 1e-10) {
+like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE, pen = 0) {
   stopifnot(length(x) == 5)
   stopifnot(tau >= 0, tau <= 1,
             beta >= 0, beta <= 1,
@@ -263,7 +270,7 @@ like_gknown_3 <- function(x, tau, beta, gamma1, gamma2, g1, g2, log_p = TRUE, pe
 #' @author David Gerard
 #'
 #' @export
-like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 1e-10) {
+like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 0) {
   stopifnot(length(x) == 5)
   stopifnot(alpha >= 0, alpha <= 1,
             xi1 >= 0, xi1 <= 1,
@@ -271,7 +278,6 @@ like_gknown_2 <- function(x, alpha, xi1, xi2, g1, g2, log_p = TRUE, pen = 1e-10)
             x >= 0,
             g1 >= 0, g1 <= 4,
             g2 >= 0, g2 <= 4)
-
   gf <- offspring_gf_2(
     alpha = alpha,
     xi1 = xi1,
@@ -319,6 +325,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
     return(ret)
   }
 
+
   ## Run test
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
   l0 <- like_gknown_2(
@@ -331,7 +338,20 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
     log_p = TRUE)
 
   llr <- -2 * (l0 - l1)
-  df <- 4 - nzeros(g1 = g1, g2 = g2, dr = alpha > TOL) ## 4 under alt, 0 under null, remove 0 categories (at most 3)
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+  df <- 4 - nz ## 4 under alt, 0 under null, remove 0 categories (at most 3)
+
+  if (df == 0) {
+    ret <- list(
+      statistic = 0,
+      p_value = 1,
+      df = 0,
+      alpha = alpha,
+      xi1 = xi1,
+      xi2 = xi2)
+    return(ret)
+  }
+
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
   ret <- list(
@@ -355,11 +375,12 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @param x offspring genotype counts
 #' @param g1 first parent genotype
 #' @param g2 second parent genotype
+#' @param pen A tiny penalty to help with numerical stability
 #'
 #' @author David Gerard
 #'
 #' @noRd
-obj_dr_pp <- function(par, x, g1, g2) {
+obj_dr_pp <- function(par, x, g1, g2, pen = 1e-6) {
   if (g1 != 2 && g2 != 2) {
     stopifnot(length(par) == 1)
     obj <- like_gknown_3(
@@ -370,7 +391,8 @@ obj_dr_pp <- function(par, x, g1, g2) {
       gamma2 = 1/3,
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   } else if (g1 == 2 && g2 != 2){
     stopifnot(length(par) == 3)
     obj <- like_gknown_3(
@@ -381,7 +403,8 @@ obj_dr_pp <- function(par, x, g1, g2) {
       gamma2 = 1/3,
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   } else if (g1 != 2 && g2 == 2){
     stopifnot(length(par) == 3)
     obj <- like_gknown_3(
@@ -392,7 +415,8 @@ obj_dr_pp <- function(par, x, g1, g2) {
       gamma2 = par[[3]],
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   } else {
     stopifnot(length(par) == 4)
     obj <- like_gknown_3(
@@ -403,7 +427,8 @@ obj_dr_pp <- function(par, x, g1, g2) {
       gamma2 = par[[4]],
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   }
   return(obj)
 }
@@ -603,10 +628,11 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
   bout <- NULL
   for (i in seq_len(ntry)) {
     params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound, type = "random")
+    method <- ifelse(length(params$par) == 1, "Brent", "L-BFGS-B")
     oout <- stats::optim(
       par = params$par,
       fn = obj_dr_pp,
-      method = "L-BFGS-B",
+      method = method,
       lower = params$lower,
       upper = params$upper,
       control = list(fnscale = -1),
@@ -654,9 +680,9 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
     xi2 <- two[[2]]
   }
   ## df is 4 under alt, min 1 under null, remove zeros (at most 2), add one if parameter is estimated on boundary
-  ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
-  nz <- nzeros(g1 = g1, g2 = g2, dr = TRUE)
-  df <- max(4 - 1 - nz + ob, 0)
+  ## ob <- onbound(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, drbound = drbound)
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+  df <- 4 - 1 - nz
 
   llr <- -2 * (l0 - l1)
 
@@ -693,11 +719,12 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 #'     both g1 == 2 and g2 == 2, then first element is xi1 and second
 #'     element is xi2.
 #' @param alpha The known rate of double reduction.
+#' @param pen A tiny penalty to help with numerical stability.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-obj_ndr_pp <- function(par, x, g1, g2, alpha = 0) {
+obj_ndr_pp <- function(par, x, g1, g2, alpha = 0, pen = 1e-6) {
   if (g1 != 2 && g2 != 2) {
     stop("obj_ndr_pp: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
@@ -709,7 +736,8 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0) {
       xi2 = 1/3,
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   } else if (g1 != 2 && g2 == 2) {
     stopifnot(length(par) == 1)
     obj <- like_gknown_2(
@@ -719,7 +747,8 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0) {
       xi2 = par[[1]],
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   } else if (g1 == 2 && g2 == 2) {
     stopifnot(length(par) == 2)
     obj <- like_gknown_2(
@@ -729,7 +758,8 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0) {
       xi2 = par[[2]],
       g1 = g1,
       g2 = g2,
-      log_p = TRUE)
+      log_p = TRUE,
+      pen = pen)
   }
   return(obj)
 }
@@ -812,7 +842,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
       fn = obj_ndr_pp,
       lower = fudge,
       upper = 1 - fudge,
-      method = "L-BFGS-B",
+      method = "Brent",
       control = list(fnscale = -1),
       x = x,
       alpha = alpha,
@@ -826,7 +856,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
       fn = obj_ndr_pp,
       lower = fudge,
       upper = 1 - fudge,
-      method = "L-BFGS-B",
+      method = "Brent",
       control = list(fnscale = -1),
       x = x,
       alpha = alpha,
@@ -851,7 +881,9 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0) {
   }
   l0 <- oout$value
 
-  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = alpha > TOL) ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+
+  df <- 4 - 1 - nz ## 4 under alt, 1 under null, remove zeros (at most 2 since only get here if genotype of 2)
 
   llr <- -2 * (l0 - l1)
 
@@ -928,7 +960,7 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
   fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
                        fn = like_gknown_2,
-                       method = "L-BFGS-B",
+                       method = "Brent",
                        lower = fudge,
                        upper = drbound,
                        control = list(fnscale = -1),
@@ -937,10 +969,12 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
                        xi2 = xi2,
                        g1 = g1,
                        g2 = g2,
-                       log_p = TRUE)
+                       log_p = TRUE,
+                       pen = 1e-6)
   l0 <- oout$value
   alpha <- oout$par[[1]]
-  df <- 3 - nzeros(g1 = g1, g2 = g2, dr = TRUE) ## 4 under alt, 3 under null, remove zero categories (at most 2).
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+  df <- 4 - 1 - nz ## 4 under alt, 1 under null, remove zero categories (at most 2).
   llr <- -2 * (l0 - l1)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 

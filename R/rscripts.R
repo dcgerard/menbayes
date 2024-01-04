@@ -111,7 +111,8 @@ offspring_gf_2 <- function(alpha, xi1, xi2 = xi1, p1, p2){
 
   stopifnot(qvec > -1e-06)
   stopifnot(abs(sum(qvec) - 1) < 1e-06)
-  qvec[qvec < 0] <- 0
+  TOL <- sqrt(.Machine$double.eps)
+  qvec[qvec < TOL] <- 0
   qvec <- qvec / sum(qvec)
 
   return(qvec)
