@@ -363,10 +363,11 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
   bout <- NULL
   for (i in seq_len(ntry)) {
     params <- lrt_init(g1 = g1, g2 = g2, drbound = drbound, type = "random")
+    method <- ifelse(length(params$par) == 1, "Brent", "L-BFGS-B")
     oout <- stats::optim(
       par = params$par,
       fn = obj_dr_pp_gl,
-      method = "L-BFGS-B",
+      method = method,
       lower = params$lower,
       upper = params$upper,
       control = list(fnscale = -1),
@@ -483,7 +484,7 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
   ## MLE under null
   oout <- stats::optim(par = drbound / 2,
                        fn = obj_dr_npp_gl,
-                       method = "L-BFGS-B",
+                       method = "Brent",
                        lower = fudge,
                        upper = drbound,
                        control = list(fnscale = -1),
