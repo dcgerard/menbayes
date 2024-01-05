@@ -179,6 +179,17 @@ nzeros_old <- function(g1, g2, dr = TRUE) {
   return(0)
 }
 
+#' Unlike nzeros_old, this one will check empirically for zeros
+#'
+#' @param g1 parent 1's genotype
+#' @param g2 parent 2's genotype
+#' @param alpha The double reduction rate (estimated or otherwise)
+#' @param xi1 Parent 1's preferential pairing parameter (estimated or otherwise).
+#' @param xi1 Parent 2's preferential pairing parameter (estimated or otherwise).
+#'
+#' @author David Gerard
+#'
+#' @noRd
 nzeros <- function(g1, g2, alpha, xi1, xi2) {
   gf <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
   TOL <- 1e-6
@@ -228,19 +239,19 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
       ## do nothing
     }
   } else if (pp && !dr && g1 == 2 && g2 != 2) {
-    if (xi1 > 0.001 && xi1 < 0.999) {
+    if (xi1 > TOL && xi1 < 1 - TOL) {
       df <- df - 1
     } else {
       ## do nothing
     }
   } else if (pp && !dr && g1 != 2 && g2 == 2) {
-    if (xi2 > 001 && xi2 < 0.999) {
+    if (xi2 > TOL && xi2 < 1 - TOL) {
       df <- df - 1
     } else {
       ## do nothing
     }
   } else if (pp && !dr && g1 == 2 && g2 == 2) {
-    if ((xi1 < 0.001 || xi1 > 0.999) && (xi2 < 0.001 || xi2 > 0.999)) {
+    if ((xi1 < TOL || xi1 > 1 - TOL) && (xi2 < TOL || xi2 > 1 - TOL)) {
       ## do nothing
     } else {
       df <- df - 1
@@ -263,8 +274,9 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
     } else {
       ## do nothing
     }
-  }  else if (pp && dr) {
-    df <- df - 1
+  } else {
+    ## do nothing
+    ## should only get here is !pp && !dr
   }
 
   return(df)
@@ -466,6 +478,8 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #'
 #' @noRd
 obj_dr_pp <- function(par, x, g1, g2, pen = 1e-6) {
+  par[par < 0] <- 0 ## to deal with -1e-18 etc
+  par[par > 1] <- 1
   if (g1 != 2 && g2 != 2) {
     stopifnot(length(par) == 1)
     obj <- like_gknown_3(
@@ -524,6 +538,8 @@ obj_dr_pp <- function(par, x, g1, g2, pen = 1e-6) {
 #' @param g2 parent 2 genotype.
 #' @param drbound The maximum double reduction rate
 #' @param type How should we initialize? "random" or "half"?
+#' @param fudge How much to add to the lower bound and subtract from
+#'     the upper bound.
 #'
 #' @return A list of length 3. The first element is the initial values,
 #'     the second is the lower bound of parameters, the third element
@@ -532,8 +548,7 @@ obj_dr_pp <- function(par, x, g1, g2, pen = 1e-6) {
 #' @author David Gerard
 #'
 #' @noRd
-lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half")) {
-  fudge <- 1e-7
+lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half"), fudge = 0) {
   type <- match.arg(type)
   if (type == "random") {
     mult <- stats::runif(4)
@@ -814,6 +829,8 @@ lrt_dr_pp_g4 <- function(x, g1, g2, drbound = 1/6, ntry = 5) {
 #'
 #' @noRd
 obj_ndr_pp <- function(par, x, g1, g2, alpha = 0, pen = 1e-6) {
+  par[par < 0] <- 0 ## to deal with -1e-18 etc
+  par[par > 1] <- 1
   if (g1 != 2 && g2 != 2) {
     stop("obj_ndr_pp: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
@@ -859,6 +876,7 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0, pen = 1e-6) {
 #'
 #' @inherit lrt_dr_pp_g4
 #' @param alpha The known rate of double reduction.
+#' @param fudge How much to add to lower bound or subtract from upper bound.
 #'
 #' @author David Gerard
 #'
@@ -900,8 +918,7 @@ obj_ndr_pp <- function(par, x, g1, g2, alpha = 0, pen = 1e-6) {
 #' lrt_ndr_pp_g4(x = x, g1 = 2, g2 = 4)
 #'
 #' @noRd
-lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
-  fudge <- 1e-7
+lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5, fudge = 0) {
   if (g1 != 2 && g2 != 2) {
     return(lrt_ndr_npp_g4(x = x, g1 = g1, g2 = g2, alpha = alpha))
   }
@@ -998,6 +1015,22 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
 
 ## Estimate DR, fix pp -------------------------------------------------------
 
+
+#' Wrapper for like_gknnown_2 with rounding at 0 and 1.
+#'
+#' @inheritParams like_gknown_2
+#' @param par Alpha, the double reduction rate
+#'
+#' @author David Gerard
+#'
+#' @noRd
+obj_dr_npp <- function(par, x, xi1, xi2, g1, g2, pen) {
+  par[par < 0] <- 0 ## deal with -1e-18 etc
+  par[par > 1] <- 1
+  ll <- like_gknown_2(x = x, alpha = par, xi1 = xi1, xi2 = xi2, g1 = g1, g2 = g2, log_p = TRUE, pen = pen)
+  return(ll)
+}
+
 #' LRT when double reduction is not known, but no preferential pairing.
 #'
 #' All genotypes are known.
@@ -1005,6 +1038,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
 #' @inherit lrt_dr_pp_g4
 #' @param xi1 The known preferential pairingn parameter of parent 1.
 #' @param xi2 The known preferential pairingn parameter of parent 2.
+#' @param fudge How much to add to lower bound or subtract from upper bound.
 #'
 #' @author David Gerard
 #'
@@ -1031,7 +1065,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5) {
 #' lrt_dr_npp_g4(x = x, g1 = 4, g2 = 2)
 #'
 #' @noRd
-lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
+lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3, fudge = 0) {
   ## Same as in lrt_dr_pp_g4 when no 2's
   if (g1 != 2 & g2 != 2) {
     return(lrt_dr_pp_g4(x = x, g1 = g1, g2 = g2, drbound = drbound))
@@ -1053,9 +1087,8 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
   l1 <- stats::dmultinom(x = x, prob = x / sum(x), log = TRUE)
 
   ## max likelihood under null
-  fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_gknown_2,
+                       fn = obj_dr_npp,
                        method = "Brent",
                        lower = fudge,
                        upper = drbound,
@@ -1065,7 +1098,6 @@ lrt_dr_npp_g4 <- function(x, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3) {
                        xi2 = xi2,
                        g1 = g1,
                        g2 = g2,
-                       log_p = TRUE,
                        pen = 1e-6)
   l0 <- oout$value
   alpha <- oout$par[[1]]
