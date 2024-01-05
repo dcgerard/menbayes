@@ -8,6 +8,8 @@ test_that("LRT works on edge cases", {
 
 test_that("qq plot is unif in some cases", {
   skip("too slow")
+
+
   g1 <- 2
   g2 <- 2
   alpha <- 0
@@ -56,13 +58,15 @@ test_that("qq plot is unif in some cases", {
 
 test_that("GL qq plot is unif in some cases", {
   skip("too slow")
-  g1 <- 0
+
+
+  g1 <- 2
   g2 <- 1
   alpha <- 0
-  xi1 <- 1/3
+  xi1 <- 0
   xi2 <- 1/3
-  pp <- FALSE
-  dr <- FALSE
+  pp <- TRUE
+  dr <- TRUE
   rd <- 10
   n <- 500
   iter <- 100
