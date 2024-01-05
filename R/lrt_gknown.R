@@ -201,8 +201,9 @@ nzeros <- function(g1, g2, alpha, xi1, xi2) {
 #' The complicated non-identifiability actually makes calculating the degrees
 #' of freedom really hard. This function was created by experimentally running
 #' through every possible scenario to see what is the empirical null
-#' distribution. I don't have theoretical results about this. Rather, this
-#' was done entirely through simulations.
+#' distribution. I don't have specific theoretical results for this, but
+#' it looks similar to the data-dependent degrees of freedom of Susko, where
+#' you add a degree of freedom if it is on the boundary.
 #'
 #' @param g1 Parent 1's genotype
 #' @param g2 Parent 2's genotype
@@ -214,6 +215,8 @@ nzeros <- function(g1, g2, alpha, xi1, xi2) {
 #' @param pp Was preferential pairing being estimated?
 #'
 #' @author David Gerard
+#'
+#' @references Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. Biometrika, 100(4), 1019-1023.
 #'
 #' @noRd
 get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
