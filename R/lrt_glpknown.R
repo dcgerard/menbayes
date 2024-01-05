@@ -284,6 +284,8 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 #' @author David Gerard
 #' @noRd
 obj_dr_pp_gl <- function(par, gl, g1, g2) {
+  par[par < 0] <- 0 ## deal with -1e-18 etc
+  par[par > 1] <- 1
   if (g1 != 2 && g2 != 2) {
     stopifnot(length(par) == 1)
     obj <- like_glpknown_3(
@@ -441,16 +443,33 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
 
 ## No pp ----------------------------------------------------------------------
 
+#' Wrapper for like_glpknown_2 with rounding at 0 and -1
+#'
+#' @inheritParams like_glpknown_2
+#' @param par The double reduction rate alpha
+#'
+#' @author David Gerard
+#'
+#' @noRd
+obj_dr_npp_gl <- function(par, gl, xi1, xi2, g1, g2) {
+  par[par < 0] <- 0
+  par[par > 1] <- 1
+  ll <- like_glpknown_2(gl = gl, alpha = par, xi1 = xi1, xi2 = xi2, g1 = g1, g2 = g2, log_p = TRUE)
+  return(ll)
+}
+
 #' Likelihood ratio test, gl for offspring, known for parents, dr, no pp.
 #'
 #' @inheritParams lrt_dr_pp_glpknown4
 #' @param xi1 The known preferential pairing parameter of parent 1.
 #' @param xi2 The known preferential pairing parameter of parent 2.
+#' @param fudge How much to add to the lower bound and subtract from
+#'     the upper bound.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3, ntry = 5) {
+lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3, ntry = 5, fudge = 0) {
 
   ## Same scenario when no 2
   if (g1 != 2  && g2 != 2) {
@@ -462,9 +481,8 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
   l1 <- llike_li(B = gl, lpivec = log_qhat1)
 
   ## MLE under null
-  fudge <- 1e-7
   oout <- stats::optim(par = drbound / 2,
-                       fn = like_glpknown_2,
+                       fn = obj_dr_npp_gl,
                        method = "L-BFGS-B",
                        lower = fudge,
                        upper = drbound,
@@ -473,8 +491,7 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
                        xi1 = xi1,
                        xi2 = xi2,
                        g1 = g1,
-                       g2 = g2,
-                       log_p = TRUE)
+                       g2 = g2)
   l0 <- oout$value
   alpha <- oout$par[[1]]
   df <- 3
@@ -506,6 +523,8 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
 #'
 #' @noRd
 obj_ndr_pp_gl <- function(par, gl, g1, g2, alpha = 0) {
+  par[par < 0] <- 0 ## deal with -1e-18 etc
+  par[par > 1] <- 1
   if (g1 != 2 && g2 != 2) {
     stop("obj_ndr_pp_gl: have to have g1 == 2 or g2 == 2")
   } else if (g1 == 2 && g2 != 2) {
@@ -546,12 +565,13 @@ obj_ndr_pp_gl <- function(par, gl, g1, g2, alpha = 0) {
 #'
 #' @inheritParams lrt_dr_pp_glpknown4
 #' @param alpha The known rate of double reduction.
+#' @param fudge How much to add to the lower bound and subtract from
+#'     the upper bound.
 #'
 #' @author David Gerard
 #'
 #' @noRd
-lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0) {
-  fudge <- 1e-7
+lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0, fudge = 0) {
   if (g1 != 2 && g2 != 2) {
     return(lrt_ndr_npp_glpknown4(gl = gl, g1 = g1, g2 = g2, alpha = alpha))
   }
