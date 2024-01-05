@@ -450,7 +450,7 @@ lrt_ndr_npp_g4 <- function(x, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   llr <- -2 * (l0 - l1)
 
   ## Get degrees of freedom ----
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE, drbound = drbound)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE)
 
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
@@ -999,7 +999,7 @@ lrt_ndr_pp_g4 <- function(x, g1, g2, alpha = 0, ntry = 5, fudge = 0) {
   l0 <- oout$value
 
   ## Get degrees of freedom ----
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE, drbound = drbound)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE)
 
   llr <- -2 * (l0 - l1)
 
