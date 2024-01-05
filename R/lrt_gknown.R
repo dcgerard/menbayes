@@ -228,13 +228,13 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
       ## do nothing
     }
   } else if (pp && !dr && g1 == 2 && g2 != 2) {
-    if (xi1 > TOL && xi1 < 1 - TOL) {
+    if (xi1 > 0.001 && xi1 < 0.999) {
       df <- df - 1
     } else {
       ## do nothing
     }
   } else if (pp && !dr && g1 != 2 && g2 == 2) {
-    if (xi2 > TOL && xi2 < 1 - TOL) {
+    if (xi2 > 001 && xi2 < 0.999) {
       df <- df - 1
     } else {
       ## do nothing
@@ -245,8 +245,18 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
     } else {
       df <- df - 1
     }
-  } else if (pp && dr && ((g1 == 2 && g2 %in% c(1, 3)) || (g1 %in% c(1, 3) && g2 == 2))) {
-    df <- df - 1
+  } else if (pp && dr && g1 == 2 && g2 %in% c(0, 1, 3, 4)) {
+    if (alpha < TOL && xi1 < TOL) {
+      ## do nothing
+    } else {
+      df <- df - 1
+    }
+  } else if (pp && dr && g1 %in% c(0, 1, 3, 4) && g2 == 2) {
+    if (alpha < TOL && xi2 < TOL) {
+      ## do nothing
+    } else {
+      df <- df - 1
+    }
   } else if (pp && dr && g1 == 2 && g2 == 2) {
     if (alpha < drbound - TOL) {
       df <- df - 1
