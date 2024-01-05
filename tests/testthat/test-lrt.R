@@ -9,11 +9,11 @@ test_that("LRT works on edge cases", {
 test_that("qq plot is unif in some cases", {
   g1 <- 2
   g2 <- 2
-  alpha <- 0
-  xi1 <- 0
-  xi2 <- 1
+  alpha <- 1/12
+  xi1 <- 1/3
+  xi2 <- 1/3
   pp <- TRUE
-  dr <- FALSE
+  dr <- TRUE
   n <- 1000
   iter <- 1000
   pvec <- rep(NA_real_, iter)
@@ -37,15 +37,17 @@ test_that("qq plot is unif in some cases", {
 
   table(df)
 
-  hwep::qqpvalue(pvals = pvec)
+  ## hwep::qqpvalue(pvals = pvec)
   qqplot(x = ppoints(iter), y = pvec, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 
+
+  ## competitors
   pvec2 <- stats::pchisq(q = stat, df = 3, lower.tail = FALSE)
   qqplot(x = ppoints(iter), y = pvec2, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 
-  pvec3 <- stats::pchisq(q = stat, df = ifelse(aest < alpha - 1e-7, 2, 1), lower.tail = FALSE)
+  pvec3 <- stats::pchisq(q = stat, df = ifelse(aest < alpha - 1e-7, 4, 3), lower.tail = FALSE)
   qqplot(x = ppoints(iter), y = pvec3, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 })

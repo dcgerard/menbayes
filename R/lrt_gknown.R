@@ -210,19 +210,19 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
   df <- 4 - nz
 
   if (dr && (g1 %in% c(1, 3)) && (g2 %in% c(1, 3))) {
-    if (alpha > drbound - TOL) {
-      df <- df + 1
-    } else {
-      ## do nothing
-    }
-  } else if (dr && !pp && (g1 == 2 || g2 == 2)) {
     if (alpha > TOL && alpha < drbound - TOL) {
       df <- df - 1
     } else {
       ## do nothing
     }
-  } else if (pp && dr && ((g1 %in% c(1, 2, 3) && g2 == 2) || (g1 == 2 && g2 %in% c(1, 2, 3)))) {
-    if (alpha < drbound - TOL) {
+  } else if (dr && ((g1 %in% c(0, 4) && g2 %in% c(1, 3)) || (g1 %in% c(1, 3) && g2 %in% c(0, 4)))) {
+    if (alpha > TOL && alpha < drbound - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  } else if (dr && !pp && (g1 == 2 || g2 == 2)) {
+    if (alpha > TOL && alpha < drbound - TOL) {
       df <- df - 1
     } else {
       ## do nothing
@@ -245,7 +245,15 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
     } else {
       df <- df - 1
     }
-  } else if (pp && dr) {
+  } else if (pp && dr && ((g1 == 2 && g2 %in% c(1, 3)) || (g1 %in% c(1, 3) && g2 == 2))) {
+    df <- df - 1
+  } else if (pp && dr && g1 == 2 && g2 == 2) {
+    if (alpha < drbound - TOL) {
+      df <- df - 1
+    } else {
+      ## do nothing
+    }
+  }  else if (pp && dr) {
     df <- df - 1
   }
 
