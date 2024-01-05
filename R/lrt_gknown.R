@@ -260,22 +260,30 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
       df <- df - 1
     }
   } else if (pp && dr && g1 == 2 && g2 %in% c(0, 1, 3, 4)) {
-    if (alpha < TOL && xi1 < TOL) {
+    if (alpha < TOL && (xi1 < TOL || xi1 > 1 - TOL)) {
+      ## do nothing
+    } else if (alpha > drbound - TOL) {
       ## do nothing
     } else {
       df <- df - 1
     }
   } else if (pp && dr && g1 %in% c(0, 1, 3, 4) && g2 == 2) {
-    if (alpha < TOL && xi2 < TOL) {
+    if (alpha < TOL && (xi2 < TOL || xi2 > 1 - TOL)) {
+      ## do nothing
+    } else if (alpha > drbound - TOL) {
       ## do nothing
     } else {
       df <- df - 1
     }
   } else if (pp && dr && g1 == 2 && g2 == 2) {
-    if (alpha < drbound - TOL) {
-      df <- df - 1
-    } else {
+    if (alpha < TOL && (xi1 < TOL || xi1 > 1 - TOL)) {
       ## do nothing
+    } else if (alpha < TOL && (xi2 < TOL || xi2 > 1 - TOL)) {
+      ## do nothing
+    } else if (alpha > drbound - TOL) {
+      ## do nothing
+    } else {
+      df <- df - 1
     }
   } else {
     ## do nothing

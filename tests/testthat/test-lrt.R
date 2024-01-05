@@ -13,9 +13,9 @@ test_that("qq plot is unif in some cases", {
   g1 <- 2
   g2 <- 2
   alpha <- 0
-  xi1 <- 1/3
-  xi2 <- 1/3
-  pp <- TRUE
+  xi1 <- 0
+  xi2 <- 1
+  pp <- FALSE
   dr <- TRUE
   n <- 1000
   iter <- 1000
@@ -27,6 +27,9 @@ test_that("qq plot is unif in some cases", {
   xi2est <- rep(NA_real_, iter)
   gf <- matrix(ncol = 5, nrow = iter)
   for (i in seq_len(iter)) {
+    if (i %% 10 == 0) {
+      cat(i, " of ", iter, "\n")
+    }
     x <- simf1g(n = n, g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
     lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2, pp = pp, dr = dr, alpha = alpha, xi1 = xi1, xi2 = xi2)
     pvec[[i]] <- lout$p_value
