@@ -213,15 +213,21 @@ nzeros <- function(g1, g2, alpha, xi1, xi2) {
 #' @param TOL tolerance to check boundary of parameter space.
 #' @param dr Was double reduction being estimated?
 #' @param pp Was preferential pairing being estimated?
+#' @param is_gl A logical. Is this for genotype likelihood LRT (\code{TRUE})
+#'     or known genotype LRT (\code{FALSE})?
 #'
 #' @author David Gerard
 #'
 #' @references Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. Biometrika, 100(4), 1019-1023.
 #'
 #' @noRd
-get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
-  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-  df <- 4 - nz
+get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, is_gl = FALSE) {
+  if (!is_gl) {
+    nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+    df <- 4 - nz
+  } else {
+    df <- 4
+  }
 
   if (dr && (g1 %in% c(1, 3)) && (g2 %in% c(1, 3))) {
     if (alpha > TOL && alpha < drbound - TOL) {

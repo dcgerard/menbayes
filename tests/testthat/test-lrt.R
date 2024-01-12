@@ -68,10 +68,10 @@ test_that("GL qq plot is unif in some cases", {
   alpha <- 0
   xi1 <- 0
   xi2 <- 1/3
-  pp <- TRUE
-  dr <- TRUE
+  pp <- FALSE
+  dr <- FALSE
   rd <- 10
-  n <- 500
+  n <- 100
   iter <- 100
   pvec <- rep(NA_real_, iter)
   stat <- rep(NA_real_, iter)
@@ -99,9 +99,8 @@ test_that("GL qq plot is unif in some cases", {
   qqplot(x = ppoints(iter), y = pvec, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 
-
   ## competitors
-  pvec2 <- stats::pchisq(q = stat, df = 2, lower.tail = FALSE)
+  pvec2 <- stats::pchisq(q = stat, df = 3, lower.tail = FALSE)
   qqplot(x = ppoints(iter), y = pvec2, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 

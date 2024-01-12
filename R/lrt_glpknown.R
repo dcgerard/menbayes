@@ -254,7 +254,7 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
 
   ## calculate test statistic and run test
   llr <- -2 * (l0 - l1)
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE, is_gl = TRUE)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
   ret <- list(
@@ -414,7 +414,7 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = TRUE)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = TRUE, is_gl = TRUE)
   llr <- -2 * (l0 - l1)
 
   if (df == 0) {
@@ -495,7 +495,7 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
                        g2 = g2)
   l0 <- oout$value
   alpha <- oout$par[[1]]
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = FALSE)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = FALSE, is_gl = TRUE)
   llr <- -2 * (l0 - l1)
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
@@ -627,7 +627,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0, fudge = 0) {
   }
   l0 <- oout$value
 
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE)
+  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE, is_gl = TRUE)
 
   llr <- -2 * (l0 - l1)
 
