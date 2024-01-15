@@ -196,66 +196,46 @@ nzeros <- function(g1, g2, alpha, xi1, xi2) {
   return(sum(gf < TOL))
 }
 
-#' Experimental calculation of degrees of freedom
+
+#' Tests if null parameters are estimated on boundary of parameterspace
 #'
-#' The complicated non-identifiability actually makes calculating the degrees
-#' of freedom really hard. This function was created by experimentally running
-#' through every possible scenario to see what is the empirical null
-#' distribution. I don't have specific theoretical results for this, but
-#' it looks similar to the data-dependent degrees of freedom of Susko, where
-#' you add a degree of freedom if it is on the boundary.
-#'
-#' @param g1 Parent 1's genotype
-#' @param g2 Parent 2's genotype
-#' @param alpha The estimated double reduction rate
-#' @param xi1 The estimated preferential pairing parameter for parent 1.
-#' @param xi2 The estimated preferential pairing parmaeter for parent 2.
-#' @param TOL tolerance to check boundary of parameter space.
-#' @param dr Was double reduction being estimated?
-#' @param pp Was preferential pairing being estimated?
-#' @param is_gl A logical. Is this for genotype likelihood LRT (\code{TRUE})
-#'     or known genotype LRT (\code{FALSE})?
+#' @inheritParams get_df
 #'
 #' @author David Gerard
 #'
-#' @references Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. Biometrika, 100(4), 1019-1023.
+#' @return Either \code{TRUE} if the parameter is on the boundary, and
+#' \code{FALSE} otherwise.
 #'
 #' @noRd
-get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, is_gl = FALSE) {
-  if (!is_gl) {
-    nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
-    df <- 4 - nz
-  } else {
-    df <- 4
-  }
-
+onbound <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
+  ob <- TRUE
   if (dr && (g1 %in% c(1, 3)) && (g2 %in% c(1, 3))) {
     if (alpha > TOL && alpha < drbound - TOL) {
-      df <- df - 1
+      ob <- FALSE
     } else {
       ## do nothing
     }
   } else if (dr && ((g1 %in% c(0, 4) && g2 %in% c(1, 3)) || (g1 %in% c(1, 3) && g2 %in% c(0, 4)))) {
     if (alpha > TOL && alpha < drbound - TOL) {
-      df <- df - 1
+      ob <- FALSE
     } else {
       ## do nothing
     }
   } else if (dr && !pp && (g1 == 2 || g2 == 2)) {
     if (alpha > TOL && alpha < drbound - TOL) {
-      df <- df - 1
+      ob <- FALSE
     } else {
       ## do nothing
     }
   } else if (pp && !dr && g1 == 2 && g2 != 2) {
     if (xi1 > TOL && xi1 < 1 - TOL) {
-      df <- df - 1
+      ob <- FALSE
     } else {
       ## do nothing
     }
   } else if (pp && !dr && g1 != 2 && g2 == 2) {
     if (xi2 > TOL && xi2 < 1 - TOL) {
-      df <- df - 1
+      ob <- FALSE
     } else {
       ## do nothing
     }
@@ -263,7 +243,7 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, i
     if ((xi1 < TOL || xi1 > 1 - TOL) && (xi2 < TOL || xi2 > 1 - TOL)) {
       ## do nothing
     } else {
-      df <- df - 1
+      ob <- FALSE
     }
   } else if (pp && dr && g1 == 2 && g2 %in% c(0, 1, 3, 4)) {
     if (alpha < TOL && (xi1 < TOL || xi1 > 1 - TOL)) {
@@ -271,7 +251,7 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, i
     } else if (alpha > drbound - TOL) {
       ## do nothing
     } else {
-      df <- df - 1
+      ob <- FALSE
     }
   } else if (pp && dr && g1 %in% c(0, 1, 3, 4) && g2 == 2) {
     if (alpha < TOL && (xi2 < TOL || xi2 > 1 - TOL)) {
@@ -279,7 +259,7 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, i
     } else if (alpha > drbound - TOL) {
       ## do nothing
     } else {
-      df <- df - 1
+      ob <- FALSE
     }
   } else if (pp && dr && g1 == 2 && g2 == 2) {
     if (alpha < TOL && (xi1 < TOL || xi1 > 1 - TOL)) {
@@ -289,12 +269,59 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5, i
     } else if (alpha > drbound - TOL) {
       ## do nothing
     } else {
-      df <- df - 1
+      ob <- FALSE
     }
   } else {
     ## do nothing
     ## should only get here is !pp && !dr
   }
+
+  return(ob)
+}
+
+#' Experimental calculation of degrees of freedom
+#'
+#' The complicated non-identifiability actually makes calculating the degrees
+#' of freedom really hard. This function was created by experimentally running
+#' through every possible scenario to see what is the empirical null
+#' distribution. We are effectively using the strategy of Susko (2013), where
+#' we estimate the degrees of freedom. The estimated number of degrees of freedom
+#' under the alternative is the number of non-zero elements minus 1. The number
+#' under the null is 1 if the parameter is not estimated on the boundary, and
+#' zero otherwise.
+#'
+#' @param g1 Parent 1's genotype
+#' @param g2 Parent 2's genotype
+#' @param alpha The estimated double reduction rate
+#' @param xi1 The estimated preferential pairing parameter for parent 1.
+#' @param xi2 The estimated preferential pairing parmaeter for parent 2.
+#' @param TOL tolerance to check boundary of parameter space.
+#' @param dr Was double reduction being estimated?
+#' @param pp Was preferential pairing being estimated?
+#'
+#' @author David Gerard
+#'
+#' @references Susko, E. (2013). Likelihood ratio tests with boundary constraints using data-dependent degrees of freedom. Biometrika, 100(4), 1019-1023.
+#'
+#' @noRd
+get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
+  nz <- nzeros(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2)
+
+  ## Number of parameters under alternative
+  df_alt <- 4 - nz ## Number of non-zeros (5 - nz) minuz 1, so 4 - nz
+
+  df_null <- !onbound(
+    g1 = g1,
+    g2 = g2,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    dr = dr,
+    pp = pp,
+    drbound = drbound,
+    TOL = TOL)
+
+  df <- df_alt - df_null
 
   return(df)
 }
@@ -596,46 +623,6 @@ lrt_init <- function(g1, g2, drbound = 1/6, type = c("random", "half"), fudge = 
   }
   return(out)
 }
-
-#' Check if estimates are on the boundary
-#'
-#' @param g1 parent 1's genotype
-#' @param g2 parent 2's genotype
-#' @param alpha estimated double reduction rate
-#' @param xi1 estimated preferential pairing parameter of parent 1
-#' @param xi2 estimated preferential pairing parameter of parent 2
-#' @param drbound bound on double reduction rate
-#'
-#' @return TRUE if on boundary, FALSE otherwise
-#'
-#' @author David Gerard
-#'
-#' @noRd
-onbound <- function(g1, g2, alpha, xi1, xi2, drbound) {
-  if (drbound > 1/4) {
-    stop("drbound > 1/4 not supported")
-  }
-
-  ob <- 0
-  TOL <- 1e-3
-  if (g1 != 2 && g2 != 2) {
-    if (alpha < TOL || alpha > drbound - TOL) {
-      ob <- 1
-    }
-  } else if (g1 == 2 && g2 %in% c(0, 4)) {
-    p1 <- 0.5 * (1 + xi1) * (1 - alpha)
-    if (p1 < 0.5 + TOL || p1 > 1 - TOL) {
-      ob <- 1
-    }
-  } else if (g1 %in% c(0, 4) && g2 == 2) {
-    p1 <- 0.5 * (1 + xi2) * (1 - alpha)
-    if (p1 < 0.5 + TOL || p1 > 1 - TOL) {
-      ob <- 1
-    }
-  }
-  return(ob)
-}
-
 
 #' LRT when both double reduction and preferential pairing are not known.
 #'

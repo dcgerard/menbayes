@@ -252,9 +252,16 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   qhat2 <- offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2)
   l0 <- llike_li(B = gl, lpivec = log(qhat2))
 
-  ## calculate test statistic and run test
+  ## calculate test statistic
   llr <- -2 * (l0 - l1)
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = FALSE, is_gl = TRUE)
+
+  ## calculate degrees of freedom
+  TOL <- 1e-3
+  df_alt <- sum(offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2) > TOL | log_qhat1 > log(TOL)) - 1
+  df_null <- 0 ## fixed
+  df <- df_alt - df_null
+
+  ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
 
   ret <- list(
@@ -414,7 +421,23 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     stopifnot(alpha == two[[1]])
     xi2 <- two[[2]]
   }
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = TRUE, is_gl = TRUE)
+
+  ## calculate degrees of freedom
+  TOL <- 1e-3
+  df_alt <- sum(offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2) > TOL | log_qhat1 > log(TOL)) - 1
+  df_null <- !onbound(
+    g1 = g1,
+    g2 = g2,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    dr = TRUE,
+    pp = TRUE,
+    drbound = drbound,
+    TOL = TOL)
+  df <- df_alt - df_null
+
+  ## calculate LRT stat
   llr <- -2 * (l0 - l1)
 
   if (df == 0) {
@@ -428,6 +451,7 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     return(ret)
   }
 
+  ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
   ret <-  list(
@@ -495,8 +519,26 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
                        g2 = g2)
   l0 <- oout$value
   alpha <- oout$par[[1]]
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = TRUE, pp = FALSE, is_gl = TRUE)
+
+  ## calculate degrees of freedom
+  TOL <- 1e-3
+  df_alt <- sum(offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2) > TOL | log_qhat1 > log(TOL)) - 1
+  df_null <- !onbound(
+    g1 = g1,
+    g2 = g2,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    dr = TRUE,
+    pp = FALSE,
+    drbound = drbound,
+    TOL = TOL)
+  df <- df_alt - df_null
+
+  ## calculate LRT statistic
   llr <- -2 * (l0 - l1)
+
+  ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
   ret <- list(
@@ -627,10 +669,25 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0, fudge = 0) {
   }
   l0 <- oout$value
 
-  df <- get_df(g1 = g1, g2 = g2, alpha = alpha, xi1 = xi1, xi2 = xi2, dr = FALSE, pp = TRUE, is_gl = TRUE)
+  ## calculate degrees of freedom
+  TOL <- 1e-3
+  df_alt <- sum(offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2) > TOL | log_qhat1 > log(TOL)) - 1
+  df_null <- !onbound(
+    g1 = g1,
+    g2 = g2,
+    alpha = alpha,
+    xi1 = xi1,
+    xi2 = xi2,
+    dr = FALSE,
+    pp = TRUE,
+    drbound = 1,
+    TOL = TOL)
+  df <- df_alt - df_null
 
+  ## calculate LRT statistic
   llr <- -2 * (l0 - l1)
 
+  ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 
   ret <-  list(

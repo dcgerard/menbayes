@@ -10,15 +10,15 @@ test_that("qq plot is unif in some cases", {
   skip("too slow")
 
 
-  g1 <- 2
+  g1 <- 1
   g2 <- 2
-  alpha <- 0
-  xi1 <- 0
-  xi2 <- 1
-  pp <- FALSE
+  alpha <- 1/12
+  xi1 <- 1/3
+  xi2 <- 1/3
+  pp <- TRUE
   dr <- TRUE
   n <- 1000
-  iter <- 1000
+  iter <- 100
   pvec <- rep(NA_real_, iter)
   stat <- rep(NA_real_, iter)
   df <- rep(NA_real_, iter)
@@ -47,7 +47,6 @@ test_that("qq plot is unif in some cases", {
   qqplot(x = ppoints(iter), y = pvec, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 
-
   ## competitors
   pvec2 <- stats::pchisq(q = stat, df = 2, lower.tail = FALSE)
   qqplot(x = ppoints(iter), y = pvec2, xlim = c(0, 1), ylim = c(0, 1))
@@ -64,10 +63,10 @@ test_that("GL qq plot is unif in some cases", {
 
 
   g1 <- 2
-  g2 <- 1
+  g2 <- 2
   alpha <- 0
   xi1 <- 0
-  xi2 <- 1/3
+  xi2 <- 1
   pp <- FALSE
   dr <- FALSE
   rd <- 10
