@@ -11,7 +11,7 @@ test_that("qq plot is unif in some cases", {
 
 
   g1 <- 1
-  g2 <- 2
+  g2 <- 0
   alpha <- 1/12
   xi1 <- 1/3
   xi2 <- 1/3
@@ -62,10 +62,10 @@ test_that("GL qq plot is unif in some cases", {
   skip("too slow")
 
 
-  g1 <- 2
+  g1 <- 4
   g2 <- 2
   alpha <- 0
-  xi1 <- 0
+  xi1 <- 1
   xi2 <- 1
   pp <- FALSE
   dr <- FALSE
