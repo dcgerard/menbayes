@@ -261,7 +261,7 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
 
   ret <- list(
     p_value = pval,
-    best_fit = segtypes$mod[[i]],
+    best_fit = segtypes$mod[[bi]],
     frq_invalid = frq_invalid,
     p_invalid = p_invalid
   )
