@@ -10,11 +10,11 @@ test_that("qq plot is unif in some cases", {
   skip("too slow")
 
 
-  g1 <- 1
-  g2 <- 0
-  alpha <- 1/12
-  xi1 <- 1/3
-  xi2 <- 1/3
+  g1 <- 2
+  g2 <- 2
+  alpha <- 0
+  xi1 <- 0
+  xi2 <- 0
   pp <- TRUE
   dr <- TRUE
   n <- 1000
@@ -62,15 +62,15 @@ test_that("GL qq plot is unif in some cases", {
   skip("too slow")
 
 
-  g1 <- 4
+  g1 <- 0
   g2 <- 2
   alpha <- 0
-  xi1 <- 1/3
-  xi2 <- 1/3
+  xi1 <- 0
+  xi2 <- 0
   pp <- TRUE
   dr <- TRUE
   rd <- 10
-  n <- 100
+  n <- 200
   iter <- 100
   pvec <- rep(NA_real_, iter)
   stat <- rep(NA_real_, iter)

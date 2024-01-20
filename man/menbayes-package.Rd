@@ -11,8 +11,8 @@ Provides a suite of methods for tests for Mendelian segregation in experimental 
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/gerardlab/menbayes}
-  \item Report bugs at \url{https://github.com/gerardlab/menbayes/issues}
+  \item \url{https://github.com/dcgerard/menbayes}
+  \item Report bugs at \url{https://github.com/dcgerard/menbayes/issues}
 }
 
 }
