@@ -260,6 +260,7 @@ lrt_ndr_npp_glpknown4 <- function(gl, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   df_alt <- sum(offspring_gf_2(alpha = alpha, xi1 = xi1, xi2 = xi2, p1 = g1, p2 = g2) > TOL | log_qhat1 > log(TOL)) - 1
   df_null <- 0 ## fixed
   df <- df_alt - df_null
+  df <- max(df, 1)
 
   ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE, log.p = FALSE)
@@ -436,6 +437,7 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
     drbound = drbound,
     TOL = TOL)
   df <- df_alt - df_null
+  df <- max(df, 1)
 
   ## calculate LRT stat
   llr <- -2 * (l0 - l1)
@@ -534,6 +536,7 @@ lrt_dr_npp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, xi1 = 1/3, xi2 = 1/3
     drbound = drbound,
     TOL = TOL)
   df <- df_alt - df_null
+  df <- max(df, 1)
 
   ## calculate LRT statistic
   llr <- -2 * (l0 - l1)
@@ -683,6 +686,7 @@ lrt_ndr_pp_glpknown4 <- function(gl, g1, g2, alpha = 0, fudge = 0) {
     drbound = 1,
     TOL = TOL)
   df <- df_alt - df_null
+  df <- max(df, 1)
 
   ## calculate LRT statistic
   llr <- -2 * (l0 - l1)

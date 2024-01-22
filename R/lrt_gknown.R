@@ -323,6 +323,8 @@ get_df <- function(g1, g2, alpha, xi1, xi2, dr, pp, drbound = 1/6, TOL = 1e-5) {
 
   df <- df_alt - df_null
 
+  df <- max(df, 1)
+
   return(df)
 }
 
