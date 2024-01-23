@@ -442,17 +442,6 @@ lrt_dr_pp_glpknown4 <- function(gl, g1, g2, drbound = 1/6, ntry = 5) {
   ## calculate LRT stat
   llr <- -2 * (l0 - l1)
 
-  if (df == 0) {
-    ret <- list(
-      statistic = llr,
-      p_value = 1,
-      df = 0,
-      alpha = alpha,
-      xi1 = xi1,
-      xi2 = xi2)
-    return(ret)
-  }
-
   ## calculate p-value
   p_value <- stats::pchisq(q = llr, df = df, lower.tail = FALSE)
 

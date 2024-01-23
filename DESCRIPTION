@@ -1,6 +1,6 @@
 Package: menbayes
 Title: Tests for Mendelian Segregation in Polyploids
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: 
     c(person("Mira", "Thakkar", , "mt7562a@american.edu ", role = c("aut")),
       person("David", "Gerard", , "gerard.1787@gmail.com", role = c("aut", "cre"),
@@ -9,8 +9,8 @@ Authors@R:
              role = "fnd",
              comment = "https://www.nsf.gov/awardsearch/showAward?AWD_ID=2132247")
      )
-Description: Provides a suite of methods for tests for
-    Mendelian segregation in experimental polyploid populations (right
+Description: Provides a suite of tests for
+    segregation distortion in F1 polyploid populations (right
     now just for tetraploids). This is under different assumptions of
     meiosis. This material is based upon work supported by the
     National Science Foundation under Grant No. 2132247.  The

@@ -21,7 +21,16 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/dcgerard/menbayes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dcgerard/menbayes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Provides a suite of methods for Bayesian tests for Mendelian segregation in experimental polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis.
+Provides a suite of tests for segregation distortion in F1 polyploid populations (for now, just tetraploids). This is under different assumptions of meiosis. The main functions are:
+
+- `bayes_men_g4()`: Bayesian test for segregation distortion using known genotypes.
+- `bayes_men_gl4()`: Bayesian test for segregation distortion using genotype likelihoods.
+- `lrt_men_g4()`: Likelihood ratio test for segregation distortion using known genotypes.
+- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion using genotype likelihoods.
+- `offspring_gf_2()`: Offspring genotype frequencies under the two parameter model of meiosis.
+- `offspring_gf_3()`: Offspring genotype frequencies under the three parameter model of meiosis.
+- `simf1g()`: Simulate genotypes from an F1 population of tetraploids.
+- `simf1gl()`: Simulate genotype likelihoods from an F1 population of tetraploids.
 
 ## Installation
 

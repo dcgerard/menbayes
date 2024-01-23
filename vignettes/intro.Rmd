@@ -1,5 +1,5 @@
 ---
-title: "Introduction to menbayes"
+title: "Introduction to `menbayes`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to menbayes}
@@ -18,18 +18,53 @@ knitr::opts_chunk$set(
 library(menbayes)
 ```
 
-# Main Functions
 
-The main functions are:
+The `menbayes` package contains a suite of functions to test and evaluate segregation distortion in F1 populations of tetraploids. We allow for various types of polyploids (auto, allo, and segmental) without having the user specify the type of polyploid they are studying. We also account for genotype uncertainty through the use of genotype likelihoods, which can be obtained through many genotyping programs (like `updog`, `fitpoly`, and `polyRAD`). The main functions are:
 
-- `simf1g()`: Simulate genotype counts from an F1 population.
-- `simf1g()`: Simulate genotype likelihoods from an F1 population.
-- `lrt_men_g4()`: Likelihood ratio test for segregation distortion in F1 populations when the genotypes are known.
-- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion in F1 populations when using genotype likelihoods.
-- `bayes_men_g4()`: Bayesian test for segregation distortion in F1 populations when the genotypes are known.
-- `bayes_men_gl4()`: Bayesian test for segregation distortion in F1 populations when using genotype likelihoods.
+- `bayes_men_g4()`: Bayesian test for segregation distortion using known genotypes.
+- `bayes_men_gl4()`: Bayesian test for segregation distortion using genotype likelihoods.
+- `lrt_men_g4()`: Likelihood ratio test for segregation distortion using known genotypes.
+- `lrt_men_gl4()`: Likelihood ratio test for segregation distortion using genotype likelihoods.
+- `offspring_gf_2()`: Offspring genotype frequencies under the two parameter model of meiosis.
+- `offspring_gf_3()`: Offspring genotype frequencies under the three parameter model of meiosis.
+- `simf1g()`: Simulate genotype counts from an F1 population of tetraploids.
+- `simf1gl()`: Simulate genotype likelihoods from an F1 population of tetraploids.
 
-# When Null is True
+Here, we will demonstrate some of our functions.
+
+# Offspring genotype frequencies
+
+We can obtain offspring genotype frequencies via `offspring_gf_2()` and `offspring_gf_3()`. These are two different parameterizations of the same model for meiosis. For `offspring_gf_3()`, you insert the following parameters:
+
+- `tau`: Probability of quadrivalent formation.
+- `beta`: Probability of double reduction given quadrivalent formation
+- `gamma1`: Probability of `AA_aa` pairing in parent 1 given bivalent formation. Only applicable when `p1 = 2`.
+- `gamma2`: Probability of `AA_aa` pairing in parent 2 given bivalent formation. Only applicable when `p2 = 2`.
+- `p1`: The first parent's genotype.
+- `p2`: The second parent's genotype.
+
+Let's generate some example genotype frequencies. You can play around with the parameter values yourself.
+```{r}
+gf <- offspring_gf_3(
+  tau = 1, 
+  beta = 1/6, 
+  gamma1 = 1/3,
+  gamma2 = 1/3, 
+  p1 = 1,
+  p2 = 2)
+plot(
+  x = 0:4,
+  y = gf,
+  type = "h",
+  xlab = "Genotype", 
+  ylab = "Frequency",
+  ylim = c(0, 1))
+```
+
+The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see @gerard2024tests for details.
+
+
+# When the null is true
 
 We'll first simulate some data where the null of no segregation distortion is true.
 ```{r}
@@ -58,11 +93,13 @@ gl <- simf1gl(
   xi2 = xi2)
 ```
 
-The LRT has a large $p$-value, and the Bayes test has a positive log Bayes factor.
+The LRT has a large $p$-value, and the Bayes test has a positive log Bayes factor, which are both appropriate since there is no segregation distortion. (I am suppressing the MCMC status output from Stan)
 
 ```{r}
 lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
-bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2, chains = 1)
+trash <- capture.output(
+  bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2, chains = 1)
+)
 ```
 
 ```{r}
@@ -72,7 +109,9 @@ bout$lbf
 
 ```{r}
 lout_gl <- lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
-bout_gl <- bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
+trash <- capture.output(
+  bout_gl <- bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1, iter = 1000)
+)
 ```
 
 
@@ -81,13 +120,18 @@ lout_gl$p_value
 bout_gl$lbf
 ```
 
-# When Alternative is True
+# When the alternative is true
 
-We get a very small $p$-value and a very negative log Bayes factor.
+When we simulate data where the alternative is true, we get a very small $p$-value and a very negative log Bayes factor.
 ```{r}
 x <- c(stats::rmultinom(n = 1, size = 20, prob = rep(1/5, 5)))
 lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
-bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2, chains = 1)
+trash <- capture.output(
+  bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2, chains = 1)
+)
+```
+
+```{r}
 lout$p_value
 bout$lbf
 ```
