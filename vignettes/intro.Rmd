@@ -61,7 +61,7 @@ plot(
   ylim = c(0, 1))
 ```
 
-The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see @gerard2024tests for details.
+The `offspring_gf_3()` function is safer to use because there is a dependence between the preferential pairing parameter and the double reduction rate that bounds these values in `offspring_gf_2()`, and so in the two-parameter model you might accidentally choose values that are impossible. I did not set up checks for these values because the bounds depend on the maximum rate of double reduction, which can vary significantly. Please see Gerard et al. (2024) for details.
 
 
 # When the null is true
