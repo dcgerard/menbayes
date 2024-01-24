@@ -41,23 +41,52 @@ parameter of parent 1.}
 \item{xi2}{If \code{pp = FALSE}, this is the known preferential pairing
 parameter of parent 2.}
 }
-\description{
-Likelihood ratio test using genotype likelihoods.
+\value{
+A list with the following elements
+\describe{
+\item{\code{statistic}}{The log-likelihood ratio test statistic.}
+\item{\code{df}}{The degrees of freedom.}
+\item{\code{p_value}}{The p-value.}
+\item{\code{alpha}}{The estimated double reduction rate.}
+\item{\code{xi1}}{The estimated preferential pairing parameter of parent 1.}
+\item{\code{xi2}}{The estimated preferential pairing parameter of parent 2.}
 }
+}
+\description{
+This will run a likelihood ratio test using the genotypes of an F1 population
+of tetraploids for the null of Mendelian segregation (accounting for double
+reduction and preferential pairing) against the alternative of
+segregation distortion. This is when genotype uncertainty is accounted
+for through genotype likelihoods.
+}
+\section{Unidentified parameters}{
+
+When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
+and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
+meaningless. Do NOT interpret them.
+
+The estimate of \code{alpha} (double reduction rate) IS identified as
+long as at least one parent is simplex, and no parent is duplex.
+However, the estimates of the double reduction rate have extremely high
+variance.
+}
+
 \examples{
-## null sim
+## null simulation
 set.seed(1)
 g1 <- 2
 g2 <- 2
 gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
+
+## LRT when parent genotypes are known.
 lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 
+## LRT when parent genotypes are not known
 lrt_men_gl4(gl = gl)
 
-## Alt sim
+## Alternative simulation
 gl <- hwep::simgl(nvec = rep(5, 5))
 lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
-
 
 }
 \author{

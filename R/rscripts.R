@@ -81,7 +81,7 @@ pvec_tet_3 <- function(tau, beta, gamma, ell) {
 }
 
 
-#' Calculates zygote frequencies under the two-parameter model.
+#' Calculates offspring genotype frequencies under the two-parameter model.
 #'
 #' @param alpha The double reduction rate
 #' @param xi1 The preferential pairing parameter of the first parent.
@@ -89,7 +89,7 @@ pvec_tet_3 <- function(tau, beta, gamma, ell) {
 #' @param p1 The first parent's genotype
 #' @param p2 The second parent's genotype
 #'
-#' @return Zygote genotype frequencies
+#' @return Offspring genotype frequencies
 #'
 #' @author Mira Thakkar
 #'
@@ -118,14 +118,14 @@ offspring_gf_2 <- function(alpha, xi1, xi2 = xi1, p1, p2){
   return(qvec)
 }
 
-#' Calculates zygote frequencies under the three-parameter model.
+#' Calculates offspring genotype frequencies under the three-parameter model.
 #'
 #' @inheritParams pvec_tet_3
 #' @inheritParams offspring_gf_2
 #' @param gamma1 Probability of AA_aa pairing in parent 1
 #' @param gamma2 Probability of AA_aa pairing in parent 2
 #'
-#' @return Zygote genotype frequencies
+#' @return Offspring genotype frequencies
 #'
 #' @author David Gerard
 #'
@@ -284,7 +284,7 @@ simf1gl <- function(n, g1, g2, rd = 10, alpha = 0, xi1 = 1/3, xi2 = 1/3) {
   return(fout$genologlike)
 }
 
-#' Simulate genotypes from F1 individuals
+#' Simulate genotype counts from F1 individuals
 #'
 #' @inheritParams simf1gl
 #'

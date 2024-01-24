@@ -2,7 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{simf1g}
 \alias{simf1g}
-\title{Simulate genotypes from F1 individuals}
+\title{Simulate genotype counts from F1 individuals}
 \usage{
 simf1g(n, g1, g2, alpha = 0, xi1 = 1/3, xi2 = 1/3)
 }
@@ -24,7 +24,7 @@ A vector of counts, where element \code{i} is the number of
 simulated individuals with genotype \code{i-1}.
 }
 \description{
-Simulate genotypes from F1 individuals
+Simulate genotype counts from F1 individuals
 }
 \examples{
 set.seed(1)

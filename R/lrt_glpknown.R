@@ -2,6 +2,16 @@
 
 #' Likelihood ratio test using genotype likelihoods.
 #'
+#' This will run a likelihood ratio test using the genotypes of an F1 population
+#' of tetraploids for the null of Mendelian segregation (accounting for double
+#' reduction and preferential pairing) against the alternative of
+#' segregation distortion. This is when genotype uncertainty is accounted
+#' for through genotype likelihoods.
+#'
+#' @inheritSection lrt_men_g4 Unidentified parameters
+#'
+#' @inherit lrt_men_g4 return
+#'
 #' @param gl The genotype log-likelihoods. The rows index the individuals
 #'    and the columns index the genotypes.
 #' @param g1 Either parent 1's genotype, or parent 1's genotype log-likelihoods.
@@ -21,19 +31,21 @@
 #' @author David Gerard
 #'
 #' @examples
-#' ## null sim
+#' ## null simulation
 #' set.seed(1)
 #' g1 <- 2
 #' g2 <- 2
 #' gl <- simf1gl(n = 25, g1 = g1, g2 = g2, alpha = 1/12, xi2 = 1/2)
+#'
+#' ## LRT when parent genotypes are known.
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
 #'
+#' ## LRT when parent genotypes are not known
 #' lrt_men_gl4(gl = gl)
 #'
-#' ## Alt sim
+#' ## Alternative simulation
 #' gl <- hwep::simgl(nvec = rep(5, 5))
 #' lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
-#'
 #'
 #' @export
 lrt_men_gl4 <- function(

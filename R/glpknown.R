@@ -5,10 +5,15 @@
 
 #' Bayesian test for segregation distortion in tetraploids using genotype likelihoods
 #'
-#' @section Unidentified parameters:
-#' When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
-#' and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
-#' meaningless. Do NOT interpret them. The log-BF is fine, though.
+#' This will run a Bayesian ratio test using the genotypes of an F1 population
+#' of tetraploids for the null of Mendelian segregation (accounting for double
+#' reduction and preferential pairing) against the alternative of
+#' segregation distortion. This is when genotype uncertainty is accounted
+#' for through genotype likelihoods.
+#'
+#' @inheritSection lrt_men_g4 Unidentified parameters
+#'
+#' @inherit bayes_men_g4 return
 #'
 #' @inheritParams bayes_men_g4
 #' @param gl The genotype log-likelihoods. The rows index the individuals

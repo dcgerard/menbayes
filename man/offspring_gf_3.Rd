@@ -2,7 +2,7 @@
 % Please edit documentation in R/rscripts.R
 \name{offspring_gf_3}
 \alias{offspring_gf_3}
-\title{Calculates zygote frequencies under the three-parameter model.}
+\title{Calculates offspring genotype frequencies under the three-parameter model.}
 \usage{
 offspring_gf_3(tau, beta, gamma1, gamma2 = gamma1, p1, p2)
 }
@@ -20,10 +20,10 @@ offspring_gf_3(tau, beta, gamma1, gamma2 = gamma1, p1, p2)
 \item{p2}{The second parent's genotype}
 }
 \value{
-Zygote genotype frequencies
+Offspring genotype frequencies
 }
 \description{
-Calculates zygote frequencies under the three-parameter model.
+Calculates offspring genotype frequencies under the three-parameter model.
 }
 \examples{
 offspring_gf_3(

@@ -67,14 +67,34 @@ by maximum likelihood (\code{"est"}) or marginalize over them
 
 \item{...}{Additional arguments to pass to Stan.}
 }
+\value{
+A list with the following elements
+\describe{
+\item{\code{lbf}}{The log Bayes Factor.}
+\item{\code{m0}}{Marginal likelihood under null.}
+\item{\code{ma}}{Marginal likelihood under alternative.}
+\item{\code{alpha}}{The posterior mean double reduction rate.}
+\item{\code{xi1}}{The posterior mean preferential pairing parameter of parent 1.}
+\item{\code{xi2}}{The posterior mean preferential pairing parameter of parent 2.}
+}
+}
 \description{
-Bayesian test for segregation distortion in tetraploids using genotype likelihoods
+This will run a Bayesian ratio test using the genotypes of an F1 population
+of tetraploids for the null of Mendelian segregation (accounting for double
+reduction and preferential pairing) against the alternative of
+segregation distortion. This is when genotype uncertainty is accounted
+for through genotype likelihoods.
 }
 \section{Unidentified parameters}{
 
 When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
 and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
-meaningless. Do NOT interpret them. The log-BF is fine, though.
+meaningless. Do NOT interpret them.
+
+The estimate of \code{alpha} (double reduction rate) IS identified as
+long as at least one parent is simplex, and no parent is duplex.
+However, the estimates of the double reduction rate have extremely high
+variance.
 }
 
 \examples{

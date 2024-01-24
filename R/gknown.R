@@ -4,6 +4,11 @@
 
 #' Bayesian test for segregation distortion in tetraploids when genotypes are known.
 #'
+#' This will run a Bayesian test using the genotypes of an F1 population
+#' of tetraploids for the null of Mendelian segregation (accounting for double
+#' reduction and preferential pairing) against the alternative of
+#' segregation distortion. This is when the genotypes are assumed known.
+#'
 #' @section Impossible genotypes:
 #' Some offspring genotype combinations are impossible given the parental
 #' gentoypes. If these impossible genotypes combinations show up, we return a
@@ -19,10 +24,7 @@
 #' When double reduction is 0, the list of impossible genotypes is more
 #' complicated.
 #'
-#' @section Unidentified parameters:
-#' When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
-#' and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
-#' meaningless. Do NOT interpret them. The log-BF is fine, though.
+#' @inheritSection lrt_men_g4 Unidentified parameters
 #'
 #' @inheritParams lrt_men_g4
 #' @param shape1 The shape 1 parameter for the beta prior over the

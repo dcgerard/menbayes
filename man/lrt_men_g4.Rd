@@ -55,8 +55,8 @@ A list with the following elements
 }
 }
 \description{
-This will run a likelihood test using the genotypes of an F1 population
-for the null of Mendelian segregation (accounting for double
+This will run a likelihood ratio test using the genotypes of an F1 population
+of tetraploids for the null of Mendelian segregation (accounting for double
 reduction and preferential pairing) against the alternative of
 segregation distortion. This is when the genotypes are assumed known.
 }
@@ -79,7 +79,12 @@ values for all other return items. The impossible genotypes are:
 
 When \code{g1 = 2} or \code{g2 = 2} (or both), the model is not identified
 and those estimates (\code{alpha}, \code{xi1}, and \code{xi2}) are
-meaningless. Do NOT interpret them. The p-value is fine, though.
+meaningless. Do NOT interpret them.
+
+The estimate of \code{alpha} (double reduction rate) IS identified as
+long as at least one parent is simplex, and no parent is duplex.
+However, the estimates of the double reduction rate have extremely high
+variance.
 }
 
 \examples{
