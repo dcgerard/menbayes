@@ -1,5 +1,5 @@
 Package: menbayes
-Title: Tests for Mendelian Segregation in Polyploids
+Title: Tests for Segregation Distortion in Polyploids
 Version: 0.1.0
 Authors@R: 
     c(person("Mira", "Thakkar", , "mt7562a@american.edu ", role = c("aut")),
