@@ -107,3 +107,48 @@ test_that("GL qq plot is unif in some cases", {
   qqplot(x = ppoints(iter), y = pvec3, xlim = c(0, 1), ylim = c(0, 1))
   abline(a = 0, b = 1, col = 2, lty = 2)
 })
+
+
+test_that("corner cases", {
+  xmat <- structure(c(4L, 8L, 8L, 9L, 7L, 18L, 8L, 7L, 10L, 1L, 0L, 0L,
+0L, 1L, 1L, 2L, 3L, 4L, 4L, 5L, 3L, 5L, 2L, 6L, 4L, 5L, 3L, 2L,
+2L, 3L, 6L, 5L, 4L, 7L, 10L, 7L, 8L, 8L, 0L, 0L, 7L, 2L, 0L,
+0L, 0L, 0L, 0L, 5L, 0L, 0L, 1L, 1L, 0L, 3L, 3L, 2L, 8L, 16L,
+10L, 9L, 8L, 11L, 1L, 8L, 10L, 7L, 8L, 19L, 18L, 20L, 18L, 19L,
+18L, 17L, 5L, 7L, 9L, 9L, 8L, 13L, 6L, 8L, 10L, 12L, 9L, 12L,
+11L, 7L, 6L, 9L, 8L, 8L, 5L, 6L, 7L, 4L, 16L, 9L, 6L, 3L, 2L,
+0L, 1L, 0L, 6L, 0L, 1L, 1L, 2L, 1L, 56L, 44L, 53L, 36L, 0L, 2L,
+3L, 3L, 2L, 1L, 4L, 3L, 3L, 11L, 1L, 2L, 0L, 1L, 0L, 0L, 0L,
+11L, 7L, 4L, 5L, 5L, 3L, 6L, 5L, 3L, 3L, 6L, 4L, 4L, 5L, 7L,
+5L, 2L, 0L, 6L, 5L, 4L, 16L, 4L, 2L, 9L, 3L, 15L, 18L, 18L, 20L,
+6L, 16L, 15L, 15L, 15L, 16L, 94L, 87L, 97L, 121L, 0L, 0L, 0L,
+0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 2L,
+2L, 3L, 2L, 2L, 2L, 2L, 2L, 2L, 3L, 2L, 2L, 2L, 2L, 1L, 3L, 2L,
+2L, 1L, 1L, 0L, 0L, 2L, 1L, 12L, 2L, 2L, 1L, 0L, 3L, 3L, 3L,
+3L, 2L, 2L, 44L, 63L, 44L, 32L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 1L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+0L, 2L, 2L, 1L, 0L, 0L, 0L, 0L, 1L, 1L, 0L, 0L, 1L, 3L, 3L, 4L,
+3L), dim = c(57L, 5L), dimnames = list(NULL, c("0", "1", "2",
+"3", "4")))
+
+  ell1vec <- c(0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L,
+0L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
+1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L,
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L)
+  ell2vec <- c(1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L,
+2L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L,
+1L, 1L, 1L, 1L, 1L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L,
+2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L)
+
+  for(i in seq_len(nrow(xmat))) {
+    x <- xmat[i, ]
+    g1 <- ell1vec[[i]]
+    g2 <- ell2vec[[i]]
+    mout <- polymapr_test(x = x, g1 = g1, g2 = g2, type = "menbayes")$p_value
+    pout <- polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")$p_value
+    expect_equal(mout - pout, 0, tolerance = 10^-3)
+  }
+
+})
+

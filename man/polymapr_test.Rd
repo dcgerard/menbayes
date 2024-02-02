@@ -40,11 +40,12 @@ given parent genotypes, choosing the largest p-value. When
 \code{type = "polymapR"}, we return what they use via their heuristics.
 }
 \examples{
-g1 <- 1
-g2 <- 2
-gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
-x <- offspring_geno(gf = gf, n = 100)
+g1 <- 0
+g2 <- 1
+x <- c(4, 16, 0, 0, 0)
 polymapr_test(x = x, g1 = g1, g2 = g2, type = "menbayes")
+# polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
+
 
 }
 \seealso{

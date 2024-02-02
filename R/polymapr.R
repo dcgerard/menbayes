@@ -12,6 +12,7 @@
 #' given parent genotypes, choosing the largest p-value. When
 #' \code{type = "polymapR"}, we return what they use via their heuristics.
 #'
+#'
 #' @param x Either a vector of genotype counts, or a matrix of genotype
 #'     posteriors where the rows index the individuals and the columns
 #'     index the genotypes.
@@ -33,11 +34,12 @@
 #' @seealso \code{\link[polymapR]{checkF1}()}.
 #'
 #' @examples
-#' g1 <- 1
-#' g2 <- 2
-#' gf <- offspring_gf_2(alpha = 0, xi1 = 1/3, xi2 = 1/3, p1 = g1, p2 = g2)
-#' x <- offspring_geno(gf = gf, n = 100)
+#' g1 <- 0
+#' g2 <- 1
+#' x <- c(4, 16, 0, 0, 0)
 #' polymapr_test(x = x, g1 = g1, g2 = g2, type = "menbayes")
+#' # polymapr_test(x = x, g1 = g1, g2 = g2, type = "polymapR")
+#'
 #'
 #' @author David Gerard
 #'
@@ -104,9 +106,10 @@ polymapR_package_g <- function(x, g1, g2) {
   )
 
   n <- sum(x)
-  df <- matrix(c(g1, g2, gcount_to_gvec(gcount = x)), nrow = 1)
-  fnames <- paste0("F", seq_len(ncol(df) - 2))
-  colnames(df) <- c("P1", "P2", fnames)
+  ## need repetitions of parent genotypes to force polymapR to keep those as info
+  df <- matrix(c(g1, g1, g2, g2, gcount_to_gvec(gcount = x)), nrow = 1)
+  fnames <- paste0("F", seq_len(ncol(df) - 4))
+  colnames(df) <- c("P11", "P12", "P21", "P22", fnames)
 
   df <- rbind(df, 1) ## they forgot a drop = FALSE somewhere
 
@@ -115,8 +118,8 @@ polymapR_package_g <- function(x, g1, g2) {
   cout <- polymapR::checkF1(
     input_type = "discrete",
     dosage_matrix = df,
-    parent1 = "P1",
-    parent2 = "P2",
+    parent1 = c("P11", "P12"),
+    parent2 = c("P21", "P22"),
     F1 = fnames,
     polysomic = TRUE,
     disomic = TRUE,
@@ -157,15 +160,19 @@ polymapr_package_gl <- function(gl, g1, g2) {
   seg_invalidrate <- 0.03
 
   n <- nrow(gl)
+
+  ## need to repeat parent info to force polymapR to use it
   gl <- rbind(
     gl,
     (0:4 == g1) * 1,
+    (0:4 == g1) * 1,
+    (0:4 == g2) * 1,
     (0:4 == g2) * 1
   )
 
   gp_df <- as.data.frame(gl)
   colnames(gp_df) <- paste0("P", seq_len(ncol(gl)) - 1)
-  gp_df$SampleName <- c(paste0("F", seq_len(n)), "P1", "P2")
+  gp_df$SampleName <- c(paste0("F", seq_len(n)), "P11", "P12", "P21", "P22")
   gp_df$MarkerName <- "M1"
   gp_df$maxP <- apply(gl, 1, max)
   gp_df$maxgeno <- apply(gl, 1, which.max) - 1
@@ -174,8 +181,8 @@ polymapr_package_gl <- function(gl, g1, g2) {
   cout <- polymapR::checkF1(
     input_type = "probabilistic",
     probgeno_df = gp_df,
-    parent1 = "P1",
-    parent2 = "P2",
+    parent1 = c("P11", "P12"),
+    parent2 = c("P21", "P22"),
     ploidy = 4,
     polysomic = TRUE,
     disomic = TRUE,
@@ -232,7 +239,7 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
       fq <- segtypes$freq[[i]]
       not_0 <- fq > sqrt(.Machine$double.eps)
       if (sum(not_0) == 1) {
-        chout <- list(p.value = stats::pbinom(q = sum(x[!not_0]), size = sum(x), prob = seg_invalidrate, lower.tail = FALSE))
+        chout <- list(p.value = 1)
       } else {
         suppressWarnings(
           chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
