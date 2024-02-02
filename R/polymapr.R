@@ -124,11 +124,9 @@ polymapR_package_g <- function(x, g1, g2) {
     ploidy = ploidy)
 
   TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
-  p_invalid <- stats::pbinom(
-    q = cout$checked_F1$frqInvalid_bestParentfit[[1]] * n - TOL,
-    size = n,
-    prob = seg_invalidrate,
-    lower.tail = FALSE)
+  p_invalid <- stats::pbinom(q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
+                             size = n,
+                             prob = 1 - seg_invalidrate)
 
   ret <- list(
     p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
@@ -186,11 +184,9 @@ polymapr_package_gl <- function(gl, g1, g2) {
   )
 
   TOL <- sqrt(.Machine$double.eps) ## to get >= in pbinom
-  p_invalid <- stats::pbinom(
-    q = cout$checked_F1$frqInvalid_bestParentfit[[1]] * n - TOL,
-    size = n,
-    prob = seg_invalidrate,
-    lower.tail = FALSE)
+  p_invalid <- stats::pbinom(q = (1 - cout$checked_F1$frqInvalid_bestParentfit[[1]]) * n,
+                             size = n,
+                             prob = 1 - seg_invalidrate)
 
   ret <- list(
     p_value = cout$checked_F1$Pvalue_bestParentfit[[1]],
@@ -243,11 +239,9 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
         )
       }
       chout$frq_invalid <- sum(x[!not_0])
-      chout$p_invalid <- stats::pbinom(
-        q = chout$frq_invalid - TOL, ## to make sure >= in pbinom
-        size = n,
-        prob = seg_invalidrate,
-        lower.tail = FALSE)
+      chout$p_invalid <- stats::pbinom(q = n - chout$frq_invalid,
+                                       size = n,
+                                       prob = 1 - seg_invalidrate)
 
       ## weird criterion
       if (pval * p_invalid < chout$p.value * chout$p_invalid) {
