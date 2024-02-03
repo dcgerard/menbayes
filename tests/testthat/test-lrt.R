@@ -110,6 +110,10 @@ test_that("GL qq plot is unif in some cases", {
 
 
 test_that("corner cases", {
+  if (!requireNamespace("polymapR", quietly = TRUE)) {
+    skip("polymapR not installed")
+  }
+
   xmat <- structure(c(4L, 8L, 8L, 9L, 7L, 18L, 8L, 7L, 10L, 1L, 0L, 0L,
 0L, 1L, 1L, 2L, 3L, 4L, 4L, 5L, 3L, 5L, 2L, 6L, 4L, 5L, 3L, 2L,
 2L, 3L, 6L, 5L, 4L, 7L, 10L, 7L, 8L, 8L, 0L, 0L, 7L, 2L, 0L,
