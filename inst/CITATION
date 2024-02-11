@@ -1,0 +1,20 @@
+bibentry(
+  bibtype  = "Article",
+  title    = "Tests for segregation distortion in tetraploid F1 populations",
+  author   = c(person(given  = "David",
+                      family = "Gerard",
+                      email  = "gerard.1787@gmail.com"),
+               person(given  = "Mira",
+                      family = "Thakkar",
+                      email  = "chrtmira@gmail.com"),
+               person(given  = "Luis Felipe V.",
+                      family = "Ferr{\\~a}o",
+                      email  = "lfelipe.ferrao@gmail.com")
+              ),
+  journal  = "bioRxiv",
+  year     = "2024",
+  volume   = "",
+  number   = "",
+  pages    = "",
+  doi      = "10.1101/2024.02.07.579361"
+)

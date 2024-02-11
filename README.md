@@ -31,6 +31,8 @@ assumptions of meiosis. The main functions are:
 - `simf1gl()`: Simulate genotype likelihoods from an F1 population of
   tetraploids.
 
+Details of these methods may be found in Gerard et al. (2024).
+
 ## Installation
 
 You can install the development version of menbayes from
@@ -47,6 +49,12 @@ Please note that the menbayes project is released with a [Contributor
 Code of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.
+
+## References
+
+Gerard D, Thakkar M, & Ferrão LFV (2024). “Tests for segregation
+distortion in tetraploid F1 populations.” *bioRxiv*.
+[doi:10.1101/2024.02.07.579361](https://doi.org/10.1101/2024.02.07.579361).
 
 ## Acknowledgments
 
