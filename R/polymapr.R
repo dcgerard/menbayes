@@ -44,7 +44,7 @@
 #' @author David Gerard
 #'
 #' @export
-polymapr_test <- function(x, g1, g2, type = c("menbayes", "polymapR")) {
+polymapr_test <- function(x, g1 = NULL, g2 = NULL, type = c("menbayes", "polymapR")) {
   type <- match.arg(type)
   if (!requireNamespace("polymapR", quietly = TRUE) && type == "polymapR") {
     stop(
@@ -54,6 +54,10 @@ polymapr_test <- function(x, g1, g2, type = c("menbayes", "polymapR")) {
         "You can install it with install.packages('polymapR')"
         )
       )
+  }
+
+  if ((is.null(g1) | is.null(g2)) && type == "polymapR") {
+    stop("unknown parent genotypes only for type = 'menbayes'")
   }
 
   dat <- NULL
@@ -215,17 +219,16 @@ polymapr_package_gl <- function(gl, g1, g2) {
 #' @author David Gerard
 #'
 #' @noRd
-polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
+polymapr_approx_g <- function(x, g1 = NULL, g2 = NULL, seg_invalidrate = 0.03) {
   ploidy <- 4
   n <- sum(x)
-  stopifnot(
-    length(x) == 5,
-    x >= 0,
-    g1 >= 0,
-    g2 >= 0,
-    g1 <= ploidy,
-    g2 <= ploidy
-  )
+  stopifnot(length(x) == 5, x >= 0)
+  if (!is.null(g1)) {
+    stopifnot(g1 >= 0, g1 <= ploidy)
+  }
+  if (!is.null(g2)) {
+    stopifnot(g2 >= 0, g2 <= ploidy)
+  }
 
   TOL <- sqrt(.Machine$double.eps)
   pval <- 0
@@ -233,29 +236,39 @@ polymapr_approx_g <- function(x, g1, g2, seg_invalidrate = 0.03) {
   bi <- NULL
   frq_invalid <- NULL
   for (i in seq_len(nrow(segtypes))) {
-    is_p <- any((segtypes$pardosage[[i]][, 1] == g1) &
-                  (segtypes$pardosage[[i]][, 2] == g2))
+    if (!is.null(g1) && !is.null(g2)) {
+      is_p <- any((segtypes$pardosage[[i]][, 1] == g1) &
+                    (segtypes$pardosage[[i]][, 2] == g2))
+    } else if (!is.null(g1)) {
+      is_p <- any((segtypes$pardosage[[i]][, 1] == g1))
+    } else if (!is.null(g2)) {
+      is_p <- any((segtypes$pardosage[[i]][, 2] == g2))
+    } else {
+      is_p <- TRUE
+    }
     if (is_p) {
       fq <- segtypes$freq[[i]]
       not_0 <- fq > sqrt(.Machine$double.eps)
-      if (sum(not_0) == 1) {
-        chout <- list(p.value = 1)
-      } else {
-        suppressWarnings(
-          chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
-        )
-      }
-      chout$frq_invalid <- sum(x[!not_0])
-      chout$p_invalid <- stats::pbinom(q = n - chout$frq_invalid,
-                                       size = n,
-                                       prob = 1 - seg_invalidrate)
+      if (any(x[not_0] != 0)) {
+        if (sum(not_0) == 1) {
+          chout <- list(p.value = 1)
+        } else {
+          suppressWarnings(
+            chout <- stats::chisq.test(x = x[not_0], p = fq[not_0])
+          )
+        }
+        chout$frq_invalid <- sum(x[!not_0])
+        chout$p_invalid <- stats::pbinom(q = n - chout$frq_invalid,
+                                         size = n,
+                                         prob = 1 - seg_invalidrate)
 
-      ## weird criterion
-      if (pval * p_invalid < chout$p.value * chout$p_invalid) {
-        pval <- chout$p.value
-        bi <- i
-        frq_invalid <- chout$frq_invalid
-        p_invalid <- chout$p_invalid
+        ## weird criterion
+        if (pval * p_invalid < chout$p.value * chout$p_invalid) {
+          pval <- chout$p.value
+          bi <- i
+          frq_invalid <- chout$frq_invalid
+          p_invalid <- chout$p_invalid
+        }
       }
     }
   }
