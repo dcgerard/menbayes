@@ -285,7 +285,15 @@ ddirmult <- function (x, alpha, lg = FALSE)
 #' @noRd
 marg_alt_g <- function(x, beta = rep(1, length(x)), tol = 1e-2, lg = TRUE, ...) {
   ## hack to account for lots of zeros
-  beta[x <= tol * sum(x)] <- 1e-3
+  cond1 <- x >= tol * sum(x)
+  if (sum(cond1) <= 2) {
+    cond1 <- rep(TRUE, 5)
+  }
+  cond2 <- x >= tol * sum(x) * 2
+  beta[!cond1] <- 1e-3
+  beta[cond1 & !cond2] <- 1 / 3
+
+
   ploidy <- length(x) - 1
   stopifnot(length(x) == length(beta))
   mx <- ddirmult(x = x, alpha = beta, lg = lg)

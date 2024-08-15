@@ -23,6 +23,9 @@ marg_alt_gl <- function(gl, beta = rep(1, 5), tol = 1e-2, lg = TRUE, ...) {
   ## hack to account for lots of zeros
   xest <- table(factor(apply(X = gl, MARGIN = 1, FUN = which.max) - 1, 1:ncol(gl) - 1))
   cond1 <- xest > nrow(gl) * tol
+  if (sum(cond1) <= 2) {
+    cond1 <- rep(TRUE, 5)
+  }
   cond2 <- xest > nrow(gl) * tol * 2
   beta[!cond2] <- 1/3
   gl <- gl[, cond1, drop = FALSE]
