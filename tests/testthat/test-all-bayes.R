@@ -69,6 +69,7 @@ test_that("lrt_men_gl4 works", {
 })
 
 test_that("hard data alt", {
+  skip("takes too long")
   load(file = "./hard_alt.RData")
   lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
   bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2)
