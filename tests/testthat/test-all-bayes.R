@@ -80,4 +80,17 @@ test_that("hard data alt", {
   bout <- bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1)
   lout$p_value
   bout$lbf
+
+  g1 <- 0
+  g2 <- 1
+  x <- simf1g(n = 100, g1 = g1, g2 = g2, alpha = 0, xi1 = 1/3, xi2 = 1/3)
+  gl <- simf1gl(n = 100, g1 = g1, g2 = g2, alpha = 0, xi1 = 1/3, xi2 = 1/3)
+  lout <- lrt_men_g4(x = x, g1 = g1, g2 = g2)
+  bout <- bayes_men_g4(x = x, g1 = g1, g2 = g2)
+  lout$p_value
+  bout$lbf
+  lout <- lrt_men_gl4(gl = gl, g1 = g1, g2 = g2)
+  bout <- bayes_men_gl4(gl = gl, g1 = g1, g2 = g2, chains = 1)
+  lout$p_value
+  bout$lbf
 })
