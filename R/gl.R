@@ -6,6 +6,7 @@
 #'
 #' @inheritParams marg_f1_dr_pp_gl4
 #' @param beta The vector of hyperparameters.
+#' @param tol Change prior based on number of 0's
 #'
 #' @return The marginal likelihood.
 #'
@@ -17,7 +18,16 @@
 #' marg_alt_gl(gl = gl, chains = 1)
 #'
 #' @noRd
-marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
+marg_alt_gl <- function(gl, beta = rep(1, 5), tol = 1e-2, lg = TRUE, ...) {
+
+  ## hack to account for lots of zeros
+  xest <- table(factor(apply(X = gl, MARGIN = 1, FUN = which.max) - 1, 1:ncol(gl) - 1))
+  cond1 <- xest > nrow(gl) * tol
+  cond2 <- xest > nrow(gl) * tol * 2
+  beta[!cond2] <- 1/3
+  gl <- gl[, cond1, drop = FALSE]
+  beta <- beta[cond1]
+
   ploidy <- ncol(gl) - 1
   nind <- nrow(gl)
   stopifnot(ncol(gl) == length(beta))

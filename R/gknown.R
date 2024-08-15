@@ -271,6 +271,7 @@ ddirmult <- function (x, alpha, lg = FALSE)
 #' @param x The genotype counts
 #' @param beta The prior hyperparameters
 #' @param lg A logical. Should we log the marginal likelihood or not?
+#' @param tol Change prior based on number of 0's.
 #' @param ... Additional arguments to pass to \code{\link[rstan]{sampling}()}.
 #'
 #' @return The marginal likelihood.
@@ -282,7 +283,9 @@ ddirmult <- function (x, alpha, lg = FALSE)
 #' marg_alt_g(x = x, chains = 1)
 #'
 #' @noRd
-marg_alt_g <- function(x, beta = rep(1, length(x)), lg = TRUE, ...) {
+marg_alt_g <- function(x, beta = rep(1, length(x)), tol = 1e-2, lg = TRUE, ...) {
+  ## hack to account for lots of zeros
+  beta[x <= tol * sum(x)] <- 1e-3
   ploidy <- length(x) - 1
   stopifnot(length(x) == length(beta))
   mx <- ddirmult(x = x, alpha = beta, lg = lg)
