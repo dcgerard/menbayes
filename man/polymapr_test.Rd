@@ -4,7 +4,7 @@
 \alias{polymapr_test}
 \title{Run segregation distortion tests as implemented in the polymapR package.}
 \usage{
-polymapr_test(x, g1, g2, type = c("menbayes", "polymapR"))
+polymapr_test(x, g1 = NULL, g2 = NULL, type = c("menbayes", "polymapR"))
 }
 \arguments{
 \item{x}{Either a vector of genotype counts, or a matrix of genotype
