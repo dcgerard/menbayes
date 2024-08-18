@@ -17,7 +17,7 @@
 #' marg_alt_gl(gl = gl, chains = 1)
 #'
 #' @noRd
-marg_alt_gl <- function(gl, beta = rep(1, 5), lg = TRUE, ...) {
+marg_alt_gl <- function(gl, beta = rep(1/2, 5), lg = TRUE, ...) {
   ploidy <- ncol(gl) - 1
   nind <- nrow(gl)
   stopifnot(ncol(gl) == length(beta))

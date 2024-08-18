@@ -222,7 +222,7 @@ is_impossible <- function(x, g1, g2, dr = TRUE) {
 #' Stan version of marg_alt_g(). Not to be used.
 #'
 #' @noRd
-marg_alt_g_stan <- function(x, beta = rep(1, length(x)), lg = TRUE, ...) {
+marg_alt_g_stan <- function(x, beta = rep(1/2, length(x)), lg = TRUE, ...) {
   ploidy <- length(x) - 1
   stopifnot(length(x) == length(beta))
   stan_dat <- list(K = ploidy, x = x, beta = beta)
@@ -282,7 +282,7 @@ ddirmult <- function (x, alpha, lg = FALSE)
 #' marg_alt_g(x = x, chains = 1)
 #'
 #' @noRd
-marg_alt_g <- function(x, beta = rep(1, length(x)), lg = TRUE, ...) {
+marg_alt_g <- function(x, beta = rep(1/2, length(x)), lg = TRUE, ...) {
   ploidy <- length(x) - 1
   stopifnot(length(x) == length(beta))
   mx <- ddirmult(x = x, alpha = beta, lg = lg)
