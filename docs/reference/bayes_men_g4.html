@@ -6,7 +6,7 @@ segregation distortion. This is when the genotypes are assumed known."><!-- math
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -20,7 +20,7 @@ segregation distortion. This is when the genotypes are assumed known."><!-- math
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">menbayes</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.1</span>
       </span>
     </div>
 
@@ -31,7 +31,7 @@ segregation distortion. This is when the genotypes are assumed known."><!-- math
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -41,14 +41,14 @@ segregation distortion. This is when the genotypes are assumed known."><!-- math
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/dcgerard/menbayes/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -86,79 +86,79 @@ segregation distortion. This is when the genotypes are assumed known.</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>x</dt>
+
+
+<dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A vector of genotype counts. <code>x[i]</code> is the number of
 offspring with genotype <code>i-1</code>.</p></dd>
 
 
-<dt>g1</dt>
+<dt id="arg-g-">g1<a class="anchor" aria-label="anchor" href="#arg-g-"></a></dt>
 <dd><p>The genotype of parent 1.</p></dd>
 
 
-<dt>g2</dt>
+<dt id="arg-g-">g2<a class="anchor" aria-label="anchor" href="#arg-g-"></a></dt>
 <dd><p>The genotype of parent 2.</p></dd>
 
 
-<dt>drbound</dt>
+<dt id="arg-drbound">drbound<a class="anchor" aria-label="anchor" href="#arg-drbound"></a></dt>
 <dd><p>The maximum rate of double reduction. A default of 1/6
 is provided, which is the rate under the complete equational
 segregation model of meiosis.</p></dd>
 
 
-<dt>shape1</dt>
+<dt id="arg-shape-">shape1<a class="anchor" aria-label="anchor" href="#arg-shape-"></a></dt>
 <dd><p>The shape 1 parameter for the beta prior over the
 preferential pairing parameter.</p></dd>
 
 
-<dt>shape2</dt>
+<dt id="arg-shape-">shape2<a class="anchor" aria-label="anchor" href="#arg-shape-"></a></dt>
 <dd><p>The shape 2 parameter for the beta prior over the
 preferential pairing parameter.</p></dd>
 
 
-<dt>ts1</dt>
+<dt id="arg-ts-">ts1<a class="anchor" aria-label="anchor" href="#arg-ts-"></a></dt>
 <dd><p>The shape 1 parameter for the beta prior over the
 rate of quadrivalent formation.</p></dd>
 
 
-<dt>ts2</dt>
+<dt id="arg-ts-">ts2<a class="anchor" aria-label="anchor" href="#arg-ts-"></a></dt>
 <dd><p>The shape 2 parameter for the beta prior over the
 rate of quadrivalent formation.</p></dd>
 
 
-<dt>pp</dt>
+<dt id="arg-pp">pp<a class="anchor" aria-label="anchor" href="#arg-pp"></a></dt>
 <dd><p>A logical. Should we account for preferential pairing
 (<code>TRUE</code>) or not (<code>FALSE</code>)?</p></dd>
 
 
-<dt>dr</dt>
+<dt id="arg-dr">dr<a class="anchor" aria-label="anchor" href="#arg-dr"></a></dt>
 <dd><p>A logical. Should we account for double reduction
 (<code>TRUE</code>) or not (<code>FALSE</code>)?</p></dd>
 
 
-<dt>xi1</dt>
+<dt id="arg-xi-">xi1<a class="anchor" aria-label="anchor" href="#arg-xi-"></a></dt>
 <dd><p>If <code>pp = FALSE</code>, then <code>xi</code> is the known rate of
 preferential pairing (assumed fixed) of parent 1.</p></dd>
 
 
-<dt>xi2</dt>
+<dt id="arg-xi-">xi2<a class="anchor" aria-label="anchor" href="#arg-xi-"></a></dt>
 <dd><p>If <code>pp = FALSE</code>, then <code>xi</code> is the known rate of
 preferential pairing (assumed fixed) of parent 2.</p></dd>
 
 
-<dt>alpha</dt>
+<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
 <dd><p>If <code>dr = FALSE</code>, then <code>alpha</code> is the known rate of
 double reduction (assumed fixed).</p></dd>
 
 
-<dt>...</dt>
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments to pass to Stan.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A list with the following elements</p><dl><dt><code>lbf</code></dt>
+    <p>A list with the following elements</p><dl><dt><code>lbf</code></dt>
 <dd><p>The log Bayes Factor.</p></dd>
 
 <dt><code>m0</code></dt>
@@ -180,7 +180,7 @@ double reduction (assumed fixed).</p></dd>
 </dl></div>
     <div id="impossible-genotypes">
     <h2>Impossible genotypes</h2>
-    
+
 
 <p>Some offspring genotype combinations are impossible given the parental
 gentoypes. If these impossible genotypes combinations show up, we return a
@@ -206,7 +206,7 @@ complicated.</p>
     </div>
     <div id="unidentified-parameters">
     <h2>Unidentified parameters</h2>
-    
+
 
 <p>When <code>g1 = 2</code> or <code>g2 = 2</code> (or both), the model is not identified
 and those estimates (<code>alpha</code>, <code>xi1</code>, and <code>xi2</code>) are
@@ -230,8 +230,8 @@ variance.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> SAMPLING FOR MODEL 'marg_dr_pp_g4' NOW (CHAIN 1).</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Gradient evaluation took 0.000166 seconds</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1.66 seconds.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Gradient evaluation took 0.0001 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Adjust your expectations accordingly!</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
@@ -248,27 +248,27 @@ variance.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 900 / 1000 [ 90%]  (Sampling)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: Iteration: 1000 / 1000 [100%]  (Sampling)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:  Elapsed Time: 0.109 seconds (Warm-up)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                0.096 seconds (Sampling)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                0.205 seconds (Total)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:  Elapsed Time: 0.323 seconds (Warm-up)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                0.265 seconds (Sampling)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1:                0.588 seconds (Total)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Chain 1: </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $lbf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.220833</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.618824</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $m0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -6.050226</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -6.045269</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ma</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -9.271059</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -9.664093</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04813376</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.04973703</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $xi1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2970489</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3007537</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $xi2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3035922</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.301761</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -285,15 +285,15 @@ variance.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

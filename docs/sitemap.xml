@@ -1,102 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/CODE_OF_CONDUCT.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/articles/intro.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/bayes_men_g4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/bayes_men_gl4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/chisq_g4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/chisq_gl4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/em_li.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gcount_to_gvec.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/like_gknown_2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/like_gknown_3.html</loc>
-  </url>
-  <url>
-    <loc>/reference/like_glpknown_2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/like_glpknown_3.html</loc>
-  </url>
-  <url>
-    <loc>/reference/llike_li.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lrt_men_g4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/lrt_men_gl4.html</loc>
-  </url>
-  <url>
-    <loc>/reference/menbayes-package.html</loc>
-  </url>
-  <url>
-    <loc>/reference/offspring_geno.html</loc>
-  </url>
-  <url>
-    <loc>/reference/offspring_gf_2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/offspring_gf_3.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_beta.html</loc>
-  </url>
-  <url>
-    <loc>/reference/po_gl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/polymapr_test.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pvec_tet_2.html</loc>
-  </url>
-  <url>
-    <loc>/reference/pvec_tet_3.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simf1g.html</loc>
-  </url>
-  <url>
-    <loc>/reference/simf1gl.html</loc>
-  </url>
-  <url>
-    <loc>/reference/three_to_two.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/articles/intro.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/bayes_men_g4.html</loc></url>
+<url><loc>/reference/bayes_men_gl4.html</loc></url>
+<url><loc>/reference/chisq_g4.html</loc></url>
+<url><loc>/reference/chisq_gl4.html</loc></url>
+<url><loc>/reference/em_li.html</loc></url>
+<url><loc>/reference/gcount_to_gvec.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/like_gknown_2.html</loc></url>
+<url><loc>/reference/like_gknown_3.html</loc></url>
+<url><loc>/reference/like_glpknown_2.html</loc></url>
+<url><loc>/reference/like_glpknown_3.html</loc></url>
+<url><loc>/reference/llike_li.html</loc></url>
+<url><loc>/reference/lrt_men_g4.html</loc></url>
+<url><loc>/reference/lrt_men_gl4.html</loc></url>
+<url><loc>/reference/menbayes-package.html</loc></url>
+<url><loc>/reference/offspring_geno.html</loc></url>
+<url><loc>/reference/offspring_gf_2.html</loc></url>
+<url><loc>/reference/offspring_gf_3.html</loc></url>
+<url><loc>/reference/plot_beta.html</loc></url>
+<url><loc>/reference/po_gl.html</loc></url>
+<url><loc>/reference/polymapr_test.html</loc></url>
+<url><loc>/reference/pvec_tet_2.html</loc></url>
+<url><loc>/reference/pvec_tet_3.html</loc></url>
+<url><loc>/reference/simf1g.html</loc></url>
+<url><loc>/reference/simf1gl.html</loc></url>
+<url><loc>/reference/three_to_two.html</loc></url>
 </urlset>
+
