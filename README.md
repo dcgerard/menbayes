@@ -32,7 +32,7 @@ assumptions of meiosis. The main functions are:
 - `simf1gl()`: Simulate genotype likelihoods from an F1 population of
   tetraploids.
 
-Details of these methods may be found in Gerard et al. (2024).
+Details of these methods may be found in Gerard et al. (2025).
 
 ## Installation
 
@@ -53,9 +53,10 @@ By contributing to this project, you agree to abide by its terms.
 
 ## References
 
-Gerard D, Thakkar M, & Ferrão LFV (2024). “Tests for segregation
-distortion in tetraploid F1 populations.” *bioRxiv*.
-[doi:10.1101/2024.02.07.579361](https://doi.org/10.1101/2024.02.07.579361).
+Gerard D, Thakkar M, & Ferrão LFV (2025). “Tests for segregation
+distortion in tetraploid F1 populations.” *Theoretical and Applied
+Genetics*, *138*(30), p. 1–13.
+[doi:10.1007/s00122-025-04816-z](https://doi.org/10.1007/s00122-025-04816-z).
 
 ## Acknowledgments
 
